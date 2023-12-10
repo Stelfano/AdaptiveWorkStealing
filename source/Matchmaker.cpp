@@ -1,67 +1,9 @@
+#include "utils.hpp"
 #include "Matchmaker.hpp"
 #include "mpi.h"
 #include <iostream>
-#include <chrono>
-#include <ctime>
-
-/**
- * @def OVERWORK 
- * Segnala status di overworking, in questo stato un worker non può essere target di work stealing (non può ricevere altri dati), non appena questo status è segnalato viene
- * invocata una procedura per determinare un target a cui dare parte del lavoro del nodo sovraccarico
- */
-
-
-/**
- * @def STABLE
- * Segnala status di stable, in questo stato un worker non può essere vittima o target di una procedura di work stealing, il nodo è interamente occupato ad
- * elaborare e computare i dati attuali
- * 
- */
-
-
-/**
- * @def UNDERWORK
- * Segnala status di underwork, in questo stato un worker può essere target di work stealing, viene fatto ciò per evitare che il worker tocchi lo stato di 
- * IDLE che cerchiamo di evitare a tutti i costi per sfruttare al massimo il sistema
- * 
- */
-
-
-/**
- * @def IDLE
- * Segnala status di Idle, in questo stato un worker deve essere target di work stealing al più presto per massimizzare le prestazioni, quando un core raggiunge
- * questo stato viene invocata la procedura del targeting e viene data priorità al targeting verso core Idle
- * 
- */
-
-
-/**
- * @def IDLE
- * Segnala status di Idle, in questo stato un worker deve essere target di work stealing al più presto per massimizzare le prestazioni, quando un core raggiunge
- * questo stato viene invocata la procedura del targeting e viene data priorità al targeting verso core Idle
- * 
- */
-/**
- * @def DATA
- * Tag utilizzato nei messaggi per segnalare al worker che i dati contenuti nel messaggio sono dati computazionali e non messaggi di stato sul sistema
- * 
- */
-/**
- * @def METRICS
- * Tag utilizzato per indicare che il contenuto dei messaggi è un aggiornamento sulle metriche di sistema
- * 
- */
-#define OVERWORK 1 
-#define STABLE 2
-#define UNDERWORK 3
-#define IDLE 4
-#define DATA 5
-#define AVERAGE 6
-#define THRESHOLD 7
 
 using namespace std;
-
-
 
 /**
  * @brief Rappresenta il ciclo di operazione principale del Matchmaker
@@ -88,7 +30,6 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 	int last_victim = 0;
 	int last_target = 0;
 
-	start = std::chrono::system_clock::now();
 
 	//Inizializzazione dei valori da inviare ad ogni worker
 	for(int i = 0;i<num_proc-1;i++){
@@ -102,7 +43,7 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 
 		stat = waitControlMessages(&local_flag);	//Si riceve nella variabile local_flag il valore sulla media locale del singolo nodo
 		if(stat.MPI_TAG == OVERWORK){
-			calculate_time(start);
+			calculate_time();
 			cout << "CORE : " << stat.MPI_SOURCE << " IS OVERWORKED" << endl;
 			tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;		//Aggiorno il tag di status del nodo worker
 			valueArray[stat.MPI_SOURCE-1] = local_flag;		//Aggiorno il valore di elementi del nodo worker
@@ -112,13 +53,13 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 
 			if(reciever != -1){
 				checkForDoubleSteal(&threshold, &last_victim, &last_target, stat.MPI_SOURCE, reciever, num_proc);
-				calculate_time(start);
+				calculate_time();
 				cout << "CORE : " << stat.MPI_SOURCE << " SHOULD LET ITS DATA BE STOLEN FROM : " << reciever << endl;
 			}
 		}
 
 		if(stat.MPI_TAG == STABLE){
-			calculate_time(start);
+			calculate_time();
 			cout << "CORE : " << stat.MPI_SOURCE << " IS STABLE" << endl;
 			tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;
 			valueArray[stat.MPI_SOURCE-1] = local_flag;
@@ -127,7 +68,7 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 		}
 
 		if(stat.MPI_TAG == UNDERWORK){
-			calculate_time(start);
+			calculate_time();
 			cout << "CORE : " << stat.MPI_SOURCE << " IS UNDERWORKED" << endl;
 			tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;
 			valueArray[stat.MPI_SOURCE-1] = local_flag;
@@ -137,13 +78,13 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 
 			if(target != -1){
 				checkForDoubleSteal(&threshold, &last_victim, &last_target, target, stat.MPI_SOURCE, num_proc);
-				calculate_time(start);
+				calculate_time();
 				cout << "CORE : " << stat.MPI_SOURCE << " SHOULD STEAL FROM " << target << endl;
 			}
 		}
 
 		if(stat.MPI_TAG == IDLE){
-			calculate_time(start);
+			calculate_time();
 			cout << "CORE : " << stat.MPI_SOURCE << " IS IDLE!" << endl;
 			tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;
 			valueArray[stat.MPI_SOURCE-1] = local_flag;
@@ -151,7 +92,7 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 			threshold -= 50; 		//Penalità per core IDLE
 			notifyThreshold(&threshold, num_proc);
 
-			calculate_time(start);
+			calculate_time();
 			cout << "TRESHOLD DECREASES TO : " << threshold << endl;
 			updateAverage(&local_average, num_proc-1, valueArray);
 			notifyAverage(&local_average, stat.MPI_SOURCE);
@@ -159,13 +100,13 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 
 			if(target != -1){
 				checkForDoubleSteal(&threshold, &last_victim, &last_target, target, stat.MPI_SOURCE, num_proc);
-				calculate_time(start);
+				calculate_time();
 				cout << "CORE : " << stat.MPI_SOURCE << " SHOULD IMMEDIATLY STEAL FROM " << target << endl;
 			}
 		}
 
 		if(stat.MPI_TAG == DATA){
-			calculate_time(start);
+			calculate_time();
 			cout << "FINAL DATA RECIEVED FROM A PROCESS" << endl;
 			*global_result += local_flag;
 			terminated_processes++;
@@ -224,7 +165,7 @@ int checkTermination(int* tagArray, int num_proc){
  */
 int findPossibleTarget(int *tagArray, int num_proc, int victim){
 	
-	calculate_time(start);
+	calculate_time();
 	cout << "TAG ARRAY : ";
 	for(int i = 0;i < num_proc; i++){
 		cout << tagArray[i] << " ";
@@ -250,7 +191,7 @@ int findPossibleTarget(int *tagArray, int num_proc, int victim){
  * @return int Indice della ricevente di work stealing
  */
 int findPossibleReciever(int* tagArray, int num_proc, int target){
-	calculate_time(start);
+	calculate_time();
 	cout << "TAG ARRAY : ";
 	for(int i = 0;i < num_proc; i++){
 		cout << tagArray[i] << " ";
@@ -286,7 +227,7 @@ void updateAverage(float * local_average, int num_proc, int * valueArray){
 	}
 
 	*local_average = ((float)local_sum)/num_proc;
-	calculate_time(start);
+	calculate_time();
 	cout << "MATCHMAKER DECLARES NEW AVERAGE AT : " << *local_average << endl;
 }
 
@@ -299,14 +240,14 @@ void updateAverage(float * local_average, int num_proc, int * valueArray){
 void notifyAverage(float * local_average, int reciever){
 	MPI_Request req;
 	
-	calculate_time(start);
+	calculate_time();
 	cout << "MATCHMAKER UPDATING METRICS TO : " << reciever << endl;
 	MPI_Send(local_average, 1, MPI_FLOAT, reciever, AVERAGE, MPI_COMM_WORLD);
 }
 
 void notifyThreshold(int * threshold, int num_proc){
 
-	calculate_time(start);
+	calculate_time();
 	cout << "SENDING THRESHOLD UPDATE TO ALL WORKERS" << endl;
 	
 	for(int i = 0;i<num_proc-1;i++){
@@ -329,16 +270,11 @@ void notifyThreshold(int * threshold, int num_proc){
 void checkForDoubleSteal(int * threshold, int * last_victim, int * last_target, int current_victim, int current_target, int num_proc){
 	if(current_victim == *last_victim && current_target == *last_target){
 		*threshold += 5;
-		calculate_time(start);
+		calculate_time();
 		cout << "NEW THRESHOLD SET T0 : " << *threshold << endl;
 		notifyThreshold(threshold, num_proc);
 	}
 
 	*last_victim = current_victim;
 	*last_target = current_target;
-}
-
-void calculate_time(std::chrono::time_point<std::chrono::system_clock> start){
-	std::chrono::duration<double> elapsed = std::chrono::system_clock::now() - start;
-	cout << elapsed.count() << "s ";
 }
