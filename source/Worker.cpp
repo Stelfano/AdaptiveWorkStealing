@@ -5,6 +5,7 @@
 #include <random>
 #include <cstdlib>
 #include <thread>
+#include <atomic>
 
 
 using namespace std;
@@ -56,33 +57,42 @@ int local_reduction(vector<int> *buffer, float start_average, int start_treshold
 	bool sentFlag = false;
 	float local_average = start_average;
 	int threshold = start_treshold;
+	atomic<bool> done = false;
 
+	calculate_time();
+	cout << "WORKER THRESHOLD BEGINS AT : " << start_treshold << endl;
 	random_device random_dev;
 	thread status_thread;
 	thread reciever_thread;
 	default_random_engine random_eng(random_dev());
-	uniform_int_distribution<int> uniform_dist(0, 2);
+	uniform_int_distribution<int> uniform_dist(0, 0);
 
 	//Qui si lanciano i thread
-	status_thread = thread(sendStatusFunction, buffer, &local_average, &threshold);
-	reciever_thread = thread(recieveMessageFromMatchmaker, &local_average, &threshold);
+	status_thread = thread(sendStatusFunction, buffer, &local_average, &threshold, &done);
+	reciever_thread = thread(recieveMessageFromMatchmaker, &local_average, &threshold, &done);
 
 	int accumulated_result = 0;
+	
 	calculate_time();
 	cout << "BUFFER SIZE : " << buffer->size() << endl;
 
 	int buffer_size;
 
-	while(buffer->size() != 0){
-		accumulated_result += buffer->back();
-		buffer->pop_back();
+	while(!done){
+		if(buffer->size() > 0){
+			accumulated_result += buffer->back();
+			buffer->pop_back();
 
-		int val = uniform_dist(random_eng);
-		probabilityIncreaseVectorSize(buffer, val);
+			//calculate_time();
+			//cout << "BUFFER SIZE: " << buffer->size() << endl;
+
+			int val = uniform_dist(random_eng);
+			probabilityIncreaseVectorSize(buffer, val);
+		}
 	}
 
-	local_average = 0;
-	threshold = 0;
+	calculate_time();
+	cout << "LOCAL REDUCTION HAS ENDED!" << endl;
 	status_thread.join();
 	reciever_thread.join();
 		
@@ -99,72 +109,86 @@ int local_reduction(vector<int> *buffer, float start_average, int start_treshold
  * @param local_average Media locale da comunicare al matchmaker
  * @param threshold Threshold usato per indicare lo stato al matchmaker
  */
-void sendStatusFunction(vector<int> * buffer, float * local_average, int * threshold){
-	int buffer_size = buffer->size();
-	bool sentFlag = false;
+void sendStatusFunction(vector<int> * buffer, float * local_average, int * threshold, atomic<bool> *done){
+	bool sentFlag[4] = {0, 0, 0, 0};
 
-	while(*local_average != 0 && *threshold != 0){	
-		buffer_size = buffer->size();
+	while(!(*done)){	
+		int buffer_size = buffer->size();
 
-		if(buffer->size() > (*local_average - *threshold) && sentFlag == false){
+		if(buffer_size > (*local_average + *threshold) && sentFlag[3] == false){
 			declareStatus(&buffer_size, OVERWORK);
-			sentFlag = true;
+			sentFlag[3] = true;
+
+			sentFlag[2] = false;
+			sentFlag[1] = false;
+			sentFlag[0] = false;
 		}
 
-		if(buffer->size() < (*local_average + *threshold) && buffer->size() > (*local_average - *threshold) && sentFlag == true){
+		if(buffer_size <= (*local_average + *threshold) && buffer_size >= (*local_average - *threshold) && sentFlag[2] == false){
 			declareStatus(&buffer_size, STABLE);
-			sentFlag = false;
+			sentFlag[2] = true;
+
+			sentFlag[3] = false;
+			sentFlag[1] = false;
+			sentFlag[0] = false;
 		}
 
-		if(buffer->size() < (*local_average - *threshold) && sentFlag == false){
+		if(buffer_size < (*local_average - *threshold) && sentFlag[1] == false && buffer_size != 0){
 			declareStatus(&buffer_size, UNDERWORK);
-			sentFlag = true;
+			sentFlag[1] = true;
+
+			sentFlag[3] = false;
+			sentFlag[2] = false;
+			sentFlag[0] = false;
 		}
 
-		if(buffer->size() == 0 && sentFlag == true){
+		if(buffer_size == 0 && sentFlag[0] == false){
+			calculate_time();
+			cout << "I AM IDLE!" << endl;
+			buffer_size = 0;
 			declareStatus(&buffer_size, IDLE);
-			sentFlag = false;
+			sentFlag[0] = true;
+
+			sentFlag[3] = false;
+			sentFlag[2] = false;
+			sentFlag[1] = false;
+
 		}
 	}
+
+	calculate_time();
+	cout << "SENDER THREAD TERMINATING" << endl;
 }
 
 //Funzione per la ricezione delle metriche da parte del matchmaker
-void recieveMessageFromMatchmaker(float * local_average, int * threshold){
+void recieveMessageFromMatchmaker(float * local_average, int * threshold, atomic<bool> *done){
 	MPI_Request request;
 	MPI_Status stat1;
 	MPI_Status stat2;
 	int flag = false;
 	float bufferAvg;
-	int bufferThreshold;
 
 	calculate_time();
 	cout << "STARTING RECIEVER THREAD IN WORKER" << endl;
 
 	MPI_Recv(&bufferAvg, 1, MPI_FLOAT, 0, AVERAGE, MPI_COMM_WORLD, &stat1);
-	MPI_Recv(&bufferThreshold, 1, MPI_INT, 0, THRESHOLD, MPI_COMM_WORLD, &stat2);
 
-	while(bufferAvg != 0 && bufferThreshold != 0){
+	while(bufferAvg > 0){
 
 		*local_average = bufferAvg;
-
- 		*threshold = bufferThreshold;
 		
-
 		calculate_time();
 		cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat1.MPI_TAG << " WITH VALUE : " << bufferAvg << endl;
-		calculate_time();
-		cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat2.MPI_TAG << " WITH VALUE : " << bufferThreshold << endl;
-		calculate_time();
-		cout << "WORKER DECLARES THRESHOLD AT : " << *threshold << endl;
-		calculate_time();
-		cout << "WORKER DECLARES AVERAGE AT : " << *local_average << endl;
-		//Successivamente aggiungere il caso sul work stealing
 		MPI_Recv(&bufferAvg, 1, MPI_FLOAT, 0, AVERAGE, MPI_COMM_WORLD, &stat1);
-		MPI_Recv(&bufferThreshold, 1, MPI_INT, 0, THRESHOLD, MPI_COMM_WORLD, &stat2);
+		cout << "WAITING TO RECIEVE METRIC" << endl; 
 
-
-		flag = false;
+		if(bufferAvg == 0)
+			break;
 	}
+
+	*done = true;
+	calculate_time();
+	cout << "SETTING ENDING FLAG TO : " << *done << endl;
 
 	calculate_time();
 	cout << "CLOSING RECIEVE THREAD" << endl;

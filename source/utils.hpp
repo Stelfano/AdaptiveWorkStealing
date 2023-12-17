@@ -1,4 +1,5 @@
 #include <chrono>
+#include <mpi.h>
 #include <ctime>
 #include <iostream>
 #pragma once

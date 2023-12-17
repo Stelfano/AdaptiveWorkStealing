@@ -38,7 +38,7 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 	}
 
 	while(true){
-		if(terminated_processes == num_proc-1)
+		if(local_average <= 0)
 			break;
 
 		stat = waitControlMessages(&local_flag);	//Si riceve nella variabile local_flag il valore sulla media locale del singolo nodo
@@ -89,32 +89,40 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 			tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;
 			valueArray[stat.MPI_SOURCE-1] = local_flag;
 
-			threshold -= 50; 		//Penalità per core IDLE
-			notifyThreshold(&threshold, num_proc);
+			//threshold -= 50; 		//Penalità per core IDLE
+			//notifyThreshold(&threshold, num_proc);
 
 			calculate_time();
 			cout << "TRESHOLD DECREASES TO : " << threshold << endl;
-			updateAverage(&local_average, num_proc-1, valueArray);
+			updateAverage(&local_average, num_proc, valueArray);
 			notifyAverage(&local_average, stat.MPI_SOURCE);
 			int target = findPossibleTarget(tagArray, num_proc-1, stat.MPI_SOURCE-1);
 
 			if(target != -1){
-				checkForDoubleSteal(&threshold, &last_victim, &last_target, target, stat.MPI_SOURCE, num_proc);
+				//checkForDoubleSteal(&threshold, &last_victim, &last_target, target, stat.MPI_SOURCE, num_proc);
 				calculate_time();
 				cout << "CORE : " << stat.MPI_SOURCE << " SHOULD IMMEDIATLY STEAL FROM " << target << endl;
 			}
 		}
-
-		if(stat.MPI_TAG == DATA){
-			calculate_time();
-			cout << "FINAL DATA RECIEVED FROM A PROCESS" << endl;
-			*global_result += local_flag;
-			terminated_processes++;
-		}
 	}		
 
 	threshold = 0;
-	notifyThreshold(&threshold, num_proc);
+	local_average = 0;
+	for(int i = 0;i < num_proc-1; i++){
+		notifyAverage(&local_average, i+1);
+	}
+
+	for(int i = 0;i<num_proc-1;i++){
+		MPI_Recv(&local_flag, 1, MPI_INT, MPI_ANY_SOURCE, DATA, MPI_COMM_WORLD, &stat);
+		*global_result += local_flag;
+
+		calculate_time();
+		cout << "FINAL DATA RECIEVED FROM PROCESS " << stat.MPI_SOURCE << " OF VALUE : " << local_flag << endl;
+	}
+	calculate_time();
+	cout << "GLOBAL RESULT : " << *global_result << endl;
+
+	//notifyThreshold(&threshold, num_proc);
 }
 
 /**
@@ -187,7 +195,7 @@ int findPossibleTarget(int *tagArray, int num_proc, int victim){
  * 
  * @param tagArray Contiene il tag dei nodi worker
  * @param num_proc Contiene il numero dei processi attivi sotto il matchmaker
- * @param victim Contiene l'indice della vittima per evitare che si generino errori
+ * @param target Contiene l'indice della vittima per evitare che si generino errori
  * @return int Indice della ricevente di work stealing
  */
 int findPossibleReciever(int* tagArray, int num_proc, int target){
@@ -202,7 +210,7 @@ int findPossibleReciever(int* tagArray, int num_proc, int target){
 	cout << endl;
 
 	for(int i = 0;i < num_proc; i++){
-		if(tagArray[i] == OVERWORK && i != target)
+		if(tagArray[i] == UNDERWORK && i != target)
 			return i+1;
 	}
 
@@ -220,13 +228,21 @@ int findPossibleReciever(int* tagArray, int num_proc, int target){
  * @param valueArray Contiene i valori di media forniti dai worker sottostanti
  */
 void updateAverage(float * local_average, int num_proc, int * valueArray){
-	int local_sum = 0;
+	float local_sum = 0;
 
-	for(int i = 0;i<num_proc;i++){
+	calculate_time();
+	cout << "VALUES : ";
+	for(int i = 0;i<num_proc-1;i++){
+		cout << valueArray[i] <<  " ";
 		local_sum += valueArray[i];
 	}
 
-	*local_average = ((float)local_sum)/num_proc;
+	cout << endl;
+	calculate_time();
+	cout << "LOCAL SUM : " << local_sum << endl;
+
+
+	*local_average = local_sum/(num_proc-1);
 	calculate_time();
 	cout << "MATCHMAKER DECLARES NEW AVERAGE AT : " << *local_average << endl;
 }

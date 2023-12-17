@@ -13,7 +13,7 @@
  */
 
 #include <iostream>
-#include "mpi.h"
+#include <mpi.h>
 #include "Worker.hpp"
 #include "Matchmaker.hpp"
 #include "utils.hpp"
@@ -27,7 +27,6 @@
 #define IDLE 4
 #define DATA 5
 
-
 using namespace std;
 
 std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
@@ -40,7 +39,7 @@ freopen("log.txt", "w", stdout);
 
 MPI_Init_thread(&argc, &args, MPI_THREAD_MULTIPLE, &provided);
 
-int dim = 65532;
+int dim = 65536;
 int num_proc;
 int task_id;
 
@@ -56,9 +55,12 @@ int global_result = 0;
 int sendArray[num_proc];
 int dispArray[num_proc];
 bool sentFlag = false;
+int *test_buffer = new int[100];
 
 float local_average;
 int threshold;
+
+MPI_Barrier(MPI_COMM_WORLD);
 
 if(task_id == 0){
 
@@ -84,26 +86,32 @@ if(task_id == 0){
 	local_average = chunk_size;
 	threshold = 100;
 
+	vector<int> *vector_buffer = new vector<int>(recv_buffer, recv_buffer + chunk_size);
+
 	if(task_id == 0){
 		matchmakerMainLoop(num_proc, &global_result, chunk_size);
 	}else{
-		vector<int> vector_buffer(recv_buffer, recv_buffer + chunk_size);
 		calculate_time();
 		cout << "PROCESSOR : " << task_id << " BEGIN REDUCTION" << endl;
-		local_result = local_reduction(&vector_buffer, local_average, threshold);
+		local_result = local_reduction(vector_buffer, local_average, threshold);
 		calculate_time();
 		cout << "PROCESSOR : " << task_id << " COMPUTATION ENDED, GOING IDLE WITH RESULT : " << local_result << endl;
 	}
 
+
 	if(task_id != 0){
 		MPI_Send(&local_result, 1, MPI_INT, 0, DATA, MPI_COMM_WORLD);
 		calculate_time();
-		cout << "FINAL VALUE SENT!" << endl;
+		cout <<"PROCESSOR : " << task_id << " FINAL VALUE OF : " << local_result << " SENT!" << endl;
 	}
+
+	calculate_time();
+	cout << "PROCESSOR: " << task_id << " ARRIVED AT BARRIER" << endl;
+	MPI_Barrier(MPI_COMM_WORLD);
 
 	if(task_id == 0){
 		calculate_time();
-		cout << "PROCESS ENDED WITH RESULT : " << global_result << endl;
+		cout << "TOTAL REDUCTION ENDED WITH RESULT : " << global_result << endl;
 	}
 
 	calculate_time();
