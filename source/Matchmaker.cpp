@@ -2,6 +2,7 @@
 #include "Matchmaker.hpp"
 #include "mpi.h"
 #include <iostream>
+#include <cstdlib>
 
 using namespace std;
 
@@ -29,6 +30,7 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 
 	int last_victim = 0;
 	int last_target = 0;
+	int Idle_penalty = 40;
 
 
 	//Inizializzazione dei valori da inviare ad ogni worker
@@ -41,6 +43,8 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 		if(local_average <= 0)
 			break;
 
+		printMetrics(threshold, local_average);
+
 		stat = waitControlMessages(&local_flag);	//Si riceve nella variabile local_flag il valore sulla media locale del singolo nodo
 		if(stat.MPI_TAG == OVERWORK){
 			calculate_time();
@@ -49,12 +53,14 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 			valueArray[stat.MPI_SOURCE-1] = local_flag;		//Aggiorno il valore di elementi del nodo worker
 			updateAverage(&local_average, num_proc, valueArray);
 			notifyAverage(&local_average, stat.MPI_SOURCE);
-			int reciever = findPossibleReciever(tagArray, num_proc-1, stat.MPI_SOURCE-1);
+			int target = findPossibleTarget(tagArray, num_proc-1, stat.MPI_SOURCE-1);
 
-			if(reciever != -1){
-				checkForDoubleSteal(&threshold, &last_victim, &last_target, stat.MPI_SOURCE, reciever, num_proc);
+			if(target != -1){
+				//Entrambi meno uno perche si converte da rank a indice del vettore dei valori
+				int quantity = setStealingQuantity(target-1, stat.MPI_SOURCE-1, valueArray, local_average);
+				checkForDoubleSteal(&threshold, &last_victim, &last_target, stat.MPI_SOURCE, target, num_proc);
 				calculate_time();
-				cout << "CORE : " << stat.MPI_SOURCE << " SHOULD LET ITS DATA BE STOLEN FROM : " << reciever << endl;
+				cout << "CORE : " << stat.MPI_SOURCE << " SHOULD LET " << quantity << " OBJECTS BE STOLEN BY : " << target << endl;
 			}
 		}
 
@@ -74,12 +80,13 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 			valueArray[stat.MPI_SOURCE-1] = local_flag;
 			updateAverage(&local_average, num_proc, valueArray);
 			notifyAverage(&local_average, stat.MPI_SOURCE);
-			int target = findPossibleTarget(tagArray, num_proc-1, stat.MPI_SOURCE-1);
+			int victim = findPossibleVictim(tagArray, num_proc-1, stat.MPI_SOURCE-1);
 
-			if(target != -1){
-				checkForDoubleSteal(&threshold, &last_victim, &last_target, target, stat.MPI_SOURCE, num_proc);
+			if(victim != -1){
+				int quantity = setStealingQuantity(stat.MPI_SOURCE-1, victim, valueArray, local_average);
+				checkForDoubleSteal(&threshold, &last_victim, &last_target, victim, stat.MPI_SOURCE-1, num_proc);
 				calculate_time();
-				cout << "CORE : " << stat.MPI_SOURCE << " SHOULD STEAL FROM " << target << endl;
+				cout << "CORE : " << stat.MPI_SOURCE << " SHOULD STEAL FROM " << victim << " " << quantity << " OBJECTS" << endl;
 			}
 		}
 
@@ -89,19 +96,22 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 			tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;
 			valueArray[stat.MPI_SOURCE-1] = local_flag;
 
-			//threshold -= 50; 		//Penalità per core IDLE
-			//notifyThreshold(&threshold, num_proc);
+			if(threshold - Idle_penalty > 0){
+				threshold -= Idle_penalty; 		//Penalità per core IDLE
+				notifyThreshold(&threshold, num_proc);
+			}
 
 			calculate_time();
 			cout << "TRESHOLD DECREASES TO : " << threshold << endl;
 			updateAverage(&local_average, num_proc, valueArray);
 			notifyAverage(&local_average, stat.MPI_SOURCE);
-			int target = findPossibleTarget(tagArray, num_proc-1, stat.MPI_SOURCE-1);
+			int victim = findPossibleVictim(tagArray, num_proc-1, stat.MPI_SOURCE-1);
 
-			if(target != -1){
-				//checkForDoubleSteal(&threshold, &last_victim, &last_target, target, stat.MPI_SOURCE, num_proc);
+			if(victim != -1){
+				int quantity = setStealingQuantity(stat.MPI_SOURCE-1, victim, valueArray, local_average);
+				checkForDoubleSteal(&threshold, &last_victim, &last_target, victim, stat.MPI_SOURCE-1, num_proc);
 				calculate_time();
-				cout << "CORE : " << stat.MPI_SOURCE << " SHOULD IMMEDIATLY STEAL FROM " << target << endl;
+				cout << "CORE : " << stat.MPI_SOURCE << " SHOULD IMMEDIATLY STEAL FROM " << victim << " " << quantity << " OBJECTS" << endl;
 			}
 		}
 	}		
@@ -112,6 +122,8 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 		notifyAverage(&local_average, i+1);
 	}
 
+	notifyThreshold(&threshold, num_proc);
+
 	for(int i = 0;i<num_proc-1;i++){
 		MPI_Recv(&local_flag, 1, MPI_INT, MPI_ANY_SOURCE, DATA, MPI_COMM_WORLD, &stat);
 		*global_result += local_flag;
@@ -121,8 +133,6 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 	}
 	calculate_time();
 	cout << "GLOBAL RESULT : " << *global_result << endl;
-
-	//notifyThreshold(&threshold, num_proc);
 }
 
 /**
@@ -171,7 +181,7 @@ int checkTermination(int* tagArray, int num_proc){
  * @param victim Contiene l'indice del ricevente per evitare che si generino errori
  * @return int Indice della vittima di work stealing
  */
-int findPossibleTarget(int *tagArray, int num_proc, int victim){
+int findPossibleVictim(int *tagArray, int num_proc, int victim){
 	
 	calculate_time();
 	cout << "TAG ARRAY : ";
@@ -198,7 +208,7 @@ int findPossibleTarget(int *tagArray, int num_proc, int victim){
  * @param target Contiene l'indice della vittima per evitare che si generino errori
  * @return int Indice della ricevente di work stealing
  */
-int findPossibleReciever(int* tagArray, int num_proc, int target){
+int findPossibleTarget(int* tagArray, int num_proc, int target){
 	calculate_time();
 	cout << "TAG ARRAY : ";
 	for(int i = 0;i < num_proc; i++){
@@ -293,4 +303,27 @@ void checkForDoubleSteal(int * threshold, int * last_victim, int * last_target, 
 
 	*last_victim = current_victim;
 	*last_target = current_target;
+}
+
+/**
+ * @brief Calcola la quantità di elementi da spostare in un atto di stealing
+ *
+ * La quantità viene attualmente calcolata come la media delle distanze dei due elementi dalla media reale
+ * 
+ * @param target_index Indice del target all'interno del vettore delle quantità
+ * @param victim_index Indice della vittima all'interno del vettore delle quantità
+ * @param valueArray Vettore contenente i numeri di elementi dei singoli worker
+ * @param local_average Media locale del matchmaker
+ * @return int 
+ */
+int setStealingQuantity(int target_index, int victim_index, int * valueArray, int local_average){
+
+	int target_distance = abs(local_average - valueArray[target_index]);
+	int victim_distance = abs(local_average - valueArray[victim_distance]);
+
+	return (target_distance + victim_distance)/2;
+}
+
+void printMetrics(int threshold, float local_average){
+	cout << "MATCHMAKER DECLASE METRICS " << endl << "\t THRESHOLD : " << threshold << endl << "\t AVERAGE : " << local_average << endl << endl;
 }

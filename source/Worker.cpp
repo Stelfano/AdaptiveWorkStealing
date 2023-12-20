@@ -65,7 +65,7 @@ int local_reduction(vector<int> *buffer, float start_average, int start_treshold
 	thread status_thread;
 	thread reciever_thread;
 	default_random_engine random_eng(random_dev());
-	uniform_int_distribution<int> uniform_dist(0, 0);
+	uniform_int_distribution<int> uniform_dist(0, 1);
 
 	//Qui si lanciano i thread
 	status_thread = thread(sendStatusFunction, buffer, &local_average, &threshold, &done);
@@ -162,34 +162,44 @@ void sendStatusFunction(vector<int> * buffer, float * local_average, int * thres
 
 //Funzione per la ricezione delle metriche da parte del matchmaker
 void recieveMessageFromMatchmaker(float * local_average, int * threshold, atomic<bool> *done){
-	MPI_Request request;
 	MPI_Status stat1;
 	MPI_Status stat2;
-	int flag = false;
-	float bufferAvg;
+	MPI_Request req1;
+	MPI_Request req2;
+	int flag1 = false;
+	int flag2 = false;
+	float bufferAvg = *local_average;
+	int bufferThreshold = *threshold;
 
 	calculate_time();
 	cout << "STARTING RECIEVER THREAD IN WORKER" << endl;
 
-	MPI_Recv(&bufferAvg, 1, MPI_FLOAT, 0, AVERAGE, MPI_COMM_WORLD, &stat1);
+	MPI_Irecv(&bufferAvg, 1, MPI_FLOAT, 0, AVERAGE, MPI_COMM_WORLD, &req1);
+	MPI_Irecv(&bufferThreshold, 1, MPI_INT, 0, THRESHOLD, MPI_COMM_WORLD, &req2);
 
 	while(bufferAvg > 0){
+		MPI_Test(&req1, &flag1, &stat1);
+		MPI_Test(&req2, &flag2, &stat2);
 
-		*local_average = bufferAvg;
-		
-		calculate_time();
-		cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat1.MPI_TAG << " WITH VALUE : " << bufferAvg << endl;
-		MPI_Recv(&bufferAvg, 1, MPI_FLOAT, 0, AVERAGE, MPI_COMM_WORLD, &stat1);
-		cout << "WAITING TO RECIEVE METRIC" << endl; 
+		if(flag1 == true){
+			MPI_Irecv(&bufferAvg, 1, MPI_FLOAT, 0, AVERAGE, MPI_COMM_WORLD, &req1);
+			calculate_time();
+			cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat1.MPI_TAG << " WITH VALUE : " << bufferAvg << endl;
+			*local_average = bufferAvg;
+			flag1 = false;
+		}
 
-		if(bufferAvg == 0)
-			break;
+		if(flag2 == true){
+			MPI_Irecv(&bufferThreshold, 1, MPI_INT, 0, THRESHOLD, MPI_COMM_WORLD, &req2);
+			calculate_time();
+			cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat2.MPI_TAG << " WITH VALUE : " << bufferThreshold << endl;
+			*threshold = bufferThreshold;
+			flag2 = false;
+		}
+
 	}
 
 	*done = true;
-	calculate_time();
-	cout << "SETTING ENDING FLAG TO : " << *done << endl;
-
 	calculate_time();
 	cout << "CLOSING RECIEVE THREAD" << endl;
 }
