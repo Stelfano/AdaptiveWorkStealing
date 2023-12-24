@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <thread>
 #include <atomic>
+#include <cstring>
 
 
 using namespace std;
@@ -53,23 +54,25 @@ void declareStatus(int *buffer_size, int status){
  * @param start_treshold Valore di threshold iniziale
  * @return int Valore finale computato
  */
-int local_reduction(vector<int> *buffer, float start_average, int start_treshold){
+int local_reduction(vector<int> *buffer, float start_average, int start_treshold, int* window_buffer, MPI_Win *win, int rank){
 	bool sentFlag = false;
 	float local_average = start_average;
 	int threshold = start_treshold;
 	atomic<bool> done = false;
 
 	calculate_time();
+	cout << "I AM RANK : " << rank << endl;
+	calculate_time();
 	cout << "WORKER THRESHOLD BEGINS AT : " << start_treshold << endl;
 	random_device random_dev;
 	thread status_thread;
 	thread reciever_thread;
 	default_random_engine random_eng(random_dev());
-	uniform_int_distribution<int> uniform_dist(0, 1);
+	uniform_int_distribution<int> uniform_dist(0, 2);
 
 	//Qui si lanciano i thread
 	status_thread = thread(sendStatusFunction, buffer, &local_average, &threshold, &done);
-	reciever_thread = thread(recieveMessageFromMatchmaker, &local_average, &threshold, &done);
+	reciever_thread = thread(recieveMessageFromMatchmaker, buffer, &local_average, &threshold, &done, window_buffer);
 
 	int accumulated_result = 0;
 	
@@ -83,11 +86,17 @@ int local_reduction(vector<int> *buffer, float start_average, int start_treshold
 			accumulated_result += buffer->back();
 			buffer->pop_back();
 
-			//calculate_time();
-			//cout << "BUFFER SIZE: " << buffer->size() << endl;
-
 			int val = uniform_dist(random_eng);
-			probabilityIncreaseVectorSize(buffer, val);
+			if(rank != 2){
+				probabilityIncreaseVectorSize(buffer, val);
+			}
+
+			if(buffer->size() < MAX_STEAL){
+				copy(buffer->begin(), buffer->begin()+buffer->size(), window_buffer);	
+				memset(window_buffer + buffer->size(), 0, MAX_STEAL - buffer->size() + sizeof(int));
+			}else{
+				copy(buffer->begin(), buffer->begin()+buffer->size(), window_buffer);
+			}
 		}
 	}
 
@@ -161,30 +170,35 @@ void sendStatusFunction(vector<int> * buffer, float * local_average, int * thres
 }
 
 //Funzione per la ricezione delle metriche da parte del matchmaker
-void recieveMessageFromMatchmaker(float * local_average, int * threshold, atomic<bool> *done){
-	MPI_Status stat1;
-	MPI_Status stat2;
-	MPI_Request req1;
-	MPI_Request req2;
+void recieveMessageFromMatchmaker(vector<int> *buffer, float * local_average, int * threshold, atomic<bool> *done, int * window_buffer){
+	MPI_Status stat1, stat2, stat3, stat4;
+	MPI_Request req1, req2, req3, req4;
 	int flag1 = false;
 	int flag2 = false;
+	int flag3 = false;
+	int flag4 = false;
 	float bufferAvg = *local_average;
 	int bufferThreshold = *threshold;
+	int stealingBuffer = 0;
 
 	calculate_time();
 	cout << "STARTING RECIEVER THREAD IN WORKER" << endl;
 
 	MPI_Irecv(&bufferAvg, 1, MPI_FLOAT, 0, AVERAGE, MPI_COMM_WORLD, &req1);
 	MPI_Irecv(&bufferThreshold, 1, MPI_INT, 0, THRESHOLD, MPI_COMM_WORLD, &req2);
+	MPI_Irecv(&stealingBuffer, 1, MPI_INT, 0, VICTIM, MPI_COMM_WORLD, &req3);
+	MPI_Irecv(&stealingBuffer, 1, MPI_INT, 0, TARGET, MPI_COMM_WORLD, &req4);
 
 	while(bufferAvg > 0){
 		MPI_Test(&req1, &flag1, &stat1);
 		MPI_Test(&req2, &flag2, &stat2);
+		MPI_Test(&req3, &flag3, &stat3);
+		MPI_Test(&req4, &flag4, &stat4);
 
 		if(flag1 == true){
 			MPI_Irecv(&bufferAvg, 1, MPI_FLOAT, 0, AVERAGE, MPI_COMM_WORLD, &req1);
 			calculate_time();
-			cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat1.MPI_TAG << " WITH VALUE : " << bufferAvg << endl;
+			//cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat1.MPI_TAG << " WITH VALUE : " << bufferAvg << endl;
 			*local_average = bufferAvg;
 			flag1 = false;
 		}
@@ -192,14 +206,47 @@ void recieveMessageFromMatchmaker(float * local_average, int * threshold, atomic
 		if(flag2 == true){
 			MPI_Irecv(&bufferThreshold, 1, MPI_INT, 0, THRESHOLD, MPI_COMM_WORLD, &req2);
 			calculate_time();
-			cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat2.MPI_TAG << " WITH VALUE : " << bufferThreshold << endl;
+			//cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat2.MPI_TAG << " WITH VALUE : " << bufferThreshold << endl;
 			*threshold = bufferThreshold;
 			flag2 = false;
+		}
+
+		if(flag3 == true){
+			MPI_Irecv(&stealingBuffer, 1, MPI_INT, 0, VICTIM, MPI_COMM_WORLD, &req3);
+			calculate_time();
+			cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat3.MPI_TAG << " WITH VALUE : " << stealingBuffer << " IT'S STEALING TIME" << endl;
+			calculate_time();
+			cout << "NUMBER OF ELEMENTS AT STEALING TIME : " << buffer->size() << endl;
+			//Addition of a mutex
+			buffer->erase(buffer->begin(), buffer->begin() + stealingBuffer);
+			calculate_time();
+			cout << "VICTIM NEW BUFFER SIZE : " << buffer->size() << endl;
+			
+			stealingBuffer = buffer->size() - stealingBuffer;
+			declareStatus(&stealingBuffer, UNLOCKED);
+
+			flag3 = false;	
+		}
+
+		if(flag4 == true){
+			MPI_Irecv(&stealingBuffer, 1, MPI_INT, 0, TARGET, MPI_COMM_WORLD, &req4);
+			calculate_time();
+			cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat4.MPI_TAG << " WITH VALUE : " << stealingBuffer << " IT'S STEALING TIME" << endl;
+			buffer->insert(buffer->end(), window_buffer, window_buffer + stealingBuffer);
+			calculate_time();
+			cout << "TARGET NEW BUFFER SIZE : " << buffer->size()  << endl;
+
+			stealingBuffer = buffer->size() + stealingBuffer;
+			declareStatus(&stealingBuffer, UNLOCKED);
+
+			flag4 = false;	
 		}
 
 	}
 
 	*done = true;
+	MPI_Cancel(&req3);
+	MPI_Cancel(&req4);
 	calculate_time();
 	cout << "CLOSING RECIEVE THREAD" << endl;
 }

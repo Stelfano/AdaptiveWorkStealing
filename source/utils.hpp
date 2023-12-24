@@ -58,6 +58,11 @@
 #define DATA 5
 #define AVERAGE 6
 #define THRESHOLD 7
+#define VICTIM 8
+#define TARGET 9
+#define LOCKED 10
+#define UNLOCKED 11
+#define MAX_STEAL 50000
 
 extern std::chrono::time_point<std::chrono::system_clock> start;
 

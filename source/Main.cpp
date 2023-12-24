@@ -20,13 +20,6 @@
 #include <vector>
 #include <cstdio>
 
-
-#define OVERWORK 1
-#define STABLE 2
-#define UNDERWORK 3
-#define IDLE 4
-#define DATA 5
-
 using namespace std;
 
 std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
@@ -55,11 +48,13 @@ int global_result = 0;
 int sendArray[num_proc];
 int dispArray[num_proc];
 bool sentFlag = false;
-int *test_buffer = new int[100];
+int *window_buffer = new int[MAX_STEAL];
+MPI_Win win;
 
 float local_average;
 int threshold;
 
+MPI_Win_create(window_buffer, sizeof(int) * MAX_STEAL, sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
 MPI_Barrier(MPI_COMM_WORLD);
 
 if(task_id == 0){
@@ -68,7 +63,7 @@ if(task_id == 0){
 	cout << "PROBLEM DIMENSION : " << dim << " WITH " << num_proc-1 << " WORKERS" << endl;
 	calculate_time();
 	cout << "CHUNK SIZE : " << chunk_size << " PERCENTAGE : " << ((float)chunk_size/dim)*100 << "%" << endl;
-	for(int i = 0;i<dim;i++)
+	for(int i = 0;i < dim;i++)
 		array[i] = 1;
 
 	sendArray[0] = 0;
@@ -84,16 +79,16 @@ if(task_id == 0){
 	cout << "PROCESSOR : " << task_id << " CALLING SCATTER..." << endl;
 	MPI_Scatterv(array, sendArray, dispArray, MPI_INT, recv_buffer, chunk_size, MPI_INT, 0, MPI_COMM_WORLD);
 	local_average = chunk_size;
-	threshold = 100;
+	threshold = (chunk_size*40)/100;
 
 	vector<int> *vector_buffer = new vector<int>(recv_buffer, recv_buffer + chunk_size);
 
 	if(task_id == 0){
-		matchmakerMainLoop(num_proc, &global_result, chunk_size);
+		matchmakerMainLoop(num_proc, &global_result, chunk_size, window_buffer, &win);
 	}else{
 		calculate_time();
 		cout << "PROCESSOR : " << task_id << " BEGIN REDUCTION" << endl;
-		local_result = local_reduction(vector_buffer, local_average, threshold);
+		local_result = local_reduction(vector_buffer, local_average, threshold, window_buffer, &win, task_id);
 		calculate_time();
 		cout << "PROCESSOR : " << task_id << " COMPUTATION ENDED, GOING IDLE WITH RESULT : " << local_result << endl;
 	}
@@ -116,6 +111,7 @@ if(task_id == 0){
 
 	calculate_time();
 	cout << "PROCESSOR : " << task_id << " CLOSING..." << endl;
+	MPI_Win_free(&win);
 	MPI_Finalize();
 	return 0;
 }

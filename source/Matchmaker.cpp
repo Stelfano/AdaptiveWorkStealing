@@ -4,6 +4,9 @@
 #include <iostream>
 #include <cstdlib>
 
+#define INCREASE 20
+
+
 using namespace std;
 
 /**
@@ -17,20 +20,20 @@ using namespace std;
  * @param global_result Puntatore ad un elemento utilizzato nel main, conterrà il risultato finale della computazione
  * @param chunk_size Grandezza del vettore inviato ad ogni processo, serve ad inizializzare le metriche del work stealing
  */
-void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
+void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size, int *window_buffer, MPI_Win *win){
 
 	int tagArray[num_proc-1];      		    //Array contenente gli status dei singoli nodi
 	int *valueArray = new int[num_proc-1];	//Array contenente le medie dei singoli nodi
 	int local_flag = 0;						//Conterrà il valore della media locale del singolo nodo
 	int terminated_processes = 0;			//Numero di processi che hanno terminato la loro computazione
-	int threshold = 100;
+	int threshold = (chunk_size*40)/100;
 	float local_average = chunk_size;	//Media locale del matchmaker, questa sarà quella veritiera ed aggiornata in modo lazy
 	MPI_Status stat;					//Status della richiesta, ogni comunicazione con un nodo viene salvata qui in modo da poter accedere all
 										//info di quello specifico nodo, regola chi ha mandato la richiesta e l'aggiornamento del suo status
 
 	int last_victim = 0;
 	int last_target = 0;
-	int Idle_penalty = 40;
+	int Idle_penalty = threshold / 2;
 
 
 	//Inizializzazione dei valori da inviare ad ogni worker
@@ -43,10 +46,11 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 		if(local_average <= 0)
 			break;
 
+		calculate_time();
 		printMetrics(threshold, local_average);
 
 		stat = waitControlMessages(&local_flag);	//Si riceve nella variabile local_flag il valore sulla media locale del singolo nodo
-		if(stat.MPI_TAG == OVERWORK){
+		if(stat.MPI_TAG == OVERWORK && tagArray[stat.MPI_SOURCE-1] != LOCKED){
 			calculate_time();
 			cout << "CORE : " << stat.MPI_SOURCE << " IS OVERWORKED" << endl;
 			tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;		//Aggiorno il tag di status del nodo worker
@@ -58,13 +62,15 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 			if(target != -1){
 				//Entrambi meno uno perche si converte da rank a indice del vettore dei valori
 				int quantity = setStealingQuantity(target-1, stat.MPI_SOURCE-1, valueArray, local_average);
+				stealFromVictim(window_buffer, &quantity, win, stat.MPI_SOURCE, tagArray);
+				sendToTarget(window_buffer, &quantity, win, target, tagArray);
 				checkForDoubleSteal(&threshold, &last_victim, &last_target, stat.MPI_SOURCE, target, num_proc);
 				calculate_time();
 				cout << "CORE : " << stat.MPI_SOURCE << " SHOULD LET " << quantity << " OBJECTS BE STOLEN BY : " << target << endl;
 			}
 		}
 
-		if(stat.MPI_TAG == STABLE){
+		if(stat.MPI_TAG == STABLE && tagArray[stat.MPI_SOURCE-1] != LOCKED){
 			calculate_time();
 			cout << "CORE : " << stat.MPI_SOURCE << " IS STABLE" << endl;
 			tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;
@@ -73,7 +79,7 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 			notifyAverage(&local_average, stat.MPI_SOURCE);
 		}
 
-		if(stat.MPI_TAG == UNDERWORK){
+		if(stat.MPI_TAG == UNDERWORK && tagArray[stat.MPI_SOURCE-1] != LOCKED){
 			calculate_time();
 			cout << "CORE : " << stat.MPI_SOURCE << " IS UNDERWORKED" << endl;
 			tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;
@@ -84,19 +90,22 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 
 			if(victim != -1){
 				int quantity = setStealingQuantity(stat.MPI_SOURCE-1, victim, valueArray, local_average);
+				stealFromVictim(window_buffer, &quantity, win, victim, tagArray);
+				sendToTarget(window_buffer, &quantity, win, stat.MPI_SOURCE, tagArray);
 				checkForDoubleSteal(&threshold, &last_victim, &last_target, victim, stat.MPI_SOURCE-1, num_proc);
 				calculate_time();
 				cout << "CORE : " << stat.MPI_SOURCE << " SHOULD STEAL FROM " << victim << " " << quantity << " OBJECTS" << endl;
 			}
 		}
 
-		if(stat.MPI_TAG == IDLE){
+		if(stat.MPI_TAG == IDLE && tagArray[stat.MPI_SOURCE-1] != LOCKED){
 			calculate_time();
 			cout << "CORE : " << stat.MPI_SOURCE << " IS IDLE!" << endl;
 			tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;
 			valueArray[stat.MPI_SOURCE-1] = local_flag;
 
 			if(threshold - Idle_penalty > 0){
+				Idle_penalty = threshold / 2;
 				threshold -= Idle_penalty; 		//Penalità per core IDLE
 				notifyThreshold(&threshold, num_proc);
 			}
@@ -109,10 +118,18 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size){
 
 			if(victim != -1){
 				int quantity = setStealingQuantity(stat.MPI_SOURCE-1, victim, valueArray, local_average);
+				stealFromVictim(window_buffer, &quantity, win, victim, tagArray);
+				sendToTarget(window_buffer, &quantity, win, stat.MPI_SOURCE, tagArray);
 				checkForDoubleSteal(&threshold, &last_victim, &last_target, victim, stat.MPI_SOURCE-1, num_proc);
 				calculate_time();
 				cout << "CORE : " << stat.MPI_SOURCE << " SHOULD IMMEDIATLY STEAL FROM " << victim << " " << quantity << " OBJECTS" << endl;
 			}
+		}
+
+		if(stat.MPI_TAG == UNLOCKED){
+			calculate_time();
+			cout << "CORE : " << stat.MPI_SOURCE << " IS NOW AVAILABLE FOR STEALING " << endl;
+			tagArray[stat.MPI_SOURCE-1] = UNLOCKED;
 		}
 	}		
 
@@ -184,9 +201,7 @@ int checkTermination(int* tagArray, int num_proc){
 int findPossibleVictim(int *tagArray, int num_proc, int victim){
 	
 	calculate_time();
-	cout << "TAG ARRAY : ";
 	for(int i = 0;i < num_proc; i++){
-		cout << tagArray[i] << " ";
 		if(tagArray[i] == OVERWORK && i != victim)
 			return i+1;
 	}
@@ -267,7 +282,7 @@ void notifyAverage(float * local_average, int reciever){
 	MPI_Request req;
 	
 	calculate_time();
-	cout << "MATCHMAKER UPDATING METRICS TO : " << reciever << endl;
+	//cout << "MATCHMAKER UPDATING METRICS TO : " << reciever << endl;
 	MPI_Send(local_average, 1, MPI_FLOAT, reciever, AVERAGE, MPI_COMM_WORLD);
 }
 
@@ -295,7 +310,7 @@ void notifyThreshold(int * threshold, int num_proc){
  */
 void checkForDoubleSteal(int * threshold, int * last_victim, int * last_target, int current_victim, int current_target, int num_proc){
 	if(current_victim == *last_victim && current_target == *last_target){
-		*threshold += 5;
+		*threshold += INCREASE;
 		calculate_time();
 		cout << "NEW THRESHOLD SET T0 : " << *threshold << endl;
 		notifyThreshold(threshold, num_proc);
@@ -326,4 +341,39 @@ int setStealingQuantity(int target_index, int victim_index, int * valueArray, in
 
 void printMetrics(int threshold, float local_average){
 	cout << "MATCHMAKER DECLASE METRICS " << endl << "\t THRESHOLD : " << threshold << endl << "\t AVERAGE : " << local_average << endl << endl;
+}
+
+void stealFromVictim(int *window_buffer, int *stealing_quantity, MPI_Win *win, int victim_rank, int *tagArray){
+
+	if(*stealing_quantity > MAX_STEAL){
+		*stealing_quantity = MAX_STEAL;
+	}
+
+	MPI_Send(stealing_quantity, 1, MPI_INT, victim_rank, VICTIM, MPI_COMM_WORLD);
+
+	MPI_Win_lock(MPI_LOCK_SHARED, victim_rank, 0, *win);
+	MPI_Get(window_buffer, *stealing_quantity, MPI_INT, victim_rank, sizeof(int), *stealing_quantity, MPI_INT, *win);
+	MPI_Win_unlock(victim_rank, *win);
+
+	tagArray[victim_rank-1] = LOCKED;
+
+	calculate_time();
+	cout << "DATA EXTRACTED FROM PROCESS : " << victim_rank << " OF QUANTITY : " << *stealing_quantity << endl;
+}
+
+void sendToTarget(int *window_buffer, int *stealing_quantity, MPI_Win *win, int target_rank, int *tagArray){
+
+	if(*stealing_quantity > MAX_STEAL){
+		*stealing_quantity = MAX_STEAL;
+	}
+
+	MPI_Win_lock(MPI_LOCK_SHARED, target_rank, 0, *win);
+	MPI_Get(window_buffer, *stealing_quantity, MPI_INT, target_rank, sizeof(int), *stealing_quantity, MPI_INT, *win);
+	MPI_Win_unlock(target_rank, *win);
+
+	MPI_Send(stealing_quantity, 1, MPI_INT, target_rank, TARGET, MPI_COMM_WORLD);
+	tagArray[target_rank-1] = LOCKED;
+
+	calculate_time();
+	cout << "DATA INOCULATED TO PROCESS : " << target_rank << " OF QUANTITY : " << *stealing_quantity << endl;
 }
