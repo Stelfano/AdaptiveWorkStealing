@@ -1,6 +1,3 @@
-//!!!IMPORTANTE ESEGUIRE SENZA CONNESSIONE ALLA RETE ALTRIMENTI BTL DARÀ PROBLEMI
-//ERRORI VISIBILI CON mpirun -np 7 --mca btl_base-verbose 100 ./Test
-
 /**
  * @file Main.cpp
  * @author Stefano Romeo
@@ -19,6 +16,7 @@
 #include "utils.hpp"
 #include <vector>
 #include <cstdio>
+#include <syncstream>
 
 using namespace std;
 
@@ -28,6 +26,9 @@ int main(int argc, char *args[]){
 
 int provided;
 
+auto mainOut = osyncstream{cout};
+auto recieverOut = osyncstream{cout};
+auto senderOut = osyncstream{cout};
 freopen("log.txt", "w", stdout);
 
 MPI_Init_thread(&argc, &args, MPI_THREAD_MULTIPLE, &provided);
@@ -59,10 +60,11 @@ MPI_Barrier(MPI_COMM_WORLD);
 
 if(task_id == 0){
 
-	calculate_time();		
-	cout << "PROBLEM DIMENSION : " << dim << " WITH " << num_proc-1 << " WORKERS" << endl;
-	calculate_time();
-	cout << "CHUNK SIZE : " << chunk_size << " PERCENTAGE : " << ((float)chunk_size/dim)*100 << "%" << endl;
+	calculate_time(mainOut);
+	mainOut << "PROBLEM DIMENSION : " << dim << " WITH " << num_proc-1 << " WORKERS" << endl;
+	calculate_time(mainOut);
+	mainOut << "CHUNK SIZE : " << chunk_size << " PERCENTAGE : " << ((float)chunk_size/dim)*100 << "%" << endl;
+
 	for(int i = 0;i < dim;i++)
 		array[i] = 1;
 
@@ -75,42 +77,43 @@ if(task_id == 0){
 		}
 	}
 	
-	calculate_time();
-	cout << "PROCESSOR : " << task_id << " CALLING SCATTER..." << endl;
+	calculate_time(mainOut);
+	mainOut << "PROCESSOR : " << task_id << " CALLING SCATTER..." << endl;
 	MPI_Scatterv(array, sendArray, dispArray, MPI_INT, recv_buffer, chunk_size, MPI_INT, 0, MPI_COMM_WORLD);
 	local_average = chunk_size;
-	threshold = (chunk_size*40)/100;
+	threshold = (chunk_size*10)/100;
+	mainOut.emit();
 
 	vector<int> *vector_buffer = new vector<int>(recv_buffer, recv_buffer + chunk_size);
 
 	if(task_id == 0){
-		matchmakerMainLoop(num_proc, &global_result, chunk_size, window_buffer, &win);
+		matchmakerMainLoop(num_proc, &global_result, chunk_size, window_buffer, &win, mainOut);
 	}else{
-		calculate_time();
-		cout << "PROCESSOR : " << task_id << " BEGIN REDUCTION" << endl;
-		local_result = local_reduction(vector_buffer, local_average, threshold, window_buffer, &win, task_id);
-		calculate_time();
-		cout << "PROCESSOR : " << task_id << " COMPUTATION ENDED, GOING IDLE WITH RESULT : " << local_result << endl;
+		calculate_time(mainOut);
+		mainOut << "PROCESSOR : " << task_id << " BEGIN REDUCTION" << endl;
+		local_result = local_reduction(vector_buffer, local_average, threshold, window_buffer, &win, task_id, mainOut, senderOut, recieverOut);
+		calculate_time(mainOut);
+		mainOut << "PROCESSOR : " << task_id << " COMPUTATION ENDED, GOING IDLE WITH RESULT : " << local_result << endl;
 	}
 
 
 	if(task_id != 0){
 		MPI_Send(&local_result, 1, MPI_INT, 0, DATA, MPI_COMM_WORLD);
-		calculate_time();
-		cout <<"PROCESSOR : " << task_id << " FINAL VALUE OF : " << local_result << " SENT!" << endl;
+		calculate_time(mainOut);
+		mainOut <<"PROCESSOR : " << task_id << " FINAL VALUE OF : " << local_result << " SENT!" << endl;
 	}
 
-	calculate_time();
-	cout << "PROCESSOR: " << task_id << " ARRIVED AT BARRIER" << endl;
+	calculate_time(mainOut);
+	mainOut << "PROCESSOR: " << task_id << " ARRIVED AT BARRIER" << endl;
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	if(task_id == 0){
-		calculate_time();
-		cout << "TOTAL REDUCTION ENDED WITH RESULT : " << global_result << endl;
+		calculate_time(mainOut);
+		mainOut << "TOTAL REDUCTION ENDED WITH RESULT : " << global_result << endl;
 	}
 
-	calculate_time();
-	cout << "PROCESSOR : " << task_id << " CLOSING..." << endl;
+	calculate_time(mainOut);
+	mainOut << "PROCESSOR : " << task_id << " CLOSING..." << endl;
 	MPI_Win_free(&win);
 	MPI_Finalize();
 	return 0;

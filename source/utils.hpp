@@ -2,6 +2,8 @@
 #include <mpi.h>
 #include <ctime>
 #include <iostream>
+#include <syncstream>
+
 #pragma once
 /**
  * @def OVERWORK 
@@ -66,4 +68,5 @@
 
 extern std::chrono::time_point<std::chrono::system_clock> start;
 
-void calculate_time();
+
+void calculate_time(std::osyncstream &out);

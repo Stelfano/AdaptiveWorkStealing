@@ -7,6 +7,9 @@
 #include <thread>
 #include <atomic>
 #include <cstring>
+#include <shared_mutex>
+#include <mutex>
+#include <syncstream>
 
 
 using namespace std;
@@ -54,54 +57,65 @@ void declareStatus(int *buffer_size, int status){
  * @param start_treshold Valore di threshold iniziale
  * @return int Valore finale computato
  */
-int local_reduction(vector<int> *buffer, float start_average, int start_treshold, int* window_buffer, MPI_Win *win, int rank){
+int local_reduction(vector<int> *buffer, float start_average, int start_treshold, int* window_buffer, MPI_Win *win, int rank, osyncstream &mainOut, osyncstream &recieverOut, osyncstream &senderOut){
 	bool sentFlag = false;
 	float local_average = start_average;
 	int threshold = start_treshold;
 	atomic<bool> done = false;
 
-	calculate_time();
-	cout << "I AM RANK : " << rank << endl;
-	calculate_time();
-	cout << "WORKER THRESHOLD BEGINS AT : " << start_treshold << endl;
+	calculate_time(mainOut);
+	mainOut << "I AM RANK : " << rank << endl;
+	calculate_time(mainOut);
+	mainOut << "WORKER THRESHOLD BEGINS AT : " << start_treshold << endl;
 	random_device random_dev;
 	thread status_thread;
 	thread reciever_thread;
 	default_random_engine random_eng(random_dev());
 	uniform_int_distribution<int> uniform_dist(0, 2);
+	shared_mutex mutex;
+
 
 	//Qui si lanciano i thread
-	status_thread = thread(sendStatusFunction, buffer, &local_average, &threshold, &done);
-	reciever_thread = thread(recieveMessageFromMatchmaker, buffer, &local_average, &threshold, &done, window_buffer);
+	status_thread = thread(sendStatusFunction, buffer, &local_average, &threshold, &done, &mutex, ref(senderOut));
+	reciever_thread = thread(recieveMessageFromMatchmaker, buffer, &local_average, &threshold, &done, window_buffer, &mutex, ref(recieverOut));
 
 	int accumulated_result = 0;
 	
-	calculate_time();
-	cout << "BUFFER SIZE : " << buffer->size() << endl;
+	calculate_time(mainOut);
+	mainOut << "BUFFER SIZE : " << buffer->size() << endl;
+	mainOut.emit();
 
 	int buffer_size;
 
 	while(!done){
+
+		shared_lock lock(mutex);
 		if(buffer->size() > 0){
 			accumulated_result += buffer->back();
 			buffer->pop_back();
+			shared_lock unlock(mutex);
 
 			int val = uniform_dist(random_eng);
 			if(rank != 2){
+				shared_lock lock(mutex);
 				probabilityIncreaseVectorSize(buffer, val);
+				shared_lock unlock(mutex);
 			}
 
+			shared_lock lock_shared(mutex);
 			if(buffer->size() < MAX_STEAL){
 				copy(buffer->begin(), buffer->begin()+buffer->size(), window_buffer);	
 				memset(window_buffer + buffer->size(), 0, MAX_STEAL - buffer->size() + sizeof(int));
 			}else{
 				copy(buffer->begin(), buffer->begin()+buffer->size(), window_buffer);
 			}
+			shared_lock unlock_shared(mutex);
 		}
 	}
 
-	calculate_time();
-	cout << "LOCAL REDUCTION HAS ENDED!" << endl;
+	calculate_time(mainOut);
+	mainOut << "LOCAL REDUCTION HAS ENDED!" << endl;
+	mainOut.emit();
 	status_thread.join();
 	reciever_thread.join();
 		
@@ -118,11 +132,13 @@ int local_reduction(vector<int> *buffer, float start_average, int start_treshold
  * @param local_average Media locale da comunicare al matchmaker
  * @param threshold Threshold usato per indicare lo stato al matchmaker
  */
-void sendStatusFunction(vector<int> * buffer, float * local_average, int * threshold, atomic<bool> *done){
+void sendStatusFunction(vector<int> * buffer, float * local_average, int * threshold, atomic<bool> *done, shared_mutex *mutex, osyncstream &senderOut){
 	bool sentFlag[4] = {0, 0, 0, 0};
 
 	while(!(*done)){	
+		shared_lock lock_shared(*mutex);
 		int buffer_size = buffer->size();
+		shared_lock unlock_shared(*mutex);
 
 		if(buffer_size > (*local_average + *threshold) && sentFlag[3] == false){
 			declareStatus(&buffer_size, OVERWORK);
@@ -152,8 +168,9 @@ void sendStatusFunction(vector<int> * buffer, float * local_average, int * thres
 		}
 
 		if(buffer_size == 0 && sentFlag[0] == false){
-			calculate_time();
-			cout << "I AM IDLE!" << endl;
+			calculate_time(senderOut);
+			senderOut << "I AM IDLE!" << endl;
+			senderOut.emit();
 			buffer_size = 0;
 			declareStatus(&buffer_size, IDLE);
 			sentFlag[0] = true;
@@ -165,12 +182,12 @@ void sendStatusFunction(vector<int> * buffer, float * local_average, int * thres
 		}
 	}
 
-	calculate_time();
-	cout << "SENDER THREAD TERMINATING" << endl;
+	calculate_time(senderOut);
+	senderOut << "SENDER THREAD TERMINATING" << endl;
 }
 
 //Funzione per la ricezione delle metriche da parte del matchmaker
-void recieveMessageFromMatchmaker(vector<int> *buffer, float * local_average, int * threshold, atomic<bool> *done, int * window_buffer){
+void recieveMessageFromMatchmaker(vector<int> *buffer, float * local_average, int * threshold, atomic<bool> *done, int * window_buffer, shared_mutex *mutex, osyncstream &recieverOut){
 	MPI_Status stat1, stat2, stat3, stat4;
 	MPI_Request req1, req2, req3, req4;
 	int flag1 = false;
@@ -180,9 +197,9 @@ void recieveMessageFromMatchmaker(vector<int> *buffer, float * local_average, in
 	float bufferAvg = *local_average;
 	int bufferThreshold = *threshold;
 	int stealingBuffer = 0;
-
-	calculate_time();
-	cout << "STARTING RECIEVER THREAD IN WORKER" << endl;
+	calculate_time(recieverOut);
+	recieverOut << "STARTING RECIEVER THREAD IN WORKER" << endl;
+	recieverOut.emit();
 
 	MPI_Irecv(&bufferAvg, 1, MPI_FLOAT, 0, AVERAGE, MPI_COMM_WORLD, &req1);
 	MPI_Irecv(&bufferThreshold, 1, MPI_INT, 0, THRESHOLD, MPI_COMM_WORLD, &req2);
@@ -197,45 +214,54 @@ void recieveMessageFromMatchmaker(vector<int> *buffer, float * local_average, in
 
 		if(flag1 == true){
 			MPI_Irecv(&bufferAvg, 1, MPI_FLOAT, 0, AVERAGE, MPI_COMM_WORLD, &req1);
-			calculate_time();
-			//cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat1.MPI_TAG << " WITH VALUE : " << bufferAvg << endl;
 			*local_average = bufferAvg;
 			flag1 = false;
 		}
 
 		if(flag2 == true){
 			MPI_Irecv(&bufferThreshold, 1, MPI_INT, 0, THRESHOLD, MPI_COMM_WORLD, &req2);
-			calculate_time();
-			//cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat2.MPI_TAG << " WITH VALUE : " << bufferThreshold << endl;
 			*threshold = bufferThreshold;
 			flag2 = false;
 		}
 
 		if(flag3 == true){
 			MPI_Irecv(&stealingBuffer, 1, MPI_INT, 0, VICTIM, MPI_COMM_WORLD, &req3);
-			calculate_time();
-			cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat3.MPI_TAG << " WITH VALUE : " << stealingBuffer << " IT'S STEALING TIME" << endl;
-			calculate_time();
-			cout << "NUMBER OF ELEMENTS AT STEALING TIME : " << buffer->size() << endl;
-			//Addition of a mutex
-			buffer->erase(buffer->begin(), buffer->begin() + stealingBuffer);
-			calculate_time();
-			cout << "VICTIM NEW BUFFER SIZE : " << buffer->size() << endl;
+			calculate_time(recieverOut);
+			recieverOut << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat3.MPI_TAG << " WITH VALUE : " << stealingBuffer << " IT'S STEALING TIME" << endl;
+			calculate_time(recieverOut);
+
+			shared_lock lock(*mutex);
+			int stealingVal = stealingBuffer;
+
+			recieverOut << "NUMBER OF ELEMENTS AT STEALING TIME : " << buffer->size() << endl;
+			for(int i = 0;i<stealingBuffer;i++){
+				buffer->pop_back();
+			}
+			recieverOut << "VICTIM NEW BUFFER SIZE : " << buffer->size() << endl;
+
+			shared_lock unlock(*mutex);
+			calculate_time(recieverOut);
+			int temp = buffer->size();
+			recieverOut.emit();
 			
 			stealingBuffer = buffer->size() - stealingBuffer;
-			declareStatus(&stealingBuffer, UNLOCKED);
+			declareStatus(&temp, UNLOCKED);
 
 			flag3 = false;	
 		}
 
 		if(flag4 == true){
 			MPI_Irecv(&stealingBuffer, 1, MPI_INT, 0, TARGET, MPI_COMM_WORLD, &req4);
-			calculate_time();
-			cout << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat4.MPI_TAG << " WITH VALUE : " << stealingBuffer << " IT'S STEALING TIME" << endl;
-			buffer->insert(buffer->end(), window_buffer, window_buffer + stealingBuffer);
-			calculate_time();
-			cout << "TARGET NEW BUFFER SIZE : " << buffer->size()  << endl;
+			calculate_time(recieverOut);
+			recieverOut << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat4.MPI_TAG << " WITH VALUE : " << stealingBuffer << " IT'S STEALING TIME" << endl;
 
+			shared_lock lock(*mutex);
+			buffer->insert(buffer->end(), window_buffer, window_buffer + stealingBuffer);
+			shared_lock unlock(*mutex);
+			calculate_time(recieverOut);
+			recieverOut << "TARGET NEW BUFFER SIZE : " << buffer->size()  << endl;
+
+			recieverOut.emit();
 			stealingBuffer = buffer->size() + stealingBuffer;
 			declareStatus(&stealingBuffer, UNLOCKED);
 
@@ -247,6 +273,7 @@ void recieveMessageFromMatchmaker(vector<int> *buffer, float * local_average, in
 	*done = true;
 	MPI_Cancel(&req3);
 	MPI_Cancel(&req4);
-	calculate_time();
-	cout << "CLOSING RECIEVE THREAD" << endl;
+	calculate_time(recieverOut);
+	recieverOut << "CLOSING RECIEVE THREAD" << endl;
+	recieverOut.emit();
 }
