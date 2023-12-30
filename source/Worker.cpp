@@ -88,7 +88,6 @@ int local_reduction(vector<int> *buffer, float start_average, int start_treshold
 	mainOut.emit();
 
 	int buffer_size;
-	shared_lock<shared_mutex> sharedBufferLock(bufferMutex, defer_lock);
 	unique_lock<shared_mutex> uniqueBufferLock(bufferMutex, defer_lock);
 
 //Attenzione a questa sezione, c'è il rischio di una race condition 
@@ -100,19 +99,21 @@ int local_reduction(vector<int> *buffer, float start_average, int start_treshold
 			uniqueBufferLock.lock();
 			buffer->pop_back();
 
+			if(buffer->size() < MAX_STEAL+1){
+				MPI_Win_lock(MPI_LOCK_EXCLUSIVE, rank, 0, *win);
+				copy(buffer->begin(), buffer->begin()+buffer->size(), window_buffer);	
+				memset(window_buffer + buffer->size(), 0, MAX_STEAL - buffer->size() + 1);
+				MPI_Win_unlock(rank, *win);
+			}else{
+				MPI_Win_lock(MPI_LOCK_EXCLUSIVE, rank, 0, *win);
+				copy(buffer->begin(), buffer->begin()+buffer->size(), window_buffer + sizeof(int));
+				MPI_Win_unlock(rank, *win);
+			}
+
 			if(rank != 2){
 				probabilityIncreaseVectorSize(buffer, val);
 			}
 			uniqueBufferLock.unlock();
-
-			sharedBufferLock.lock();
-			if(buffer->size() < MAX_STEAL){
-				copy(buffer->begin(), buffer->begin()+buffer->size(), window_buffer);	
-				memset(window_buffer + buffer->size(), 0, MAX_STEAL - buffer->size() + sizeof(int));
-			}else{
-				copy(buffer->begin(), buffer->begin()+buffer->size(), window_buffer);
-			}
-			sharedBufferLock.unlock();
 		}
 	}
 
@@ -243,16 +244,16 @@ void recieveMessageFromMatchmaker(vector<int> *buffer, float * local_average, in
 		if(flag3 == true){
 			MPI_Irecv(&stealingBuffer, 1, MPI_INT, 0, VICTIM, MPI_COMM_WORLD, &req3);
 			calculate_time(recieverOut);
-			recieverOut << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat3.MPI_TAG << " WITH VALUE : " << stealingBuffer << " IT'S STEALING TIME" << endl;
+			//recieverOut << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat3.MPI_TAG << " WITH VALUE : " << stealingBuffer << " IT'S STEALING TIME" << endl;
 			calculate_time(recieverOut);
-			recieverOut << "NUMBER OF ELEMENTS AT STEALING TIME : " << buffer->size() << endl;
+			//recieverOut << "NUMBER OF ELEMENTS AT STEALING TIME : " << buffer->size() << endl;
 
 			uniqueBufferLock.lock();
 			buffer->erase(buffer->begin(), buffer->begin() + stealingBuffer);
 			uniqueBufferLock.unlock();
 
 			calculate_time(recieverOut);
-			recieverOut << "VICTIM NEW BUFFER SIZE : " << buffer->size() << endl;
+			//recieverOut << "VICTIM NEW BUFFER SIZE : " << buffer->size() << endl;
 
 			calculate_time(recieverOut);
 			int temp = buffer->size();
@@ -263,25 +264,23 @@ void recieveMessageFromMatchmaker(vector<int> *buffer, float * local_average, in
 			memset(sentFlag, 0, sizeof(bool) * 4);
 
 			calculate_time(recieverOut);
-			recieverOut << "FLAG VALUES : " << sentFlag[0] << " " << sentFlag[1] << " " << sentFlag[2] << " " << sentFlag[3] << endl;
+			//recieverOut << "FLAG VALUES : " << sentFlag[0] << " " << sentFlag[1] << " " << sentFlag[2] << " " << sentFlag[3] << endl;
 
 			uniqueFlagLock.unlock();
-
 			recieverOut.emit();
- 
 			flag3 = false;	
 		}
 
 		if(flag4 == true){
 			MPI_Irecv(&stealingBuffer, 1, MPI_INT, 0, TARGET, MPI_COMM_WORLD, &req4);
 			calculate_time(recieverOut);
-			recieverOut << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat4.MPI_TAG << " WITH VALUE : " << stealingBuffer << " IT'S STEALING TIME" << endl;
+			//recieverOut << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat4.MPI_TAG << " WITH VALUE : " << stealingBuffer << " IT'S STEALING TIME" << endl;
 
 			uniqueBufferLock.lock();
-			buffer->insert(buffer->end(), window_buffer, window_buffer + stealingBuffer);
+			buffer->insert(buffer->end(), window_buffer + 1, window_buffer + stealingBuffer + 1);
 			uniqueBufferLock.unlock();
 			calculate_time(recieverOut);
-			recieverOut << "TARGET NEW BUFFER SIZE : " << buffer->size()  << endl;
+			//recieverOut << "TARGET NEW BUFFER SIZE : " << buffer->size()  << endl;
 
 			int temp = buffer->size();
 			declareStatus(&temp, UNLOCKED);
@@ -290,15 +289,12 @@ void recieveMessageFromMatchmaker(vector<int> *buffer, float * local_average, in
 			memset(sentFlag, 0, sizeof(bool) * 4);
 
 			calculate_time(recieverOut);
-			recieverOut << "FLAG VALUES : " << sentFlag[0] << " " << sentFlag[1] << " " << sentFlag[2] << " " << sentFlag[3] << endl;
+			//recieverOut << "FLAG VALUES : " << sentFlag[0] << " " << sentFlag[1] << " " << sentFlag[2] << " " << sentFlag[3] << endl;
 
 			uniqueFlagLock.unlock();
-
 			recieverOut.emit();
-
 			flag4 = false;	
 		}
-
 	}
 
 	*done = true;

@@ -17,6 +17,7 @@
 #include <vector>
 #include <cstdio>
 #include <syncstream>
+#include <cstring>
 
 using namespace std;
 
@@ -55,8 +56,10 @@ MPI_Win win;
 float local_average;
 int threshold;
 
-MPI_Win_create(window_buffer, sizeof(int) * MAX_STEAL, sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
+MPI_Win_create(window_buffer, sizeof(int) * MAX_STEAL , sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
 MPI_Barrier(MPI_COMM_WORLD);
+
+memset(window_buffer, 0, MAX_STEAL * sizeof(int));
 
 if(task_id == 0){
 

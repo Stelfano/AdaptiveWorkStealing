@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <syncstream>
+#include <cstring>
 
 #define INCREASE 1000
 
@@ -63,11 +64,14 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size, int *
 			if(target != -1){
 				//Entrambi meno uno perche si converte da rank a indice del vettore dei valori
 				int quantity = setStealingQuantity(target-1, stat.MPI_SOURCE-1, valueArray, local_average);
-				stealFromVictim(window_buffer, &quantity, win, stat.MPI_SOURCE, tagArray);
-				sendToTarget(window_buffer, &quantity, win, target, tagArray);
-				checkForDoubleSteal(&threshold, &last_victim, &last_target, stat.MPI_SOURCE, target, num_proc);
 				calculate_time(mainOut);
 				mainOut << "CORE : " << stat.MPI_SOURCE << " SHOULD LET " << quantity << " OBJECTS BE STOLEN BY : " << target << endl;
+				int actualStolen = stealFromVictim(window_buffer, &quantity, win, stat.MPI_SOURCE, tagArray, valueArray);
+				calculate_time(mainOut);
+				mainOut << "ACTUAL STOLEN : " << actualStolen << endl;
+				sendToTarget(window_buffer, &actualStolen, win, target, tagArray, valueArray);
+				checkForDoubleSteal(&threshold, &last_victim, &last_target, stat.MPI_SOURCE, target, num_proc);
+				calculate_time(mainOut);
 			}
 
 			mainOut.emit();
@@ -94,12 +98,15 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size, int *
 			int victim = findPossibleVictim(tagArray, num_proc-1, stat.MPI_SOURCE-1);
 
 			if(victim != -1){
-				int quantity = setStealingQuantity(stat.MPI_SOURCE-1, victim, valueArray, local_average);
-				stealFromVictim(window_buffer, &quantity, win, victim, tagArray);
-				sendToTarget(window_buffer, &quantity, win, stat.MPI_SOURCE, tagArray);
-				checkForDoubleSteal(&threshold, &last_victim, &last_target, victim, stat.MPI_SOURCE-1, num_proc);
+				int quantity = setStealingQuantity(stat.MPI_SOURCE-1, victim-1, valueArray, local_average);
 				calculate_time(mainOut);
 				mainOut << "CORE : " << stat.MPI_SOURCE << " SHOULD STEAL FROM " << victim << " " << quantity << " OBJECTS" << endl;
+				int actualStolen = stealFromVictim(window_buffer, &quantity, win, victim, tagArray, valueArray);
+				calculate_time(mainOut);
+				mainOut << "ACTUAL STOLEN : " << actualStolen << endl; 
+				sendToTarget(window_buffer, &actualStolen, win, stat.MPI_SOURCE, tagArray, valueArray);
+				checkForDoubleSteal(&threshold, &last_victim, &last_target, victim, stat.MPI_SOURCE-1, num_proc);
+				calculate_time(mainOut);
 			}
 
 			mainOut.emit();
@@ -111,7 +118,7 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size, int *
 			tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;
 			valueArray[stat.MPI_SOURCE-1] = local_flag;
 
-			if(threshold/2 > 0){
+			if(threshold/2 > MIN_THRESHOLD){
 				threshold = threshold/2; 		//Penalità per core IDLE
 				notifyThreshold(&threshold, num_proc);
 			}
@@ -123,12 +130,15 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size, int *
 			int victim = findPossibleVictim(tagArray, num_proc-1, stat.MPI_SOURCE-1);
 
 			if(victim != -1){
-				int quantity = setStealingQuantity(stat.MPI_SOURCE-1, victim, valueArray, local_average);
-				stealFromVictim(window_buffer, &quantity, win, victim, tagArray);
-				sendToTarget(window_buffer, &quantity, win, stat.MPI_SOURCE, tagArray);
-				checkForDoubleSteal(&threshold, &last_victim, &last_target, victim, stat.MPI_SOURCE-1, num_proc);
+				int quantity = setStealingQuantity(stat.MPI_SOURCE-1, victim-1, valueArray, local_average);
 				calculate_time(mainOut);
 				mainOut << "CORE : " << stat.MPI_SOURCE << " SHOULD IMMEDIATLY STEAL FROM " << victim << " " << quantity << " OBJECTS" << endl;
+				int actualStolen = stealFromVictim(window_buffer, &quantity, win, victim, tagArray, valueArray);
+				calculate_time(mainOut);
+				mainOut << "STOLEN : " << actualStolen << endl;
+				sendToTarget(window_buffer, &actualStolen, win, stat.MPI_SOURCE, tagArray, valueArray);
+				checkForDoubleSteal(&threshold, &last_victim, &last_target, victim, stat.MPI_SOURCE-1, num_proc);
+				calculate_time(mainOut);
 			}
 
 			calculate_time(mainOut);
@@ -145,6 +155,7 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size, int *
 			mainOut << "CORE : " << stat.MPI_SOURCE << " IS NOW AVAILABLE FOR STEALING " << endl;
 			tagArray[stat.MPI_SOURCE-1] = UNLOCKED;
 			valueArray[stat.MPI_SOURCE-1] = local_flag;
+			updateAverage(&local_average, num_proc, valueArray);
 			notifyAverage(&local_average, stat.MPI_SOURCE);
 
 			mainOut.emit();
@@ -327,8 +338,8 @@ void checkForDoubleSteal(int * threshold, int * last_victim, int * last_target, 
  */
 int setStealingQuantity(int target_index, int victim_index, int * valueArray, int local_average){
 
-	int target_distance = abs(local_average - valueArray[target_index-1]);
-	int victim_distance = abs(local_average - valueArray[victim_index-1]);
+	int target_distance = abs(local_average - valueArray[target_index]);
+	int victim_distance = abs(local_average - valueArray[victim_index]);
 
 	return ((target_distance + victim_distance)/2);
 }
@@ -343,22 +354,33 @@ void printMetrics(int threshold, float local_average, int *valueArray, int *tagA
 	mainOut << endl;
 }
 
-void stealFromVictim(int *window_buffer, int *stealing_quantity, MPI_Win *win, int victim_rank, int *tagArray){
+int stealFromVictim(int *window_buffer, int *stealing_quantity, MPI_Win *win, int victim_rank, int *tagArray, int *valueArray){
+	int actualSteal = 0;
 
 	if(*stealing_quantity > MAX_STEAL){
 		*stealing_quantity = MAX_STEAL;
 	}
+	memset(window_buffer, 0, MAX_STEAL * sizeof(int));
 
-	MPI_Send(stealing_quantity, 1, MPI_INT, victim_rank, VICTIM, MPI_COMM_WORLD);
-
-	MPI_Win_lock(MPI_LOCK_SHARED, victim_rank, 0, *win);
+	MPI_Win_lock(MPI_LOCK_EXCLUSIVE, victim_rank, 0, *win);
 	MPI_Get(window_buffer, *stealing_quantity, MPI_INT, victim_rank, sizeof(int), *stealing_quantity, MPI_INT, *win);
 	MPI_Win_unlock(victim_rank, *win);
 
+	for(int i = 0;i<*stealing_quantity;i++){
+		if(window_buffer[i] == 1 && actualSteal < *stealing_quantity){
+			actualSteal++;
+		}
+	}
+
+	MPI_Send(stealing_quantity, 1, MPI_INT, victim_rank, VICTIM, MPI_COMM_WORLD);
+
 	tagArray[victim_rank-1] = LOCKED;
+//	valueArray[victim_rank-1] = valueArray[victim_rank-1] - actualSteal;
+
+	return actualSteal;
 }
 
-void sendToTarget(int *window_buffer, int *stealing_quantity, MPI_Win *win, int target_rank, int *tagArray){
+void sendToTarget(int *window_buffer, int *stealing_quantity, MPI_Win *win, int target_rank, int *tagArray, int *valueArray){
 
 	if(*stealing_quantity > MAX_STEAL){
 		*stealing_quantity = MAX_STEAL;
@@ -370,4 +392,6 @@ void sendToTarget(int *window_buffer, int *stealing_quantity, MPI_Win *win, int 
 
 	MPI_Send(stealing_quantity, 1, MPI_INT, target_rank, TARGET, MPI_COMM_WORLD);
 	tagArray[target_rank-1] = LOCKED;
+	memset(window_buffer, 0, MAX_STEAL * sizeof(int));
+	//valueArray[target_rank-1] = valueArray[target_rank-1] + *stealing_quantity;
 }

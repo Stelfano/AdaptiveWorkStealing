@@ -16,5 +16,5 @@ void notifyThreshold(int * threshold, int num_proc);
 void checkForDoubleSteal(int * treshold, int * last_victim, int * last_target, int current_victim, int current_target, int num_proc);
 int setStealingQuantity(int target_index, int victim_index, int * valueArray, int local_average);
 void printMetrics(int threshold, float local_average, int *valueArray, int *tagArray, int num_proc, std::osyncstream &mainOut);
-void stealFromVictim(int *window_buffer, int *stealing_quantity, MPI_Win * win, int victim_rank, int *tagArray);
-void sendToTarget(int *window_buffer, int *stealing_quantity, MPI_Win *win, int target_rank, int *tagArray);
+int stealFromVictim(int *window_buffer, int *stealing_quantity, MPI_Win * win, int victim_rank, int *tagArray, int* valueArray);
+void sendToTarget(int *window_buffer, int *stealing_quantity, MPI_Win *win, int target_rank, int *tagArray, int* valueArray);

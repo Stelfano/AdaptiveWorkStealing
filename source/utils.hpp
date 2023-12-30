@@ -65,7 +65,7 @@
 #define LOCKED 10
 #define UNLOCKED 11
 #define MAX_STEAL 50000
-#define PRINTTAG(x) #x
+#define MIN_THRESHOLD 100
 
 extern std::chrono::time_point<std::chrono::system_clock> start;
 
