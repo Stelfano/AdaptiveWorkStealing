@@ -48,7 +48,7 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size, int *
 			break;
 
 		calculate_time(mainOut);
-		printMetrics(threshold, local_average, valueArray, num_proc-1, mainOut);
+		printMetrics(threshold, local_average, valueArray, tagArray, num_proc-1, mainOut);
 
 		stat = waitControlMessages(&local_flag);	//Si riceve nella variabile local_flag il valore sulla media locale del singolo nodo
 		if(stat.MPI_TAG == OVERWORK && tagArray[stat.MPI_SOURCE-1] != LOCKED){
@@ -116,11 +116,6 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size, int *
 				notifyThreshold(&threshold, num_proc);
 			}
 
-			mainOut << "A WORKER HAS GONE IDLE! NOTIFY AVERAGE TO ALL WORKERS " << endl;
-			for(int i = 1;i<num_proc;i++){
-				notifyAverage(&local_average, i);
-			}
-
 			calculate_time(mainOut);
 			mainOut << "TRESHOLD DECREASES TO : " << threshold << endl;
 			updateAverage(&local_average, num_proc, valueArray);
@@ -134,6 +129,12 @@ void matchmakerMainLoop(int num_proc, int * global_result, int chunk_size, int *
 				checkForDoubleSteal(&threshold, &last_victim, &last_target, victim, stat.MPI_SOURCE-1, num_proc);
 				calculate_time(mainOut);
 				mainOut << "CORE : " << stat.MPI_SOURCE << " SHOULD IMMEDIATLY STEAL FROM " << victim << " " << quantity << " OBJECTS" << endl;
+			}
+
+			calculate_time(mainOut);
+			mainOut << "A WORKER HAS GONE IDLE! NOTIFY AVERAGE TO ALL WORKERS " << endl;
+			for(int i = 1;i<num_proc;i++){
+				notifyAverage(&local_average, i);
 			}
 
 			mainOut.emit();
@@ -304,8 +305,8 @@ void notifyThreshold(int * threshold, int num_proc){
  * @param current_target Target dello scambio attuale
  */
 void checkForDoubleSteal(int * threshold, int * last_victim, int * last_target, int current_victim, int current_target, int num_proc){
-	if(current_victim == *last_victim && current_target == *last_target){
-		*threshold += INCREASE;
+	if((current_victim == *last_victim && current_target == *last_target) || (current_victim == *last_target && current_target == *last_victim)){
+		*threshold *= 2;
 		notifyThreshold(threshold, num_proc);
 	}
 
@@ -326,17 +327,17 @@ void checkForDoubleSteal(int * threshold, int * last_victim, int * last_target, 
  */
 int setStealingQuantity(int target_index, int victim_index, int * valueArray, int local_average){
 
-	int target_distance = abs(local_average - valueArray[target_index]);
-	int victim_distance = abs(local_average - valueArray[victim_distance]);
+	int target_distance = abs(local_average - valueArray[target_index-1]);
+	int victim_distance = abs(local_average - valueArray[victim_index-1]);
 
 	return ((target_distance + victim_distance)/2);
 }
 
-void printMetrics(int threshold, float local_average, int *valueArray, int num_proc, osyncstream &mainOut){
-	mainOut << "MATCHMAKER DECLASE METRICS " << endl << "\t THRESHOLD : " << threshold << endl << "\t AVERAGE : " << local_average << endl;
+void printMetrics(int threshold, float local_average, int *valueArray, int *tagArray, int num_proc, osyncstream &mainOut){
+	mainOut << "MATCHMAKER DECLARES METRICS " << endl << "\t THRESHOLD : " << threshold << endl << "\t AVERAGE : " << local_average << endl;
 	mainOut << "\t VALUES : " << endl;
 	for(int i = 0;i < num_proc;i++){
-		mainOut << "\t\tRANK : " << i+1 << " -> " << valueArray[i] << endl;
+		mainOut << "\t\tRANK : " << i+1 << " -> " << valueArray[i] << " -- " << tagArray[i] << endl;
 	}
 
 	mainOut << endl;
@@ -364,7 +365,7 @@ void sendToTarget(int *window_buffer, int *stealing_quantity, MPI_Win *win, int 
 	}
 
 	MPI_Win_lock(MPI_LOCK_SHARED, target_rank, 0, *win);
-	MPI_Get(window_buffer, *stealing_quantity, MPI_INT, target_rank, sizeof(int), *stealing_quantity, MPI_INT, *win);
+	MPI_Put(window_buffer, *stealing_quantity, MPI_INT, target_rank, sizeof(int), *stealing_quantity, MPI_INT, *win);
 	MPI_Win_unlock(target_rank, *win);
 
 	MPI_Send(stealing_quantity, 1, MPI_INT, target_rank, TARGET, MPI_COMM_WORLD);
