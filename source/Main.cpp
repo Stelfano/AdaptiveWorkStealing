@@ -11,13 +11,14 @@
 
 #include <iostream>
 #include <mpi.h>
-#include "Worker.hpp"
-#include "Matchmaker.hpp"
+#include "WorkerClass.hpp"
+#include "MatchmakerClass.hpp"
 #include "utils.hpp"
 #include <vector>
 #include <cstdio>
 #include <syncstream>
 #include <cstring>
+#include <unistd.h>
 
 using namespace std;
 
@@ -34,90 +35,96 @@ freopen("log.txt", "w", stdout);
 
 MPI_Init_thread(&argc, &args, MPI_THREAD_MULTIPLE, &provided);
 
-int dim = 65536;
-int num_proc;
-int task_id;
+int problemDimension = 131072;
+int processNumber;
+int taskId;
 
-MPI_Comm_size(MPI_COMM_WORLD, &num_proc);
-MPI_Comm_rank(MPI_COMM_WORLD, &task_id);
+MPI_Comm_size(MPI_COMM_WORLD, &processNumber);
+MPI_Comm_rank(MPI_COMM_WORLD, &taskId);
 
 MPI_Request req;
-int* array = new int[dim];
-int chunk_size = dim/(num_proc-1);
-int* recv_buffer = new int[chunk_size];
-int local_result = 0;
-int global_result = 0;
-int sendArray[num_proc];
-int dispArray[num_proc];
+int *array = new int[problemDimension];
+int chunkSize = problemDimension/(processNumber-1);
+int *recvBuffer = new int[chunkSize];
+int localResult = 0;
+int globalResult = 0;
+int sendArray[processNumber];
+int dispArray[processNumber];
 bool sentFlag = false;
-int *window_buffer = new int[MAX_STEAL];
-MPI_Win win;
+Matchmaker *Match;
+Worker *Work;
+int *childs = new int[4];
 
-float local_average;
-int threshold;
+float localAverage = chunkSize;
+int threshold = (chunkSize*10)/100;
 
-MPI_Win_create(window_buffer, sizeof(int) * MAX_STEAL , sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &win);
 MPI_Barrier(MPI_COMM_WORLD);
 
-memset(window_buffer, 0, MAX_STEAL * sizeof(int));
+cout << "SURPASSED BARRIER" << endl;
 
-if(task_id == 0){
+if(taskId == 0){
 
 	calculate_time(mainOut);
-	mainOut << "PROBLEM DIMENSION : " << dim << " WITH " << num_proc-1 << " WORKERS" << endl;
+	mainOut << "PROBLEM DIMENSION : " << problemDimension << " WITH " << processNumber-1 << " WORKERS" << endl;
 	calculate_time(mainOut);
-	mainOut << "CHUNK SIZE : " << chunk_size << " PERCENTAGE : " << ((float)chunk_size/dim)*100 << "%" << endl;
+	mainOut << "CHUNK SIZE : " << chunkSize << " PERCENTAGE : " << ((float)chunkSize/problemDimension)*100 << "%" << endl;
+	mainOut.emit();
 
-	for(int i = 0;i < dim;i++)
+	for(int i = 0;i < problemDimension;i++)
 		array[i] = 1;
 
 	sendArray[0] = 0;
 	
 	//SendArray e dispArray servono a regolare quanti dati mandare ad ogni worker nella scatterv
-	for(int i = 1;i<num_proc;i++){
-		sendArray[i] = chunk_size;
-		dispArray[i] = (i-1)*chunk_size;
+	for(int i = 1;i<processNumber;i++){
+		sendArray[i] = chunkSize;
+		dispArray[i] = (i-1)*chunkSize;
 		}
+
+
+	childs[0] = 1;
+	childs[1] = 2;
+	childs[2] = 3;
+	childs[3] = 4;
+
+	}
+
+	MPI_Scatterv(array, sendArray, dispArray, MPI_INT, recvBuffer, chunkSize, MPI_INT, 0, MPI_COMM_WORLD);
+
+	if(taskId != 0){
+		Work = new Worker(0, recvBuffer, chunkSize, chunkSize, localAverage, threshold);
+	}else{
+		Match = new Matchmaker(-1, chunkSize, recvBuffer, problemDimension, localAverage, threshold, 4, childs);
 	}
 	
-	calculate_time(mainOut);
-	mainOut << "PROCESSOR : " << task_id << " CALLING SCATTER..." << endl;
-	MPI_Scatterv(array, sendArray, dispArray, MPI_INT, recv_buffer, chunk_size, MPI_INT, 0, MPI_COMM_WORLD);
-	local_average = chunk_size;
-	threshold = (chunk_size*10)/100;
-	mainOut.emit();
-
-	vector<int> *vector_buffer = new vector<int>(recv_buffer, recv_buffer + chunk_size);
-
-	if(task_id == 0){
-		matchmakerMainLoop(num_proc, &global_result, chunk_size, window_buffer, &win, mainOut);
+	if(taskId == 0){
+		Match->matchmakerMainLoop(&globalResult, mainOut);
 	}else{
 		calculate_time(mainOut);
-		mainOut << "PROCESSOR : " << task_id << " BEGIN REDUCTION" << endl;
-		local_result = local_reduction(vector_buffer, local_average, threshold, window_buffer, &win, task_id, mainOut, senderOut, recieverOut);
+		mainOut << "PROCESSOR : " << taskId << " BEGIN REDUCTION" << endl;
+		localResult = Work->localReduction(mainOut, senderOut, recieverOut);
 		calculate_time(mainOut);
-		mainOut << "PROCESSOR : " << task_id << " COMPUTATION ENDED, GOING IDLE WITH RESULT : " << local_result << endl;
+		mainOut << "PROCESSOR : " << taskId << " COMPUTATION ENDED, GOING IDLE WITH RESULT : " << localResult << endl;
 	}
 
 
-	if(task_id != 0){
-		MPI_Send(&local_result, 1, MPI_INT, 0, DATA, MPI_COMM_WORLD);
+	if(taskId != 0){
+		MPI_Send(&localResult, 1, MPI_INT, 0, DATA, MPI_COMM_WORLD);
 		calculate_time(mainOut);
-		mainOut <<"PROCESSOR : " << task_id << " FINAL VALUE OF : " << local_result << " SENT!" << endl;
+		mainOut <<"PROCESSOR : " << taskId << " FINAL VALUE OF : " << localResult << " SENT!" << endl;
 	}
 
 	calculate_time(mainOut);
-	mainOut << "PROCESSOR: " << task_id << " ARRIVED AT BARRIER" << endl;
+	mainOut << "PROCESSOR: " << taskId << " ARRIVED AT BARRIER" << endl;
 	MPI_Barrier(MPI_COMM_WORLD);
 
-	if(task_id == 0){
+	if(taskId == 0){
 		calculate_time(mainOut);
-		mainOut << "TOTAL REDUCTION ENDED WITH RESULT : " << global_result << endl;
+		mainOut << "TOTAL REDUCTION ENDED WITH RESULT : " << globalResult << endl;
 	}
 
 	calculate_time(mainOut);
-	mainOut << "PROCESSOR : " << task_id << " CLOSING..." << endl;
-	MPI_Win_free(&win);
+	mainOut << "PROCESSOR : " << taskId << " CLOSING..." << endl;
 	MPI_Finalize();
 	return 0;
 }

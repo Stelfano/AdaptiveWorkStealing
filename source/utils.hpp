@@ -1,10 +1,11 @@
+#ifndef UTILS
+#define UTILS
 #include <chrono>
 #include <mpi.h>
 #include <ctime>
 #include <iostream>
 #include <syncstream>
 
-#pragma once
 /**
  * @def OVERWORK 
  * Segnala status di overworking, in questo stato un worker non può essere target di work stealing (non può ricevere altri dati), non appena questo status è segnalato viene
@@ -65,9 +66,11 @@
 #define LOCKED 10
 #define UNLOCKED 11
 #define MAX_STEAL 50000
-#define MIN_THRESHOLD 100
+#define MIN_THRESHOLD 200
 
 extern std::chrono::time_point<std::chrono::system_clock> start;
 
 
 void calculate_time(std::osyncstream &out);
+
+#endif
