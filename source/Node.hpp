@@ -39,12 +39,14 @@ class Node{
         //Non c'è veramente bisogno di usare una funzione
         void declareStatus(int status){
             this->status = status;
-            MPI_Send(&(this->totalParticles), 1, MPI_INT, 0, status, MPI_COMM_WORLD);
+            MPI_Send(&(this->totalParticles), 1, MPI_INT, parentRank, status, MPI_COMM_WORLD);
         }
 
         int returnTotalParticles(){
             return this->totalParticles;
         }
+
+    public:
 
         void sendStatusFunction(std::osyncstream &senderOut){
             shared_lock<shared_mutex> totalParticlesLock(totalParticleMutex, defer_lock);
@@ -222,7 +224,6 @@ class Node{
             declareStatus(UNLOCKED);
         }
 
-    public:
 
         Node(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int threshold){
             MPI_Comm_rank(MPI_COMM_WORLD, &(this->nodeRank));
@@ -232,7 +233,7 @@ class Node{
             outWindowBuffer = new int[MAX_STEAL];
             this->recvBuffer = recvBuffer;
             status = STABLE;
-            this->totalParticles = chunkSize;
+            this->totalParticles = totalParticles;
             this->localAverage = chunkSize;
             this->threshold = threshold;
             sentFlag = new bool[4];

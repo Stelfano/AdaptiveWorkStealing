@@ -27,11 +27,10 @@ std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_c
 int main(int argc, char *args[]){
 
 int provided;
-
 auto mainOut = osyncstream{cout};
 auto recieverOut = osyncstream{cout};
 auto senderOut = osyncstream{cout};
-freopen("log.txt", "w", stdout);
+//freopen("log.txt", "w", stdout);
 
 MPI_Init_thread(&argc, &args, MPI_THREAD_MULTIPLE, &provided);
 
@@ -42,63 +41,96 @@ int taskId;
 MPI_Comm_size(MPI_COMM_WORLD, &processNumber);
 MPI_Comm_rank(MPI_COMM_WORLD, &taskId);
 
-MPI_Request req;
+
+MPI_Group groupWorld;
+MPI_Group dataGroup;
+MPI_Comm dataComm;
 int *array = new int[problemDimension];
-int chunkSize = problemDimension/(processNumber-1);
-int *recvBuffer = new int[chunkSize];
 int localResult = 0;
 int globalResult = 0;
-int sendArray[processNumber];
-int dispArray[processNumber];
 bool sentFlag = false;
 Matchmaker *Match;
 Worker *Work;
-int *childs = new int[4];
+int treeWidth = 2;
+int *childs = new int[treeWidth];
 
+for(int i = 0;i<treeWidth;i++){
+	childs[i] = -1;
+}
+
+int parentRank = 0;
+int initialLeafRank = findInitialLeaf(processNumber-1, treeWidth);
+int chunkSize = problemDimension/(processNumber - initialLeafRank);
+int *recvBuffer = new int[chunkSize];
+int leafProcesses[processNumber - initialLeafRank + 1];
+int sendArray[processNumber - initialLeafRank + 1];
+int dispArray[processNumber - initialLeafRank + 1];
+
+parentRank = setPositionInTree(taskId, processNumber-1, treeWidth, childs);
+int nodeLevel = findLevelInBinaryTree(taskId);
 float localAverage = chunkSize;
 int threshold = (chunkSize*10)/100;
 
-MPI_Barrier(MPI_COMM_WORLD);
+leafProcesses[0] = 0;
 
-cout << "SURPASSED BARRIER" << endl;
+for(int i = 1; i < processNumber - initialLeafRank + 1;i++)
+	leafProcesses[i] = initialLeafRank + i - 1;
+
+MPI_Comm_group(MPI_COMM_WORLD, &groupWorld);
+MPI_Group_incl(groupWorld, processNumber - initialLeafRank + 1, leafProcesses, &dataGroup);
+MPI_Comm_create(MPI_COMM_WORLD, dataGroup, &dataComm);
 
 if(taskId == 0){
-
-	calculate_time(mainOut);
-	mainOut << "PROBLEM DIMENSION : " << problemDimension << " WITH " << processNumber-1 << " WORKERS" << endl;
-	calculate_time(mainOut);
-	mainOut << "CHUNK SIZE : " << chunkSize << " PERCENTAGE : " << ((float)chunkSize/problemDimension)*100 << "%" << endl;
-	mainOut.emit();
 
 	for(int i = 0;i < problemDimension;i++)
 		array[i] = 1;
 
+	dispArray[0] = 0;
 	sendArray[0] = 0;
-	
-	//SendArray e dispArray servono a regolare quanti dati mandare ad ogni worker nella scatterv
-	for(int i = 1;i<processNumber;i++){
-		sendArray[i] = chunkSize;
+	for(int i = 1; i < processNumber - initialLeafRank + 1;i++){
 		dispArray[i] = (i-1)*chunkSize;
+		sendArray[i] = chunkSize;
+	}
+
+	calculate_time(mainOut);
+	mainOut << "I RANK DA : " << initialLeafRank << " A : " << processNumber - 1 << " SONO WORKERS" << endl;
+	mainOut.emit();
+	}
+
+	mainOut << "I AM RANK : " << taskId << " AT LEVEL : " << nodeLevel << " MY CHILDS ARE : ";
+	for(int i = 0;i<treeWidth;i++){
+		mainOut << childs[i] << " ";
+	}
+	mainOut << "AND MY PARENT NODE IS : " << parentRank << endl;
+	mainOut << "I AM BEING ASSIGNED : " << chunkSize*pow(treeWidth, nodeLevel-1) << endl;
+
+	if(childs[0] == -1){
+		mainOut << " I AM A WORKER!!!" << endl;
+		Work = new Worker(parentRank, recvBuffer, chunkSize, localAverage, threshold);
+		
+		MPI_Scatterv(array, sendArray, dispArray, MPI_INT, recvBuffer, chunkSize, MPI_INT, 0, dataComm);
+		int temp = 0;
+		for(int i = 0; i<chunkSize;i++){
+			temp +=recvBuffer[i];
 		}
-
-
-	childs[0] = 1;
-	childs[1] = 2;
-	childs[2] = 3;
-	childs[3] = 4;
-
-	}
-
-	MPI_Scatterv(array, sendArray, dispArray, MPI_INT, recvBuffer, chunkSize, MPI_INT, 0, MPI_COMM_WORLD);
-
-	if(taskId != 0){
-		Work = new Worker(0, recvBuffer, chunkSize, chunkSize, localAverage, threshold);
+		mainOut << "RECIEVED DATA : " << temp << endl << endl;
 	}else{
-		Match = new Matchmaker(-1, chunkSize, recvBuffer, problemDimension, localAverage, threshold, 4, childs);
+		//Si assume per il momento un albero perfettamente bilanciato
+		mainOut << "I AM A MATCHMAKER" << endl << endl;
+		Match = new Matchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, treeWidth, childs);
+
+		if(taskId == 0){
+			MPI_Scatterv(array, sendArray, dispArray, MPI_INT, recvBuffer, chunkSize, MPI_INT, 0, dataComm);
+		}
 	}
+
 	
-	if(taskId == 0){
+	if(childs[0] != -1){
+
+        mainOut << "RANK : " << taskId << " INITIATING MAIN LOOP" << endl;
+		mainOut.emit();
 		Match->matchmakerMainLoop(&globalResult, mainOut);
+
 	}else{
 		calculate_time(mainOut);
 		mainOut << "PROCESSOR : " << taskId << " BEGIN REDUCTION" << endl;

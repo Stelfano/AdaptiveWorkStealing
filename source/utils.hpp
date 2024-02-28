@@ -72,5 +72,9 @@ extern std::chrono::time_point<std::chrono::system_clock> start;
 
 
 void calculate_time(std::osyncstream &out);
+int setPositionInTree(int nodeRank, int totalRanks, int treeWidth, int *childs);
+int findInitialLeaf(int totalRanks, int treeWidth);
+int findLevelInTree(int nodeRank, int treeWidth);
+int findLevelInBinaryTree(int nodeRank);
 
 #endif

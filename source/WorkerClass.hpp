@@ -53,8 +53,8 @@ class Worker : public Node{
 
     public:
 
-        Worker(int parentRank, int *recvBuffer, int totalParticles, int chunkSize, float localAverage,
-               int threshold) : Node(parentRank, chunkSize, recvBuffer, totalParticles, localAverage, threshold) {
+        Worker(int parentRank, int *recvBuffer, int chunkSize, float localAverage, int threshold) : 
+        Node(parentRank, chunkSize, recvBuffer, chunkSize, localAverage, threshold) {
                this->buffer = new vector<int>();
 
                for(int i = 0;i<chunkSize;i++){
@@ -73,7 +73,7 @@ class Worker : public Node{
             thread statusThread;
             thread recieverThread;
             default_random_engine randomEng(randomDev());
-            uniform_int_distribution<int> uniform_dist(0, 1);
+            uniform_int_distribution<int> uniform_dist(0, 0);
             totalParticles = buffer->size();
             bool idleFlag = false;
             

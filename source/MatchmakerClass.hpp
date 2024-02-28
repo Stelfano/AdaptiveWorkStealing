@@ -25,6 +25,8 @@ class Matchmaker : public Node{
     int *valueArray;
     int lastVictimRank;
     int lastTargetRank;
+    int offset;
+    float lowerAverage;
 
         MPI_Status waitControlMessages(int *recvFlag){
             MPI_Status stat;
@@ -77,6 +79,9 @@ class Matchmaker : public Node{
             }
 
             localAverage = localSum/childNumber;
+            totalParticlesLock.lock();
+            totalParticles = localSum;
+            totalParticlesLock.unlock();
         }
 
         void notifyAverage(int reciever){
@@ -111,10 +116,10 @@ class Matchmaker : public Node{
         }
 
         void printMetrics(osyncstream &mainOut){
-            mainOut << "MATCHMAKER DECLARES METRICS " << endl << "\t THRESHOLD : " << threshold << endl << "\t AVERAGE : " << localAverage << endl;
+            mainOut << "MATCHMAKER " << nodeRank << " DECLARES METRICS " << endl << "\t THRESHOLD : " << threshold << endl << "\t AVERAGE : " << localAverage << endl;
             mainOut << "\t VALUES : " << endl;
             for(int i = 0;i < childNumber;i++){
-                mainOut << "\t\tRANK : " << i+1 << " -> " << valueArray[i] << " -- " << tagArray[i] << endl;
+                mainOut << "\t\tRANK : " << i+offset << " -> " << valueArray[i] << " -- " << tagArray[i] << endl;
             }
 
             mainOut << endl;
@@ -144,9 +149,7 @@ class Matchmaker : public Node{
 
             MPI_Send(&actualSteal, 1, MPI_INT, victimRank, VICTIM, MPI_COMM_WORLD);
 
-            //Attenzione, il rank non corrisponde più alla posizione nel vettore
-            tagArray[victimRank-1] = LOCKED;
-        //	valueArray[victim_rank-1] = valueArray[victim_rank-1] - actualSteal;
+            tagArray[victimRank - offset] = LOCKED;
 
             return actualSteal;
         }
@@ -161,11 +164,10 @@ class Matchmaker : public Node{
             MPI_Put(inWindowBuffer, *stealingQuantity, MPI_INT, targetRank, sizeof(int), *stealingQuantity, MPI_INT, inWindow);
 
             MPI_Send(stealingQuantity, 1, MPI_INT, targetRank, TARGET, MPI_COMM_WORLD);
-            tagArray[targetRank-1] = LOCKED;
+            tagArray[targetRank - offset] = LOCKED;
             memset(inWindowBuffer, 0, MAX_STEAL * sizeof(int));
 
             MPI_Win_unlock(targetRank, inWindow);
-            //valueArray[target_rank-1] = valueArray[target_rank-1] + *stealing_quantity;
         }
 
     public:
@@ -176,43 +178,38 @@ class Matchmaker : public Node{
             int terminated_processes = 0;			//Numero di processi che hanno terminato la loro computazione
             MPI_Status stat;					//Status della richiesta, ogni comunicazione con un nodo viene salvata qui in modo da poter accedere all
                                                 //info di quello specifico nodo, regola chi ha mandato la richiesta e l'aggiornamento del suo status
+            thread statusThread;
+            thread recieverThread;
 
             int idlePenalty = threshold / 2;
             int stealingCounter = 0;
-
-
-            //Inizializzazione dei valori da inviare ad ogni worker
-            for(int i = 0;i<childNumber;i++){
-                tagArray[i] = STABLE;
-                valueArray[i] = chunkSize;
+            if(nodeRank != 0){
+                statusThread = thread(&Node::sendStatusFunction, this, ref(mainOut));
+                recieverThread = thread(&Node::recieveMessageFromMatchmaker, this, ref(mainOut));
             }
+
 
             while(true){
                 if(localAverage <= 0)
                     break;
 
-
                 calculate_time(mainOut);
                 printMetrics(mainOut);
 
-
-                calculate_time(mainOut);
-                mainOut << "WAITING FOR MESSAGES..." << endl;
-                mainOut.emit();
                 stat = waitControlMessages(&localFlag);	//Si riceve nella variabile local_flag il valore sulla media locale del singolo nodo
-                if(stat.MPI_TAG == OVERWORK && tagArray[stat.MPI_SOURCE-1] != LOCKED){
+                if(stat.MPI_TAG == OVERWORK && tagArray[stat.MPI_SOURCE-offset] != LOCKED){
                     calculate_time(mainOut);
                     mainOut << "CORE : " << stat.MPI_SOURCE << " IS OVERWORKED WITH : " << localFlag << " PARTICLES" << endl;
-                    tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;		//Aggiorno il tag di status del nodo worker
-                    valueArray[stat.MPI_SOURCE-1] = localFlag;		//Aggiorno il valore di elementi del nodo worker
+                    tagArray[stat.MPI_SOURCE - offset] = stat.MPI_TAG;		//Aggiorno il tag di status del nodo worker
+                    valueArray[stat.MPI_SOURCE - offset] = localFlag;		//Aggiorno il valore di elementi del nodo worker
                     updateAverage();
                     notifyAverage(stat.MPI_SOURCE);
-                    int target = findPossibleTarget(stat.MPI_SOURCE-1);
+                    int target = findPossibleTarget(stat.MPI_SOURCE - offset);
 
                     if(target != -1){
                         stealingCounter++;
                         //Entrambi meno uno perche si converte da rank a indice del vettore dei valori
-                        int quantity = setStealingQuantity(target-1, stat.MPI_SOURCE-1);
+                        int quantity = setStealingQuantity(target - offset, stat.MPI_SOURCE - offset);
                         calculate_time(mainOut);
                         mainOut << "CORE : " << stat.MPI_SOURCE << " SHOULD LET " << quantity << " OBJECTS BE STOLEN BY : " << target << endl;
                         int actualStolen = stealFromVictim(&quantity, stat.MPI_SOURCE);
@@ -226,47 +223,47 @@ class Matchmaker : public Node{
                     mainOut.emit();
                 }
 
-                if(stat.MPI_TAG == STABLE && tagArray[stat.MPI_SOURCE-1] != LOCKED){
+                if(stat.MPI_TAG == STABLE && tagArray[stat.MPI_SOURCE-offset] != LOCKED){
                     calculate_time(mainOut);
                     mainOut << "CORE : " << stat.MPI_SOURCE << " IS STABLE WITH " << localFlag << " PARTICLES" << endl;
-                    tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;
-                    valueArray[stat.MPI_SOURCE-1] = localFlag;
+                    tagArray[stat.MPI_SOURCE - offset] = stat.MPI_TAG;
+                    valueArray[stat.MPI_SOURCE - offset] = localFlag;
                     updateAverage();
                     notifyAverage(stat.MPI_SOURCE);
                     
                     mainOut.emit();
                 }
 
-                if(stat.MPI_TAG == UNDERWORK && tagArray[stat.MPI_SOURCE-1] != LOCKED){
+                if(stat.MPI_TAG == UNDERWORK && tagArray[stat.MPI_SOURCE - offset] != LOCKED){
                     calculate_time(mainOut);
                     mainOut << "CORE : " << stat.MPI_SOURCE << " IS UNDERWORKED WITH " << localFlag << " PARTICLES" << endl;
-                    tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;
-                    valueArray[stat.MPI_SOURCE-1] = localFlag;
+                    tagArray[stat.MPI_SOURCE - offset] = stat.MPI_TAG;
+                    valueArray[stat.MPI_SOURCE - offset] = localFlag;
                     updateAverage();
                     notifyAverage(stat.MPI_SOURCE);
-                    int victim = findPossibleVictim(stat.MPI_SOURCE-1);
+                    int victim = findPossibleVictim(stat.MPI_SOURCE - offset);
 
                     if(victim != -1){
                         stealingCounter++;
-                        int quantity = setStealingQuantity(stat.MPI_SOURCE-1, victim-1);
+                        int quantity = setStealingQuantity(stat.MPI_SOURCE-offset, victim-offset);
                         calculate_time(mainOut);
                         mainOut << "CORE : " << stat.MPI_SOURCE << " SHOULD STEAL FROM " << victim << " " << quantity << " OBJECTS" << endl;
                         int actualStolen = stealFromVictim(&quantity, victim);
                         calculate_time(mainOut);
                         mainOut << "ACTUAL STOLEN : " << actualStolen << " FROM RANK : " << victim << endl;
                         sendToTarget(&actualStolen, stat.MPI_SOURCE);
-                        checkForDoubleSteal(victim, stat.MPI_SOURCE-1);
+                        checkForDoubleSteal(victim, stat.MPI_SOURCE-offset);
                         calculate_time(mainOut);
                     }
 
                     mainOut.emit();
                 }
 
-                if(stat.MPI_TAG == IDLE && tagArray[stat.MPI_SOURCE-1] != LOCKED){
+                if(stat.MPI_TAG == IDLE && tagArray[stat.MPI_SOURCE-offset] != LOCKED){
                     calculate_time(mainOut);
                     mainOut << "CORE : " << stat.MPI_SOURCE << " IS IDLE WITH : " << localFlag << " PARTICLES" << endl;
-                    tagArray[stat.MPI_SOURCE-1] = stat.MPI_TAG;
-                    valueArray[stat.MPI_SOURCE-1] = localFlag;
+                    tagArray[stat.MPI_SOURCE - offset] = stat.MPI_TAG;
+                    valueArray[stat.MPI_SOURCE - offset] = localFlag;
                     calculate_time(mainOut);
 
                     if(threshold/2 > MIN_THRESHOLD){
@@ -278,18 +275,18 @@ class Matchmaker : public Node{
                     mainOut << "TRESHOLD DECREASES TO : " << threshold << endl;
                     updateAverage();
                     notifyAverage(stat.MPI_SOURCE);
-                    int victim = findPossibleVictim(stat.MPI_SOURCE-1);
+                    int victim = findPossibleVictim(stat.MPI_SOURCE - offset);
 
                     if(victim != -1){
                         stealingCounter++;
-                        int quantity = setStealingQuantity(stat.MPI_SOURCE-1, victim-1);
+                        int quantity = setStealingQuantity(stat.MPI_SOURCE-offset, victim-offset);
                         calculate_time(mainOut);
                         mainOut << "CORE : " << stat.MPI_SOURCE << " SHOULD IMMEDIATLY STEAL FROM " << victim << " " << quantity << " OBJECTS" << endl;
                         int actualStolen = stealFromVictim(&quantity, victim);
                         calculate_time(mainOut);
                         mainOut << "ACTUAL STOLEN : " << actualStolen << " FROM RANK : " << victim << endl;
                         sendToTarget(&actualStolen, stat.MPI_SOURCE);
-                        checkForDoubleSteal(victim, stat.MPI_SOURCE-1);
+                        checkForDoubleSteal(victim, stat.MPI_SOURCE-offset);
                         calculate_time(mainOut);
                     }
 
@@ -305,8 +302,8 @@ class Matchmaker : public Node{
                 if(stat.MPI_TAG == UNLOCKED){
                     calculate_time(mainOut);
                     mainOut << "CORE : " << stat.MPI_SOURCE << " IS NOW AVAILABLE FOR STEALING " << endl;
-                    tagArray[stat.MPI_SOURCE-1] = UNLOCKED;
-                    valueArray[stat.MPI_SOURCE-1] = localFlag;
+                    tagArray[stat.MPI_SOURCE - offset] = UNLOCKED;
+                    valueArray[stat.MPI_SOURCE - offset] = localFlag;
                     updateAverage();
                     notifyAverage(stat.MPI_SOURCE);
 
@@ -355,6 +352,8 @@ class Matchmaker : public Node{
 
                    lastVictimRank = -1;
                    lastTargetRank = -1;
+                   offset = childRanks[0];
+                   lowerAverage = totalParticles/childNumber;
         }
 
         virtual ~Matchmaker(){
