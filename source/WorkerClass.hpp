@@ -73,7 +73,7 @@ class Worker : public Node{
             thread statusThread;
             thread recieverThread;
             default_random_engine randomEng(randomDev());
-            uniform_int_distribution<int> uniform_dist(0, 0);
+            uniform_int_distribution<int> uniform_dist(0, 1);
             totalParticles = buffer->size();
             bool idleFlag = false;
             
@@ -108,9 +108,7 @@ class Worker : public Node{
                         MPI_Win_unlock(nodeRank, outWindow);
                     }
 
-                    if(nodeRank != 2){
-                        probabilityIncreaseVectorSize(val);
-                    }
+                    probabilityIncreaseVectorSize(val);
 
                     totalParticlesLock.unlock();
                 }

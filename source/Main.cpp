@@ -12,7 +12,7 @@
 #include <iostream>
 #include <mpi.h>
 #include "WorkerClass.hpp"
-#include "MatchmakerClass.hpp"
+#include "InitiatorClass.hpp"
 #include "utils.hpp"
 #include <vector>
 #include <cstdio>
@@ -34,7 +34,7 @@ auto senderOut = osyncstream{cout};
 
 MPI_Init_thread(&argc, &args, MPI_THREAD_MULTIPLE, &provided);
 
-int problemDimension = 131072;
+int problemDimension = 262144;
 int processNumber;
 int taskId;
 
@@ -97,15 +97,7 @@ if(taskId == 0){
 	mainOut.emit();
 	}
 
-	mainOut << "I AM RANK : " << taskId << " AT LEVEL : " << nodeLevel << " MY CHILDS ARE : ";
-	for(int i = 0;i<treeWidth;i++){
-		mainOut << childs[i] << " ";
-	}
-	mainOut << "AND MY PARENT NODE IS : " << parentRank << endl;
-	mainOut << "I AM BEING ASSIGNED : " << chunkSize*pow(treeWidth, nodeLevel-1) << endl;
-
 	if(childs[0] == -1){
-		mainOut << " I AM A WORKER!!!" << endl;
 		Work = new Worker(parentRank, recvBuffer, chunkSize, localAverage, threshold);
 		
 		MPI_Scatterv(array, sendArray, dispArray, MPI_INT, recvBuffer, chunkSize, MPI_INT, 0, dataComm);
@@ -117,16 +109,20 @@ if(taskId == 0){
 	}else{
 		//Si assume per il momento un albero perfettamente bilanciato
 		mainOut << "I AM A MATCHMAKER" << endl << endl;
-		Match = new Matchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, treeWidth, childs);
+		if(taskId == 0)
+			Match = new InitiatorMatchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, treeWidth, childs, dataComm);
+		else
+			Match = new Matchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, treeWidth, childs);
 
 		if(taskId == 0){
 			MPI_Scatterv(array, sendArray, dispArray, MPI_INT, recvBuffer, chunkSize, MPI_INT, 0, dataComm);
 		}
 	}
 
+	MPI_Barrier(MPI_COMM_WORLD);
+
 	
 	if(childs[0] != -1){
-
         mainOut << "RANK : " << taskId << " INITIATING MAIN LOOP" << endl;
 		mainOut.emit();
 		Match->matchmakerMainLoop(&globalResult, mainOut);
@@ -140,19 +136,10 @@ if(taskId == 0){
 	}
 
 
-	if(taskId != 0){
-		MPI_Send(&localResult, 1, MPI_INT, 0, DATA, MPI_COMM_WORLD);
+	if(childs[0] == -1){
+		MPI_Send(&localResult, 1, MPI_INT, 0, DATA, dataComm);
 		calculate_time(mainOut);
 		mainOut <<"PROCESSOR : " << taskId << " FINAL VALUE OF : " << localResult << " SENT!" << endl;
-	}
-
-	calculate_time(mainOut);
-	mainOut << "PROCESSOR: " << taskId << " ARRIVED AT BARRIER" << endl;
-	MPI_Barrier(MPI_COMM_WORLD);
-
-	if(taskId == 0){
-		calculate_time(mainOut);
-		mainOut << "TOTAL REDUCTION ENDED WITH RESULT : " << globalResult << endl;
 	}
 
 	calculate_time(mainOut);

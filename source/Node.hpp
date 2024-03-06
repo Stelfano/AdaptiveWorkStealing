@@ -28,7 +28,7 @@ class Node{
         int status;
         int totalParticles;
         float localAverage;
-        int threshold;
+        int localThreshold;
         MPI_Win inWindow;
         MPI_Win outWindow;
         atomic<bool> done;
@@ -54,10 +54,9 @@ class Node{
 
             while(!done){	
 
-                
                 if(status != LOCKED){
                     totalParticlesLock.lock();
-                    if(totalParticles > (localAverage + threshold) && sentFlag[3] == false){
+                    if(totalParticles > (localAverage + localThreshold) && sentFlag[3] == false){
                         declareStatus(OVERWORK);
                         sentFlagLock.lock();
                         sentFlag[3] = true;
@@ -69,7 +68,7 @@ class Node{
                     }
                     
 
-                    if(totalParticles <= (localAverage + threshold) && totalParticles >= (localAverage - threshold) && sentFlag[2] == false && totalParticles != 0){
+                    if(totalParticles <= (localAverage + localThreshold) && totalParticles >= (localAverage - localThreshold) && sentFlag[2] == false && totalParticles != 0){
                         declareStatus(STABLE);
                         sentFlagLock.lock();
                         sentFlag[2] = true;
@@ -81,7 +80,7 @@ class Node{
                     }
 
 
-                    if(totalParticles < (localAverage - threshold) && sentFlag[1] == false && totalParticles != 0){
+                    if(totalParticles < (localAverage - localThreshold) && sentFlag[1] == false && totalParticles != 0){
                         declareStatus(UNDERWORK);
                         sentFlagLock.lock();
                         sentFlag[1] = true;
@@ -94,9 +93,6 @@ class Node{
 
 
                     if(totalParticles == 0 && sentFlag[0] == false){
-                        //calculate_time(senderOut);
-                        //senderOut << "I AM IDLE!" << endl;
-                        //senderOut.emit();
                         totalParticles = 0;
                         declareStatus(IDLE);
                         sentFlagLock.lock();
@@ -125,7 +121,7 @@ class Node{
             int flag3 = false;
             int flag4 = false;
             float bufferAvg = this->localAverage;
-            int bufferThreshold = this->threshold;
+            int bufferThreshold = this->localThreshold;
             int stealingBuffer = 0;
 
             unique_lock<shared_mutex> totalParticlesLock(totalParticleMutex, defer_lock);
@@ -154,32 +150,22 @@ class Node{
 
                 if(flag2 == true){
                     MPI_Irecv(&bufferThreshold, 1, MPI_INT, parentRank, THRESHOLD, MPI_COMM_WORLD, &req2);
-                    threshold = bufferThreshold;
+                    localThreshold = bufferThreshold;
                     flag2 = false;
                 }
 
                 if(flag3 == true){
                     MPI_Irecv(&stealingBuffer, 1, MPI_INT, parentRank, VICTIM, MPI_COMM_WORLD, &req3);
-                    //calculate_time(recieverOut);
-                    //recieverOut << "WORKER RECIEVED AN UPDATE BEARING TAG : " << stat3.MPI_TAG << " WITH VALUE : " << stealingBuffer << " IT'S STEALING TIME" << endl;
-                    //calculate_time(recieverOut);
-                    //recieverOut << "NUMBER OF ELEMENTS AT STEALING TIME : " << buffer->size() << endl;
                     status = LOCKED;
 
                     totalParticlesLock.lock();
                     deleteDataFromNode(stealingBuffer);
                     totalParticlesLock.unlock();
 
-                    calculate_time(recieverOut);
-                    //recieverOut << "VICTIM OF RANK : " << nodeRank << " NEW BUFFER SIZE : " << totalParticles << endl;
-                    recieverOut.emit();
-
-
                     sentFlagLock.lock();
                     memset(sentFlag, 0, sizeof(bool) * 4);
-
                     sentFlagLock.unlock();
-                    recieverOut.emit();
+
                     flag3 = false;	
                 }
 
@@ -191,20 +177,17 @@ class Node{
                     totalParticlesLock.lock();
                     injectDataInNode(stealingBuffer);
                     totalParticlesLock.unlock();
-                    calculate_time(recieverOut);
-                    //recieverOut << "TARGET OF RANK : " << nodeRank << " NEW BUFFER SIZE : " << totalParticles << endl;
-                    recieverOut.emit();
 
                     sentFlagLock.lock();
                     memset(sentFlag, 0, sizeof(bool) * 4);
-
                     sentFlagLock.unlock();
-                    recieverOut.emit();
+
                     flag4 = false;	
                 }
             }
 
             done = true;
+            MPI_Cancel(&req2);
             MPI_Cancel(&req3);
             MPI_Cancel(&req4);
             calculate_time(recieverOut);
@@ -225,7 +208,7 @@ class Node{
         }
 
 
-        Node(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int threshold){
+        Node(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int localThreshold){
             MPI_Comm_rank(MPI_COMM_WORLD, &(this->nodeRank));
             this->parentRank = parentRank;
             this->chunkSize = chunkSize;
@@ -235,12 +218,13 @@ class Node{
             status = STABLE;
             this->totalParticles = totalParticles;
             this->localAverage = chunkSize;
-            this->threshold = threshold;
+            this->localThreshold = localThreshold;
             sentFlag = new bool[4];
             sentFlag[0] = 0;
             sentFlag[1] = 0;
             sentFlag[2] = 1;
             sentFlag[3] = 0;
+            done = false;
             
             MPI_Win_create(inWindowBuffer, sizeof(int) * MAX_STEAL, sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &(this->inWindow));
             MPI_Win_create(outWindowBuffer, sizeof(int) * MAX_STEAL, sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &(this->outWindow));
