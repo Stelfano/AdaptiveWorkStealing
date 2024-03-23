@@ -13,6 +13,7 @@
 #include <mpi.h>
 #include "WorkerClass.hpp"
 #include "InitiatorClass.hpp"
+#include "TerminalClass.hpp"
 #include "utils.hpp"
 #include <vector>
 #include <cstdio>
@@ -34,7 +35,7 @@ auto senderOut = osyncstream{cout};
 
 MPI_Init_thread(&argc, &args, MPI_THREAD_MULTIPLE, &provided);
 
-int problemDimension = 262144;
+int problemDimension = 131072;
 int processNumber;
 int taskId;
 
@@ -68,8 +69,8 @@ int dispArray[processNumber - initialLeafRank + 1];
 
 parentRank = setPositionInTree(taskId, processNumber-1, treeWidth, childs);
 int nodeLevel = findLevelInBinaryTree(taskId);
-float localAverage = chunkSize;
-int threshold = (chunkSize*10)/100;
+float localAverage = chunkSize*pow(treeWidth, nodeLevel-1);
+int threshold = (localAverage*10)/100;
 
 leafProcesses[0] = 0;
 
@@ -111,8 +112,12 @@ if(taskId == 0){
 		mainOut << "I AM A MATCHMAKER" << endl << endl;
 		if(taskId == 0)
 			Match = new InitiatorMatchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, treeWidth, childs, dataComm);
-		else
-			Match = new Matchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, treeWidth, childs);
+		else{
+			if(nodeLevel-2 == 0)
+				Match = new TerminalMatchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, treeWidth, childs);
+			else
+				Match = new Matchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, treeWidth, childs);
+		}
 
 		if(taskId == 0){
 			MPI_Scatterv(array, sendArray, dispArray, MPI_INT, recvBuffer, chunkSize, MPI_INT, 0, dataComm);

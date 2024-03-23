@@ -48,7 +48,7 @@ class Node{
 
     public:
 
-        void sendStatusFunction(std::osyncstream &senderOut){
+        virtual void sendStatusFunction(std::osyncstream &senderOut){
             shared_lock<shared_mutex> totalParticlesLock(totalParticleMutex, defer_lock);
             unique_lock<shared_mutex> sentFlagLock(sentFlagMutex, defer_lock);
 
@@ -56,7 +56,7 @@ class Node{
 
                 if(status != LOCKED){
                     totalParticlesLock.lock();
-                    if(totalParticles > (localAverage + localThreshold) && sentFlag[3] == false){
+                    if(totalParticles > (localAverage + localThreshold) && sentFlag[3] == false && totalParticles != 0){
                         declareStatus(OVERWORK);
                         sentFlagLock.lock();
                         sentFlag[3] = true;
@@ -82,6 +82,11 @@ class Node{
 
                     if(totalParticles < (localAverage - localThreshold) && sentFlag[1] == false && totalParticles != 0){
                         declareStatus(UNDERWORK);
+                        if(nodeRank == 2){
+                            calculate_time(senderOut);
+                            senderOut << localAverage << " " << localThreshold << endl;
+                            senderOut.emit();
+                        }
                         sentFlagLock.lock();
                         sentFlag[1] = true;
 
@@ -155,9 +160,9 @@ class Node{
                 }
 
                 if(flag3 == true){
-                    MPI_Irecv(&stealingBuffer, 1, MPI_INT, parentRank, VICTIM, MPI_COMM_WORLD, &req3);
                     status = LOCKED;
-
+                    MPI_Irecv(&stealingBuffer, 1, MPI_INT, parentRank, VICTIM, MPI_COMM_WORLD, &req3);
+                    
                     totalParticlesLock.lock();
                     deleteDataFromNode(stealingBuffer);
                     totalParticlesLock.unlock();
@@ -170,9 +175,11 @@ class Node{
                 }
 
                 if(flag4 == true){
-                    MPI_Irecv(&stealingBuffer, 1, MPI_INT, 0, TARGET, MPI_COMM_WORLD, &req4);
-
                     status = LOCKED;
+                    MPI_Irecv(&stealingBuffer, 1, MPI_INT, 0, TARGET, MPI_COMM_WORLD, &req4);
+                    calculate_time(recieverOut);
+                    recieverOut << " NODE : " << nodeRank << " RECIEVED INJECTION OF : " << stealingBuffer << " PARTICLES" << endl;
+                    recieverOut.emit();
 
                     totalParticlesLock.lock();
                     injectDataInNode(stealingBuffer);
@@ -217,7 +224,7 @@ class Node{
             this->recvBuffer = recvBuffer;
             status = STABLE;
             this->totalParticles = totalParticles;
-            this->localAverage = chunkSize;
+            this->localAverage = localAverage;
             this->localThreshold = localThreshold;
             sentFlag = new bool[4];
             sentFlag[0] = 0;

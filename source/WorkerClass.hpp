@@ -17,6 +17,7 @@ class Worker : public Node{
 
     protected:
         vector<int> *buffer;
+        int counter;
         
         void probabilityIncreaseVectorSize(int generatedNumber){
 
@@ -39,12 +40,25 @@ class Worker : public Node{
         }
 
         void injectDataInNode(int stealingQuantity){
+            counter++;
+            MPI_Win_lock(MPI_LOCK_EXCLUSIVE, nodeRank, 0, inWindow);
+            cout << "WORKER : " << nodeRank << "DECLARES : " << totalParticles << " BEFORE STEALING" << endl;
+            for(int i = 0;i<stealingQuantity;i++){
+                cout << inWindowBuffer[i] << " ";
+            }
+            cout << endl;
             buffer->insert(buffer->end(), inWindowBuffer, inWindowBuffer + stealingQuantity);
+            MPI_Win_unlock(nodeRank, inWindow);
             totalParticles += stealingQuantity;
+            memset(inWindowBuffer, 0, MAX_STEAL);
+            cout << "WORKER : " << nodeRank << " HAS RECIEVED : " << stealingQuantity << " PARTICLES" << endl;
+            cout << "WORKER : " << nodeRank << " HAS INTEGRATED : " << totalParticles << " PARTICLES " << counter << endl;
+
             declareStatus(UNLOCKED);
         }
 
         void deleteDataFromNode(int stealingQuantity){
+            cout << "TOTAL PARTICLES AT DELETION TIME : " << buffer->size() << " IN NODE : " << nodeRank << endl;
             buffer->erase(buffer->begin(), buffer->begin() + stealingQuantity);
             totalParticles -= stealingQuantity;
             cout << "DELETED " << stealingQuantity << " PARTICLES FROM " << nodeRank << endl;
@@ -57,10 +71,9 @@ class Worker : public Node{
         Node(parentRank, chunkSize, recvBuffer, chunkSize, localAverage, threshold) {
                this->buffer = new vector<int>();
 
-               for(int i = 0;i<chunkSize;i++){
-                buffer->push_back(recvBuffer[i]);
-               }
-             }
+               totalParticles = chunkSize;
+               counter = 0;
+        }
 
         virtual ~Worker(){
             delete buffer;
@@ -74,9 +87,16 @@ class Worker : public Node{
             thread recieverThread;
             default_random_engine randomEng(randomDev());
             uniform_int_distribution<int> uniform_dist(0, 1);
-            totalParticles = buffer->size();
             bool idleFlag = false;
+
+            mainOut << "INITIAL SAMPLE --> " << recvBuffer[0] << endl;
             
+            for(int i = 0;i<chunkSize;i++){
+                buffer->push_back(recvBuffer[i]);
+            }
+
+            mainOut << "BUFFER SAMPLE --> " << buffer->size() << endl;
+            mainOut.emit();
 
 
             //Qui si lanciano i thread
@@ -87,7 +107,6 @@ class Worker : public Node{
             
             unique_lock<shared_mutex> totalParticlesLock(totalParticleMutex, defer_lock);
 
-        //Attenzione a questa sezione, c'è il rischio di una race condition 
             while(!done){
 
                 if(totalParticles > 0){
@@ -108,7 +127,8 @@ class Worker : public Node{
                         MPI_Win_unlock(nodeRank, outWindow);
                     }
 
-                    probabilityIncreaseVectorSize(val);
+                    if(nodeRank == 5 || nodeRank == 6)
+                        probabilityIncreaseVectorSize(val);
 
                     totalParticlesLock.unlock();
                 }
@@ -122,5 +142,4 @@ class Worker : public Node{
                 
             return accumulatedResult;
         }
-
 };

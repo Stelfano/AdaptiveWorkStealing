@@ -65,6 +65,7 @@
 #define TARGET 9
 #define LOCKED 10
 #define UNLOCKED 11
+#define COMM 12
 #define MAX_STEAL 50000
 #define MIN_THRESHOLD 200
 
