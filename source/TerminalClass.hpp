@@ -11,25 +11,17 @@ class TerminalMatchmaker : public Matchmaker{
             }
             memset(outWindowBuffer, 0, MAX_STEAL * sizeof(int));
 
+            MPI_Send(stealingQuantity, 1, MPI_INT, victimRank, VICTIM, MPI_COMM_WORLD);
+            MPI_Recv(&actualSteal, 1, MPI_INT, victimRank, COMM, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
             MPI_Win_lock(MPI_LOCK_EXCLUSIVE, victimRank, 0, outWindow);
-            MPI_Get(outWindowBuffer, *stealingQuantity, MPI_INT, victimRank, sizeof(int), *stealingQuantity, MPI_INT, outWindow);
+            MPI_Get(outWindowBuffer, actualSteal, MPI_INT, victimRank, sizeof(int), *stealingQuantity, MPI_INT, outWindow);
             MPI_Win_unlock(victimRank, outWindow);
-
-            cout << "SAMPLE --> " << outWindowBuffer[0] << endl;
-
-            for(int i = 0;i<*stealingQuantity;i++){
-                if(outWindowBuffer[i] == 1 && actualSteal < *stealingQuantity){
-                    actualSteal++;
-                }
-            }
-            MPI_Send(&actualSteal, 1, MPI_INT, victimRank, VICTIM, MPI_COMM_WORLD);
-
 
             return actualSteal;
         }
 
         virtual void sendToTarget(int *stealingQuantity, int targetRank){
-
 
             if(*stealingQuantity > MAX_STEAL){
                 *stealingQuantity = MAX_STEAL;
@@ -60,6 +52,7 @@ class TerminalMatchmaker : public Matchmaker{
             }
 
             memcpy(outWindowBuffer, tempArray, arrayOffset);
+            cout << "I HAVE STOLEN : " << arrayOffset << " PARTICLES " << endl;
 
             return arrayOffset;
         }

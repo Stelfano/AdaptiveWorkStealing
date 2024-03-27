@@ -43,10 +43,6 @@ class Worker : public Node{
             counter++;
             MPI_Win_lock(MPI_LOCK_EXCLUSIVE, nodeRank, 0, inWindow);
             cout << "WORKER : " << nodeRank << "DECLARES : " << totalParticles << " BEFORE STEALING" << endl;
-            for(int i = 0;i<stealingQuantity;i++){
-                cout << inWindowBuffer[i] << " ";
-            }
-            cout << endl;
             buffer->insert(buffer->end(), inWindowBuffer, inWindowBuffer + stealingQuantity);
             MPI_Win_unlock(nodeRank, inWindow);
             totalParticles += stealingQuantity;
@@ -58,10 +54,17 @@ class Worker : public Node{
         }
 
         void deleteDataFromNode(int stealingQuantity){
+            int actualSteal = 0;
+            if(totalParticles > stealingQuantity)
+                actualSteal = stealingQuantity;
+            else
+                actualSteal = totalParticles;
+
+            MPI_Send(&actualSteal, 1, MPI_INT, parentRank, COMM, MPI_COMM_WORLD);
             cout << "TOTAL PARTICLES AT DELETION TIME : " << buffer->size() << " IN NODE : " << nodeRank << endl;
-            buffer->erase(buffer->begin(), buffer->begin() + stealingQuantity);
-            totalParticles -= stealingQuantity;
-            cout << "DELETED " << stealingQuantity << " PARTICLES FROM " << nodeRank << endl;
+            buffer->erase(buffer->begin(), buffer->begin() + actualSteal);
+            totalParticles -= actualSteal;
+            cout << "DELETED " << actualSteal << " PARTICLES FROM " << nodeRank << endl;
             declareStatus(UNLOCKED);
         }
 
@@ -86,7 +89,7 @@ class Worker : public Node{
             thread statusThread;
             thread recieverThread;
             default_random_engine randomEng(randomDev());
-            uniform_int_distribution<int> uniform_dist(0, 1);
+            uniform_int_distribution<int> uniform_dist(0, 2);
             bool idleFlag = false;
 
             mainOut << "INITIAL SAMPLE --> " << recvBuffer[0] << endl;
@@ -116,6 +119,8 @@ class Worker : public Node{
                     buffer->pop_back();
                     totalParticles--;
 
+                    if(nodeRank == 2 && accumulatedResult > 40000)
+                        cout << "ELABORATING" << endl;
                     if(buffer->size() < MAX_STEAL){
                         MPI_Win_lock(MPI_LOCK_EXCLUSIVE, nodeRank, 0, outWindow);
                         memset(outWindowBuffer, 0, MAX_STEAL * sizeof(int));

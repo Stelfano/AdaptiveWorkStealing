@@ -39,7 +39,11 @@ class Node{
         //Non c'è veramente bisogno di usare una funzione
         void declareStatus(int status){
             this->status = status;
-            MPI_Send(&(this->totalParticles), 1, MPI_INT, parentRank, status, MPI_COMM_WORLD);
+            int *temp = new int[2];
+            temp[0] = totalParticles;
+            temp[1] = status;
+            MPI_Send(temp, 2, MPI_INT, parentRank, UPDATE, MPI_COMM_WORLD);
+            delete[] temp;
         }
 
         int returnTotalParticles(){
@@ -150,6 +154,10 @@ class Node{
                 if(flag1 == true){
                     MPI_Irecv(&bufferAvg, 1, MPI_FLOAT, parentRank, AVERAGE, MPI_COMM_WORLD, &req1);
                     localAverage = bufferAvg;
+                    if(nodeRank == 2)
+                        recieverOut << "-----RECIEVED AVG OF : " << bufferAvg << endl;
+
+                    recieverOut.emit();
                     flag1 = false;
                 }
 
@@ -175,10 +183,10 @@ class Node{
                 }
 
                 if(flag4 == true){
-                    status = LOCKED;
-                    MPI_Irecv(&stealingBuffer, 1, MPI_INT, 0, TARGET, MPI_COMM_WORLD, &req4);
-                    calculate_time(recieverOut);
                     recieverOut << " NODE : " << nodeRank << " RECIEVED INJECTION OF : " << stealingBuffer << " PARTICLES" << endl;
+                    status = LOCKED;
+                    MPI_Irecv(&stealingBuffer, 1, MPI_INT, parentRank, TARGET, MPI_COMM_WORLD, &req4);
+                    calculate_time(recieverOut);
                     recieverOut.emit();
 
                     totalParticlesLock.lock();
