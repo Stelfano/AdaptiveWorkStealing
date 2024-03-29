@@ -83,7 +83,7 @@ class Matchmaker : public Node{
         int checkActiveProcesses(){
             int counter = 0;
             for(int i = 0;i<childNumber;i++){
-                if(valueArray[i] != 0 || tagArray[i] == LOCKED){
+                if(valueArray[i] > 0 || tagArray[i] == LOCKED){
                     counter++;
                 }
             }
@@ -124,7 +124,6 @@ class Matchmaker : public Node{
         }
 
         void notifyAverage(int reciever){
-            MPI_Request req;
             
             MPI_Send(&(this->lowerAverage), 1, MPI_FLOAT, reciever, AVERAGE, MPI_COMM_WORLD);
         }
@@ -203,8 +202,6 @@ class Matchmaker : public Node{
                 MPI_Send(stealingArray+i, 1, MPI_INT, childRanks[i], TARGET, MPI_COMM_WORLD);
             }
             totalParticles+=stealingQuantity;
-
-            delete[] stealingArray;
         }
         
         int *calculateStealing(int stealingQuantity, bool evenDistribute = false){
@@ -212,8 +209,12 @@ class Matchmaker : public Node{
             int *stealingValues = new int[childNumber];
 
             for(int i=0;i<childNumber;i++){
-                if(!evenDistribute)
-                    percentages[i] = ((float)valueArray[i]/totalParticles);
+                if(!evenDistribute){
+                    if(valueArray[i] != 0)
+                        percentages[i] = ((float)valueArray[i]/totalParticles);
+                    else
+                        percentages[i] = 0;
+                }
                 else
                     percentages[i] = (float)1/childNumber;
                 
@@ -225,13 +226,12 @@ class Matchmaker : public Node{
                     cout << "INJECTING : " << stealingValues[i] << " IN NODE : " << i+offset << " WITH PERCENTAGE OF : " << percentages[i] << endl;
             }
 
-            delete[] percentages;
             return stealingValues;
         }
 
         virtual int gatherData(int stealingQuantity){
             int *stealingArray = calculateStealing(stealingQuantity);
-            int *tempArray = new int[stealingQuantity];
+            int *tempArray = new int[MAX_STEAL];
             int arrayOffset = 0;
             int completeSteal = 0;
             int actualSteal = 0;
@@ -255,8 +255,6 @@ class Matchmaker : public Node{
             cout << "RANK : " << nodeRank << "HAS STOLEN : " << completeSteal << " PARTICLES FROM HIS CHILDS" << endl;
 
             memcpy(tempArray, outWindowBuffer, completeSteal);
-            delete[] tempArray;
-            delete[] stealingArray;
             return completeSteal;
         }
 
@@ -325,8 +323,8 @@ class Matchmaker : public Node{
             thread recieverThread;
 
             if(nodeRank != 0){
-                statusThread = activateStatusThread(mainOut);
-                recieverThread = activateRecieverThread(mainOut);
+                statusThread = activateStatusThread(ref(mainOut));
+                recieverThread = activateRecieverThread(ref(mainOut));
             }
 
             while(true){
@@ -425,8 +423,8 @@ class Matchmaker : public Node{
                         mainOut << "A WORKER HAS GONE IDLE! NOTIFY AVERAGE TO ALL WORKERS " << endl;
                         for(int i = 0;i<childNumber;i++){
                             calculate_time(mainOut);
-                            mainOut << "SENDING AVERAGE OF : " << lowerAverage << " TO : " << i + offset << endl;
-                            notifyAverage(i+offset);
+                            mainOut << "SENDING AVERAGE OF : " << lowerAverage << " TO : " << childRanks[i] << endl;
+                            notifyAverage(childRanks[i]);
                         }
 
                         int victim = findPossibleVictim(stat.MPI_SOURCE - offset);
@@ -465,19 +463,26 @@ class Matchmaker : public Node{
                 }
             }		
 
+            printMetrics(mainOut);
             calculate_time(mainOut);
             mainOut << "MATCHMAKER WITH RANK : " << nodeRank << " INITIATING ENDING PROCEDURES..." << endl;
             mainOut.emit();
 
-            printMetrics(mainOut);
-
-            lowerThreshold = 0;
             lowerAverage = 0;
             for(int i = 0;i<childNumber; i++){
+                calculate_time(mainOut);
+                mainOut << "SENDING TO : " << childRanks[i] << endl;
+                mainOut.emit();
                 notifyAverage(childRanks[i]);
             }
 
             endingProcedure();
+
+            if(nodeRank != 0){
+                mainOut << "----STATUS : " << statusThread.joinable() << " IN RANK : " << nodeRank << endl;
+                mainOut << "---RECIEVER : " << recieverThread.joinable() << " IN RANK : " << nodeRank << endl;
+                mainOut.emit();
+            }
 
             if(nodeRank != 0){
                 statusThread.join();

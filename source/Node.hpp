@@ -43,7 +43,6 @@ class Node{
             temp[0] = totalParticles;
             temp[1] = status;
             MPI_Send(temp, 2, MPI_INT, parentRank, UPDATE, MPI_COMM_WORLD);
-            delete[] temp;
         }
 
         int returnTotalParticles(){
@@ -86,11 +85,6 @@ class Node{
 
                     if(totalParticles < (localAverage - localThreshold) && sentFlag[1] == false && totalParticles != 0){
                         declareStatus(UNDERWORK);
-                        if(nodeRank == 2){
-                            calculate_time(senderOut);
-                            senderOut << localAverage << " " << localThreshold << endl;
-                            senderOut.emit();
-                        }
                         sentFlagLock.lock();
                         sentFlag[1] = true;
 
@@ -153,11 +147,12 @@ class Node{
 
                 if(flag1 == true){
                     MPI_Irecv(&bufferAvg, 1, MPI_FLOAT, parentRank, AVERAGE, MPI_COMM_WORLD, &req1);
+                    recieverOut << "RANK : " << nodeRank << " RECIEVED AVG OF : " << bufferAvg << endl;
                     localAverage = bufferAvg;
-                    if(nodeRank == 2)
-                        recieverOut << "-----RECIEVED AVG OF : " << bufferAvg << endl;
-
-                    recieverOut.emit();
+                    if(bufferAvg == 0){
+                        recieverOut << "------RECIEVED TERMINATION IN RANK : " << nodeRank << endl;
+                        recieverOut.emit();
+                    }
                     flag1 = false;
                 }
 
@@ -202,6 +197,7 @@ class Node{
             }
 
             done = true;
+            MPI_Cancel(&req1);
             MPI_Cancel(&req2);
             MPI_Cancel(&req3);
             MPI_Cancel(&req4);

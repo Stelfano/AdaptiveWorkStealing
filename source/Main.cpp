@@ -131,7 +131,7 @@ if(taskId == 0){
         mainOut << "RANK : " << taskId << " INITIATING MAIN LOOP" << endl;
 		mainOut.emit();
 		Match->matchmakerMainLoop(&globalResult, mainOut);
-
+		delete Match;
 	}else{
 		calculate_time(mainOut);
 		mainOut << "PROCESSOR : " << taskId << " BEGIN REDUCTION" << endl;
@@ -145,6 +145,8 @@ if(taskId == 0){
 		MPI_Send(&localResult, 1, MPI_INT, 0, DATA, dataComm);
 		calculate_time(mainOut);
 		mainOut <<"PROCESSOR : " << taskId << " FINAL VALUE OF : " << localResult << " SENT!" << endl;
+		delete Work;
+		delete[] childs;
 	}
 
 	calculate_time(mainOut);

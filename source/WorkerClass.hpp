@@ -65,6 +65,7 @@ class Worker : public Node{
             buffer->erase(buffer->begin(), buffer->begin() + actualSteal);
             totalParticles -= actualSteal;
             cout << "DELETED " << actualSteal << " PARTICLES FROM " << nodeRank << endl;
+            cout << "BUFFER SIZE : " << buffer->size() << endl;
             declareStatus(UNLOCKED);
         }
 
@@ -89,7 +90,7 @@ class Worker : public Node{
             thread statusThread;
             thread recieverThread;
             default_random_engine randomEng(randomDev());
-            uniform_int_distribution<int> uniform_dist(0, 2);
+            uniform_int_distribution<int> uniform_dist(0, 1);
             bool idleFlag = false;
 
             mainOut << "INITIAL SAMPLE --> " << recvBuffer[0] << endl;
@@ -107,6 +108,7 @@ class Worker : public Node{
             recieverThread = thread(&Worker::recieveMessageFromMatchmaker, this, ref(recieverOut));
 
             int accumulatedResult = 0;
+            int totalGenerated = 0;
             
             unique_lock<shared_mutex> totalParticlesLock(totalParticleMutex, defer_lock);
 
@@ -116,14 +118,13 @@ class Worker : public Node{
                     totalParticlesLock.lock();
                     accumulatedResult++;
                     int val = uniform_dist(randomEng);
+                    totalGenerated+=val;
                     buffer->pop_back();
                     totalParticles--;
 
-                    if(nodeRank == 2 && accumulatedResult > 40000)
-                        cout << "ELABORATING" << endl;
                     if(buffer->size() < MAX_STEAL){
                         MPI_Win_lock(MPI_LOCK_EXCLUSIVE, nodeRank, 0, outWindow);
-                        memset(outWindowBuffer, 0, MAX_STEAL * sizeof(int));
+                        memset(outWindowBuffer, 0, MAX_STEAL);
                         copy(buffer->begin(),  buffer->end(), outWindowBuffer);	
                         MPI_Win_unlock(nodeRank, outWindow);
                     }else{
@@ -136,11 +137,14 @@ class Worker : public Node{
                         probabilityIncreaseVectorSize(val);
 
                     totalParticlesLock.unlock();
+                }else{
+                    totalParticles = 0;
                 }
             }
 
             calculate_time(mainOut);
             mainOut << "LOCAL REDUCTION HAS ENDED IN RANK : " << nodeRank << endl;
+            mainOut << "GENERATED PARTICLES : " << totalGenerated << endl;
             mainOut.emit();
             statusThread.join();
             recieverThread.join();

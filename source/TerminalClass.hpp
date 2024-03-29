@@ -38,7 +38,7 @@ class TerminalMatchmaker : public Matchmaker{
 
         virtual int gatherData(int stealingQuantity){
             int *stealingArray = calculateStealing(stealingQuantity);
-            int *tempArray = new int[stealingQuantity];
+            int *tempArray = new int[MAX_STEAL];
             int arrayOffset = 0;
             int actualSteal = 0;
 
@@ -47,11 +47,11 @@ class TerminalMatchmaker : public Matchmaker{
                 cout << "STEALING FROM WORKER : " << childRanks[i] << " " << stealingArray[i] << " PARTICLES" << endl;
                 actualSteal = stealFromVictim(stealingArray+i, childRanks[i]);
                 cout << "STOLEN : " << actualSteal << " FROM WORKER : " << (i+offset) << endl;
-                memcpy(tempArray+arrayOffset, outWindowBuffer, actualSteal);
+                //memcpy(tempArray+arrayOffset, outWindowBuffer, actualSteal);
                 arrayOffset += actualSteal;
             }
 
-            memcpy(outWindowBuffer, tempArray, arrayOffset);
+            memcpy(outWindowBuffer+arrayOffset, tempArray, actualSteal);
             cout << "I HAVE STOLEN : " << arrayOffset << " PARTICLES " << endl;
 
             return arrayOffset;
