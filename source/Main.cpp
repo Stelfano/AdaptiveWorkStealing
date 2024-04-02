@@ -28,9 +28,6 @@ std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_c
 int main(int argc, char *args[]){
 
 int provided;
-auto mainOut = osyncstream{cout};
-auto recieverOut = osyncstream{cout};
-auto senderOut = osyncstream{cout};
 //freopen("log.txt", "w", stdout);
 
 MPI_Init_thread(&argc, &args, MPI_THREAD_MULTIPLE, &provided);
@@ -93,9 +90,8 @@ if(taskId == 0){
 		sendArray[i] = chunkSize;
 	}
 
-	calculate_time(mainOut);
-	mainOut << "I RANK DA : " << initialLeafRank << " A : " << processNumber - 1 << " SONO WORKERS" << endl;
-	mainOut.emit();
+	calculate_time();
+	cout << "I RANK DA : " << initialLeafRank << " A : " << processNumber - 1 << " SONO WORKERS" << endl;
 	}
 
 	if(childs[0] == -1){
@@ -106,10 +102,10 @@ if(taskId == 0){
 		for(int i = 0; i<chunkSize;i++){
 			temp +=recvBuffer[i];
 		}
-		mainOut << "RECIEVED DATA : " << temp << endl << endl;
+		cout << "RECIEVED DATA : " << temp << endl << endl;
 	}else{
 		//Si assume per il momento un albero perfettamente bilanciato
-		mainOut << "I AM A MATCHMAKER" << endl << endl;
+		cout << "I AM A MATCHMAKER" << endl << endl;
 		if(taskId == 0)
 			Match = new InitiatorMatchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, treeWidth, childs, dataComm);
 		else{
@@ -128,29 +124,30 @@ if(taskId == 0){
 
 	
 	if(childs[0] != -1){
-        mainOut << "RANK : " << taskId << " INITIATING MAIN LOOP" << endl;
-		mainOut.emit();
-		Match->matchmakerMainLoop(&globalResult, mainOut);
-		delete Match;
+        cout << "RANK : " << taskId << " INITIATING MAIN LOOP" << endl;
+		Match->matchmakerMainLoop(&globalResult);
 	}else{
-		calculate_time(mainOut);
-		mainOut << "PROCESSOR : " << taskId << " BEGIN REDUCTION" << endl;
-		localResult = Work->localReduction(mainOut, senderOut, recieverOut);
-		calculate_time(mainOut);
-		mainOut << "PROCESSOR : " << taskId << " COMPUTATION ENDED, GOING IDLE WITH RESULT : " << localResult << endl;
+		calculate_time();
+		cout << "PROCESSOR : " << taskId << " BEGIN REDUCTION" << endl;
+		localResult = Work->localReduction();
+		calculate_time();
+		cout << "PROCESSOR : " << taskId << " COMPUTATION ENDED, GOING IDLE WITH RESULT : " << localResult << endl;
 	}
 
 
 	if(childs[0] == -1){
 		MPI_Send(&localResult, 1, MPI_INT, 0, DATA, dataComm);
-		calculate_time(mainOut);
-		mainOut <<"PROCESSOR : " << taskId << " FINAL VALUE OF : " << localResult << " SENT!" << endl;
+		calculate_time();
+		cout <<"PROCESSOR : " << taskId << " FINAL VALUE OF : " << localResult << " SENT!" << endl;
 		delete Work;
 		delete[] childs;
+	}else{
+		delete Match;
 	}
 
-	calculate_time(mainOut);
-	mainOut << "PROCESSOR : " << taskId << " CLOSING..." << endl;
+	delete[] array;
+	calculate_time();
+	cout << "PROCESSOR : " << taskId << " CLOSING..." << endl;
 	MPI_Finalize();
 	return 0;
 }

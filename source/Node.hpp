@@ -43,6 +43,8 @@ class Node{
             temp[0] = totalParticles;
             temp[1] = status;
             MPI_Send(temp, 2, MPI_INT, parentRank, UPDATE, MPI_COMM_WORLD);
+
+            delete[] temp;
         }
 
         int returnTotalParticles(){
@@ -51,7 +53,7 @@ class Node{
 
     public:
 
-        virtual void sendStatusFunction(std::osyncstream &senderOut){
+        void sendStatusFunction(){
             shared_lock<shared_mutex> totalParticlesLock(totalParticleMutex, defer_lock);
             unique_lock<shared_mutex> sentFlagLock(sentFlagMutex, defer_lock);
 
@@ -111,12 +113,11 @@ class Node{
                 }
             }
 
-            calculate_time(senderOut);
-            senderOut << "SENDER THREAD TERMINATING IN RANK : "<< nodeRank << endl;
-            senderOut.emit();
+            calculate_time();
+            cout << "SENDER THREAD TERMINATING IN RANK : "<< nodeRank << endl;
         }
 
-        void recieveMessageFromMatchmaker(osyncstream &recieverOut){
+        void recieveMessageFromMatchmaker(){
             MPI_Status stat1, stat2, stat3, stat4;
             MPI_Request req1, req2, req3, req4;
             int flag1 = false;
@@ -129,10 +130,7 @@ class Node{
 
             unique_lock<shared_mutex> totalParticlesLock(totalParticleMutex, defer_lock);
             unique_lock<shared_mutex> sentFlagLock(sentFlagMutex, defer_lock);
-
-            calculate_time(recieverOut);
-            recieverOut << "STARTING RECIEVER THREAD IN RANK : " << nodeRank << endl;
-            recieverOut.emit();
+            calculate_time();
 
             MPI_Irecv(&bufferAvg, 1, MPI_FLOAT, parentRank, AVERAGE, MPI_COMM_WORLD, &req1);
             MPI_Irecv(&bufferThreshold, 1, MPI_INT, parentRank, THRESHOLD, MPI_COMM_WORLD, &req2);
@@ -147,11 +145,10 @@ class Node{
 
                 if(flag1 == true){
                     MPI_Irecv(&bufferAvg, 1, MPI_FLOAT, parentRank, AVERAGE, MPI_COMM_WORLD, &req1);
-                    recieverOut << "RANK : " << nodeRank << " RECIEVED AVG OF : " << bufferAvg << endl;
+                    cout << "RANK : " << nodeRank << " RECIEVED AVG OF : " << bufferAvg << endl;
                     localAverage = bufferAvg;
                     if(bufferAvg == 0){
-                        recieverOut << "------RECIEVED TERMINATION IN RANK : " << nodeRank << endl;
-                        recieverOut.emit();
+                        cout << "------RECIEVED TERMINATION IN RANK : " << nodeRank << endl;
                     }
                     flag1 = false;
                 }
@@ -178,11 +175,10 @@ class Node{
                 }
 
                 if(flag4 == true){
-                    recieverOut << " NODE : " << nodeRank << " RECIEVED INJECTION OF : " << stealingBuffer << " PARTICLES" << endl;
+                    cout << " NODE : " << nodeRank << " RECIEVED INJECTION OF : " << stealingBuffer << " PARTICLES" << endl;
                     status = LOCKED;
                     MPI_Irecv(&stealingBuffer, 1, MPI_INT, parentRank, TARGET, MPI_COMM_WORLD, &req4);
-                    calculate_time(recieverOut);
-                    recieverOut.emit();
+                    calculate_time();
 
                     totalParticlesLock.lock();
                     injectDataInNode(stealingBuffer);
@@ -201,9 +197,8 @@ class Node{
             MPI_Cancel(&req2);
             MPI_Cancel(&req3);
             MPI_Cancel(&req4);
-            calculate_time(recieverOut);
-            recieverOut << "CLOSING RECIEVE THREAD IN RANK : " << nodeRank << endl;
-            recieverOut.emit();
+            calculate_time();
+            cout << "CLOSING RECIEVE THREAD IN RANK : " << nodeRank << endl;
         }
 
         virtual void injectDataInNode(int stealingQuantity){

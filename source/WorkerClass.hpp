@@ -84,7 +84,7 @@ class Worker : public Node{
         }
 
 
-        int localReduction(osyncstream &mainOut, osyncstream &recieverOut, osyncstream &senderOut){
+        int localReduction(){
 
             random_device randomDev;
             thread statusThread;
@@ -93,19 +93,18 @@ class Worker : public Node{
             uniform_int_distribution<int> uniform_dist(0, 1);
             bool idleFlag = false;
 
-            mainOut << "INITIAL SAMPLE --> " << recvBuffer[0] << endl;
+            cout << "INITIAL SAMPLE --> " << recvBuffer[0] << endl;
             
             for(int i = 0;i<chunkSize;i++){
                 buffer->push_back(recvBuffer[i]);
             }
 
-            mainOut << "BUFFER SAMPLE --> " << buffer->size() << endl;
-            mainOut.emit();
+            cout << "BUFFER SAMPLE --> " << buffer->size() << endl;
 
 
             //Qui si lanciano i thread
-            statusThread = thread(&Worker::sendStatusFunction, this, ref(senderOut));
-            recieverThread = thread(&Worker::recieveMessageFromMatchmaker, this, ref(recieverOut));
+            statusThread = thread(&Worker::sendStatusFunction, this);
+            recieverThread = thread(&Worker::recieveMessageFromMatchmaker, this);
 
             int accumulatedResult = 0;
             int totalGenerated = 0;
@@ -142,10 +141,9 @@ class Worker : public Node{
                 }
             }
 
-            calculate_time(mainOut);
-            mainOut << "LOCAL REDUCTION HAS ENDED IN RANK : " << nodeRank << endl;
-            mainOut << "GENERATED PARTICLES : " << totalGenerated << endl;
-            mainOut.emit();
+            calculate_time();
+            cout << "LOCAL REDUCTION HAS ENDED IN RANK : " << nodeRank << endl;
+            cout << "GENERATED PARTICLES : " << totalGenerated << endl;
             statusThread.join();
             recieverThread.join();
                 
