@@ -1,17 +1,37 @@
+/**
+ * @file utils.cpp
+ * @author Stefano Romeo
+ * @brief Various functions and utilities 
+ * @version 0.1
+ * @date 2024-04-03
+ * 
+ */
+
 #include "utils.hpp"
 #include <cmath>
 
 /**
- * @brief Semplice funzione per la temporizzazione
+ * @brief Simple function to calculate time of execution
  * 
- * Questa funzione fa uso della libreria chrono e delle utilities fornite per aggiungere dei timestamp ai log su file
- * il tempo viene contato in millisecondi trascorsi dall'inizio della computazione determinata nel main
+ * This function is used to append a time to every output, this is used to have a timestamp and to trace when a certain operation has executed
  */
 void calculate_time(){
     std::chrono::duration<double> elapsed = std::chrono::system_clock::now() - start;
 	std::cout << elapsed.count() << "s ";
 };
 
+/**
+ * @brief Find the position of a node inside the computational tree
+ *
+ * This function finds the position of a node in a n-th tree, inside the function child ranks are assigned to the child array
+ * Childs are assigned using the formula:
+ * 
+ * @param nodeRank Rank of current node
+ * @param totalRanks Total number of node in computational tree
+ * @param treeWidth Width of the n-th tree
+ * @param childs Child vector (uninizialized before entering the function)
+ * @return first child rank to be used as an offset to send messages
+ */
 int setPositionInTree(int nodeRank, int totalRanks, int treeWidth, int* childs){
 
     if(nodeRank * treeWidth + 1 <= totalRanks){
@@ -27,6 +47,15 @@ int setPositionInTree(int nodeRank, int totalRanks, int treeWidth, int* childs){
     }
 }
 
+/**
+ * @brief This function is used to find the level of a node inside the computational tree
+ * 
+ * Node level is used to calculate how many particles a node will recieve, for matchamker this level is the sum of all nodes below
+ *
+ * @param nodeRank Rank of current node
+ * @param treeWidth With of the n-th tree
+ * @return Level of the node inside the tree 
+ */
 int findLevelInTree(int nodeRank, int treeWidth){
     int currentNode = nodeRank;
     int level = 0;
@@ -37,7 +66,12 @@ int findLevelInTree(int nodeRank, int treeWidth){
     return level;
 }
 
-//Solo per test su albero binario
+/**
+ * @brief This function finds the level of the node in the case of a binary tree
+ * 
+ * @param nodeRank Rank of node
+ * @return Level of node inside computational tree 
+ */
 int findLevelInBinaryTree(int nodeRank){
     if(nodeRank == 0) return 3;
     if(nodeRank <= 2 && nodeRank != 0) return 2;

@@ -10,33 +10,55 @@
 #include <cstring> 
 #include <shared_mutex>
 #include <mutex>
-#include <syncstream>
+
+/**
+ * @file Node.hpp
+ * @author Stefano Romeo
+ * @brief Definition for Node class
+ * @version 0.1
+ * @date 2024-04-04
+ * 
+ */
 
 
 using namespace std;
-
+/**
+ * @brief Node class is the base class from which every node specialization comes from, this class implements all base functions for communication and other routines shared across all 
+ *        elements in communication
+ * 
+ *This class implements basic recieve and send update functions necessary to the correct execution of the program, it is a clean slate necessary to specialize more specific roles inside
+ *the overall system, this class is not abstract nor an interface but it's still not intended to be instanciated
+ */
 class Node{
 
     protected:
-        int treeWidth;
-        int nodeRank;
-        int parentRank;
-        int *inWindowBuffer;
-        int *outWindowBuffer;
-        int *recvBuffer;
-        int chunkSize;
-        int status;
-        int totalParticles;
-        float localAverage;
-        int localThreshold;
-        MPI_Win inWindow;
-        MPI_Win outWindow;
-        atomic<bool> done;
-        bool *sentFlag;
-        mutable shared_mutex totalParticleMutex;
-        mutable shared_mutex sentFlagMutex;
+        int treeWidth;                                      ///<Width of the computational tree
+        int nodeRank;                                       ///<Rank of node
+        int parentRank;                                     ///<Rank of parent (if the current node is 0 parent rank is -1)
+        int *inWindowBuffer;                                ///<Pointer to input window buffer
+        int *outWindowBuffer;                               ///<Pointer to output window buffer
+        int *recvBuffer;                                    ///<Pointer to initial recieve buffer
+        int chunkSize;                                      ///<Number of particle sent in a single chunk
+        int status;                                         ///<Status of node
+        int totalParticles;                                 ///<Total particle present in the node
+        float localAverage;                                 ///<Current average of node
+        int localThreshold;                                 ///<Current threshold of node
+        MPI_Win inWindow;                                   ///<MPI object to use RDMA for input window buffer
+        MPI_Win outWindow;                                  ///<MPI object to use RDMA for output window buffer
+        atomic<bool> done;                                  ///<Atomic variable to signal termination
+        bool *sentFlag;                                     ///<Use flag to send data upwards, prevents multiple update of the same status
+        mutable shared_mutex totalParticleMutex;            ///<Shared mutex to prevent race condition on Total particles and Particle buffer(Only in worker)
+        mutable shared_mutex sentFlagMutex;                 ///<Shared mutex to prevent race condition on status update flag array
 
-        //Non c'è veramente bisogno di usare una funzione
+        
+        /**
+         * @brief Status declaration function, status is updated and then communicated to parent rank in the hierarchy
+         * 
+         * In order to prevent the wrong reception on parent rank (There are many Recv posted at the same time with different tags, a Recv in a matchmaker could Recv the wrong message)
+         * status and total particle count are communicated through a vector of ints, firts position of array contains total particle count, second position is an int indicating update of status
+         * updates are signaled using the UPDATE tag to prevent the aformentioned issue
+         * @param status Status sent to upper node
+         */
         void declareStatus(int status){
             this->status = status;
             int *temp = new int[2];
@@ -47,12 +69,18 @@ class Node{
             delete[] temp;
         }
 
-        int returnTotalParticles(){
-            return this->totalParticles;
-        }
-
     public:
 
+        /**
+         * @brief Update function for a node, this function is assigned to a thread to be able to update status when necessary
+         *
+         * This function is responsable to send status update upwards, status update are sent using 4 different states:
+         *  - OVERWORK : \f$Total Particles > {\mu} + {\sigma}\f$
+         *  - STABLE : mu - sigma <= Total Particles <= mu + sigma
+         *  - UNDERWORK : Total Particles < mu - sigma
+         *  - IDLE : Total Particles = 0
+         * 
+         */
         void sendStatusFunction(){
             shared_lock<shared_mutex> totalParticlesLock(totalParticleMutex, defer_lock);
             unique_lock<shared_mutex> sentFlagLock(sentFlagMutex, defer_lock);
@@ -117,6 +145,17 @@ class Node{
             cout << "SENDER THREAD TERMINATING IN RANK : "<< nodeRank << endl;
         }
 
+        /**
+         * @brief Reciever function to obtain metric updates on average, threshold and recieve work stealing related messages
+         *
+         * This fuction recieves updates from parent rank matchmaker, when recieving work-stealing messages function are called with respect to the reqeusted operation
+         * it is important to note that the thread assigned to this function executes work stealing and passes around particles, this comes with a series of problems and advantages,
+         * reduction(if in a worker) is not stopped, the mechanism has to be regulated to not interfiere with other parts of the system
+         *   
+         * The thread assigned to the function is also the one that sets termination flag to 0 indicating the end of reduction and the beginning of gathering operations, this flag is set
+         * to 0 when the parent matchmaker sends an update signaling that the local average is 0, this cancels all recieving calls of MPI and begins ending procedure in the node
+         * 
+         */
         void recieveMessageFromMatchmaker(){
             MPI_Status stat1, stat2, stat3, stat4;
             MPI_Request req1, req2, req3, req4;
@@ -201,18 +240,61 @@ class Node{
             cout << "CLOSING RECIEVE THREAD IN RANK : " << nodeRank << endl;
         }
 
+        /**
+         * @brief Basic template of data injection for a node
+         *  
+         * Particles are injected in a node, this function is overloaded in specialization classes, at the end of the operation status is then declared with a special tag
+         * (UNLOCKED) to indicate to parent rank that the node is ready to perform work stealing
+         * 
+         * @param stealingQuantity Quantity of injected particles in node
+         */
         virtual void injectDataInNode(int stealingQuantity){
             totalParticles += stealingQuantity;
 
             declareStatus(UNLOCKED);
         }
 
+        /**
+         * @brief Basic template of data deletion for a node
+         *  
+         * Particles are deleted from a node, this function is overloaded in specialization classes, at the end of the operation status is then declared with a special tag
+         * (UNLOCKED) to indicate to parent rank that the node is ready to perform work stealing
+         * 
+         * @param stealingQuantity Quantity of injected particles in node
+         */
         virtual void deleteDataFromNode(int stealingQuantity){
             totalParticles -= stealingQuantity;
  
             declareStatus(UNLOCKED);
         }
 
+
+        /**
+         * @brief Construct a new Node object
+         *
+         * Constructor initializes the following elements:
+         *  - nodeRank -> Inizialized by calling MPI_Comm_rank function
+         *  - parentRank -> Parent rank is passed as one of the parameters
+         *  - chunkSize -> Chunk size is passed as one of the parameters
+         *  - inWindowBuffer -> Input window buffer is allocated
+         *  - outWindowBuffer -> Output window buffer is allocated
+         *  - recvBuffer -> Recieve buffer is passed as one of the parameters
+         *  - status -> Status is set as STABLE by default as every node has the same number of particles at the beginning of computation
+         *  - totalparticles -> Total particles number is passed as one the parameters
+         *  - localAverage -> Local Average is passed as one of the parameters
+         *  - localThreshold -> Local threshold is passed as one of the parameters
+         *  - sentFlag -> Flag array is initialized and STABLE flag is set to 1
+         *  - done -> Termination flag is set to false
+         *  - inWindow -> inWindow MPI object is initialized with the corrisponding MPI function
+         *  - outWindow -> outWindow MPI object is initialized with the corrisponding MPI function
+         *
+         * @param parentRank Rank of parent
+         * @param chunkSize Chunk size, differs with the level at which the node is located
+         * @param recvBuffer recvBuffer is passed as a pointer
+         * @param totalParticles totalParticles, initial particle assigned to a node, differs with the level of a node
+         * @param localAverage initial local Average differs with level and is passed when object is created
+         * @param localThreshold initial threshold is set as a percentage of local average (10% - 30% of initial average)
+         */
 
         Node(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int localThreshold){
             MPI_Comm_rank(MPI_COMM_WORLD, &(this->nodeRank));
@@ -236,6 +318,15 @@ class Node{
             MPI_Win_create(outWindowBuffer, sizeof(int) * MAX_STEAL, sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &(this->outWindow));
         }
 
+        /**
+         * @brief Destroy the Node object
+         * 
+         * Core objects present in all node specialization are destroyed here:
+         *  - recvBuffer
+         *  - outWindowBuffer
+         *  - inWindowBuffer
+         *  - sentFlag
+         */
         virtual ~Node(){
             delete []recvBuffer;
             delete []outWindowBuffer;

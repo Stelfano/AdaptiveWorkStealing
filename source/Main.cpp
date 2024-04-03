@@ -1,11 +1,10 @@
 /**
  * @file Main.cpp
  * @author Stefano Romeo
- * @brief Uno scheduler adattivo per il work stealing
+ * @brief Adaptive work stealing scheduler for distributed computing
  * @version 0.1
  * @date 2023-11-22
  * 
- * @copyright Copyright (c) 2023
  * 
  */
 

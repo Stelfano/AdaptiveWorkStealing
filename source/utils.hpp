@@ -1,3 +1,12 @@
+/**
+ * @file utils.hpp
+ * @author Stefano Romeo
+ * @brief File definition for different macros and tags
+ * @version 0.1
+ * @date 2024-04-03
+ * 
+ */
+
 #ifndef UTILS
 #define UTILS
 #include <chrono>
@@ -8,51 +17,88 @@
 
 /**
  * @def OVERWORK 
- * Segnala status di overworking, in questo stato un worker non può essere target di work stealing (non può ricevere altri dati), non appena questo status è segnalato viene
- * invocata una procedura per determinare un target a cui dare parte del lavoro del nodo sovraccarico
+ * This Tag is used to signal the OVERWORK status, in this status a node has too many particles for the current average, this should cause work stealing if there are any cores available
  */
 
 
 /**
  * @def STABLE
- * Segnala status di stable, in questo stato un worker non può essere vittima o target di una procedura di work stealing, il nodo è interamente occupato ad
- * elaborare e computare i dati attuali
+ * This Tag signals STABLE status, in this status a node declares to be in line with the current average of data that every node has, this is an healthy state and does not cause any further
+ * operation on the node
  * 
  */
 
 
 /**
  * @def UNDERWORK
- * Segnala status di underwork, in questo stato un worker può essere target di work stealing, viene fatto ciò per evitare che il worker tocchi lo stato di 
- * IDLE che cerchiamo di evitare a tutti i costi per sfruttare al massimo il sistema
- * 
+ * UNDERWORK status signals that the node has a lower number of particles and declares himself available to recieve data from other nodes
  */
-
 
 /**
  * @def IDLE
- * Segnala status di Idle, in questo stato un worker deve essere target di work stealing al più presto per massimizzare le prestazioni, quando un core raggiunge
- * questo stato viene invocata la procedura del targeting e viene data priorità al targeting verso core Idle
- * 
+ * IDLE Tag indicates that a core has fallen in an idle state and all the particles have been consumed, this should immediatly cause an allert between all cores and cause work stealing except
+ * in the final phase of reduction
  */
 
-
-/**
- * @def IDLE
- * Segnala status di Idle, in questo stato un worker deve essere target di work stealing al più presto per massimizzare le prestazioni, quando un core raggiunge
- * questo stato viene invocata la procedura del targeting e viene data priorità al targeting verso core Idle
- * 
- */
 /**
  * @def DATA
- * Tag utilizzato nei messaggi per segnalare al worker che i dati contenuti nel messaggio sono dati computazionali e non messaggi di stato sul sistema
- * 
+ * This tag is reserved to the final reduction indicating that the message sent contains data obtained by the reduction operatioThis tag is reserved to the final reduction indicating that the message sent contains data obtained by the reduction operation
  */
+
 /**
- * @def METRICS
- * Tag utilizzato per indicare che il contenuto dei messaggi è un aggiornamento sulle metriche di sistema
- * 
+ * @def AVERAGE
+ * Tag reserved to average updates from matchmaker to a node below in the hierarchy
  */
+
+
+/**
+ * @def THRESHOLD
+ * Tag reserved to threshold updates from matchmaker to a node below in the hierarchy
+ */
+
+
+/**
+ * @def VICTIM
+ * This tag signals that a node has been selected to be a victim of work stealing (the message containes the number of particles to be stolen)
+ */
+
+/**
+ * @def TARGET
+ * This tag signals that a node has been selected to be a target of work stealing (the message containes the number of particles to be injected)
+ */
+
+/**
+ * @def LOCKED
+ * This tag prevents any work stealing operation to appen on a node, when a node is locked, it's parent is also locked, effectivly stopping work stealing in a brach of the computational tree
+ * To remove this status an UNLOCKED message has to follow, any other message not tagged as UNLOCKED will be ignored
+ */
+
+/**
+ * @def UNLOCKED
+ * This tag unlocks a core, when unlocking a core is not placed in any other status but it is able to communicate normally again after a workstealing event
+ */
+
+/**
+ * @def COMM
+ * Special tag used in communication of suppementary information inside a workstealing operation 
+ */
+
+
+/**
+ * @def UPDATE
+ * Special tag used to prevent wrong recieve operation in a matchmaker
+ */
+
+/**
+ * @def MAX_STEAL
+ * Indicates max number of particles to be stolen in a work stealing event, it is also an upper bound of the inWindowBuffer and outWindowBuffer
+ */
+
+/**
+ * @def MIN_THRESHOLD
+ * Defines the lower bound of the threshold metric, in order to prevent stealing events of little importance and to prevent stealing al low particle count 
+ */
+
 
 #define OVERWORK 1 
 #define STABLE 2
