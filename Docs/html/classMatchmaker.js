@@ -26,7 +26,6 @@ var classMatchmaker =
     [ "updateAverage", "classMatchmaker.html#a0dc41961c3fc9aaaaa7cdc6a7b56c1fe", null ],
     [ "updateValues", "classMatchmaker.html#a82f68f895ddefa72cc5a7a292bf1b355", null ],
     [ "waitControlMessages", "classMatchmaker.html#af9914b1ee5e39e4be03a87da3365f30c", null ],
-    [ "childFlag", "classMatchmaker.html#a4ba0484c69ccdc3d6b024b11653a8a18", null ],
     [ "childNumber", "classMatchmaker.html#ac04df1c7928487fb03549a95ea5fbdde", null ],
     [ "childRanks", "classMatchmaker.html#a2d07a7c412fb92f23f2b0f69efbb286f", null ],
     [ "lastTargetRank", "classMatchmaker.html#ad4512bbf669aaac288546043363112d9", null ],

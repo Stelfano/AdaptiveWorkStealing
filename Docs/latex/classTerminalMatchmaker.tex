@@ -19,11 +19,11 @@ Inheritance diagram for Terminal\+Matchmaker\+:\begin{figure}[H]
 \begin{DoxyCompactItemize}
 \item 
 void \mbox{\hyperlink{classMatchmaker_aa04768d11858ccbdc64f429714cd69e6}{matchmaker\+Main\+Loop}} (int \texorpdfstring{$\ast$}{*}global\+Result)
-\item 
+\begin{DoxyCompactList}\small\item\em Begins matchmaker main loop. \end{DoxyCompactList}\item 
 \mbox{\hyperlink{classMatchmaker_a31e43eacbec0cd8032c04afb26eb5435}{Matchmaker}} (int \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parent\+Rank}}, int \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunk\+Size}}, int \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recv\+Buffer}}, int \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{total\+Particles}}, float \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{local\+Average}}, int \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{local\+Threshold}}, int \mbox{\hyperlink{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}{child\+Number}}, int \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f}{child\+Ranks}})
-\item 
+\begin{DoxyCompactList}\small\item\em Construct a new \doxylink{classMatchmaker}{Matchmaker} object The constructor intializes the following variables\+: \end{DoxyCompactList}\item 
 virtual \mbox{\hyperlink{classMatchmaker_a037ac2765012704d3860f4d2f7e32c92}{\texorpdfstring{$\sim$}{\string~}\+Matchmaker}} ()
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Destroy the \doxylink{classMatchmaker}{Matchmaker} object The following objects are deleted here \+: \end{DoxyCompactList}\end{DoxyCompactItemize}
 \doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{classNode}{Node}}}
 \begin{DoxyCompactItemize}
 \item 
@@ -48,45 +48,45 @@ virtual int \mbox{\hyperlink{classTerminalMatchmaker_acd9680c941ef393d41d4fc31a8
 \begin{DoxyCompactItemize}
 \item 
 MPI\+\_\+\+Status \mbox{\hyperlink{classMatchmaker_af9914b1ee5e39e4be03a87da3365f30c}{wait\+Control\+Messages}} (int \texorpdfstring{$\ast$}{*}recv\+Flag)
-\item 
+\begin{DoxyCompactList}\small\item\em Recieves a messagge from a child in a blocking function. \end{DoxyCompactList}\item 
 int \mbox{\hyperlink{classMatchmaker_a130a7d388e90a1e4e36fbf4cfd26ee85}{find\+Possible\+Victim}} (int victim)
-\item 
+\begin{DoxyCompactList}\small\item\em Find available victim for work stealing. \end{DoxyCompactList}\item 
 int \mbox{\hyperlink{classMatchmaker_af37f3f7a4631daca80ba7fb7bf561923}{find\+Possible\+Target}} (int target)
-\item 
+\begin{DoxyCompactList}\small\item\em Find available target for work stealing. \end{DoxyCompactList}\item 
 int \mbox{\hyperlink{classMatchmaker_a31c01388721ceff6876d0a74e5490f88}{check\+Active\+Processes}} ()
-\item 
+\begin{DoxyCompactList}\small\item\em Check number of still elaborating ranks. \end{DoxyCompactList}\item 
 bool \mbox{\hyperlink{classMatchmaker_a2cb68818288876d55caf0a9dd2a4b27c}{any\+Node\+Is\+Locked}} ()
-\item 
+\begin{DoxyCompactList}\small\item\em Checks whether a node is in LOCKED status. \end{DoxyCompactList}\item 
 virtual void \mbox{\hyperlink{classMatchmaker_a0dc41961c3fc9aaaaa7cdc6a7b56c1fe}{update\+Average}} ()
-\item 
+\begin{DoxyCompactList}\small\item\em Updates current average. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classMatchmaker_a82f68f895ddefa72cc5a7a292bf1b355}{update\+Values}} (int source, int \texorpdfstring{$\ast$}{*}local\+Flag)
-\item 
+\begin{DoxyCompactList}\small\item\em Helper function to modify tag\+Array and value\+Array. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classMatchmaker_a9f7217ec4dac6e5c2418c6f819b42aea}{notify\+Average}} (int reciever)
-\item 
+\begin{DoxyCompactList}\small\item\em Notifies new average value to a rank. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classMatchmaker_a0c10deeb6942d0067cb45968695d4b84}{notify\+Threshold}} ()
-\item 
+\begin{DoxyCompactList}\small\item\em Notifies threshold to all child ranks. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classMatchmaker_a92b2ad780c7cff68deba79da414545a5}{check\+For\+Double\+Steal}} (int current\+Victim\+Rank, int current\+Target\+Rank)
-\item 
+\begin{DoxyCompactList}\small\item\em Check if double stealing event has append and increases threshold. \end{DoxyCompactList}\item 
 int \mbox{\hyperlink{classMatchmaker_ad32cb881a3493ce7a960bfbb0725df76}{set\+Stealing\+Quantity}} (int target\+Index, int victim\+Index)
-\item 
+\begin{DoxyCompactList}\small\item\em Calculates stealing quantity for stealing event. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classMatchmaker_a691dbf9e4358c767049b3312a83de708}{print\+Metrics}} ()
-\item 
+\begin{DoxyCompactList}\small\item\em Writes to standard output current values of child ranks and their current status. \end{DoxyCompactList}\item 
 virtual void \mbox{\hyperlink{classMatchmaker_a1eb5487f91c5a7e74aa4afcadd1b16b8}{delete\+Data\+From\+Node}} (int stealing\+Quantity)
-\begin{DoxyCompactList}\small\item\em Basic template of data deletion for a node. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Deletes data from child nodes. \end{DoxyCompactList}\item 
 virtual void \mbox{\hyperlink{classMatchmaker_adaab737f7915c125f113459673676d68}{inject\+Data\+In\+Node}} (int stealing\+Quantity)
-\begin{DoxyCompactList}\small\item\em Basic template of data injection for a node. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Injects data in child nodes. \end{DoxyCompactList}\item 
 virtual void \mbox{\hyperlink{classMatchmaker_a64a4bf9ea9671163e3da509404a2feb8}{distribute\+Data}} (int stealing\+Quantity)
-\item 
+\begin{DoxyCompactList}\small\item\em Distributes data among child nodes. \end{DoxyCompactList}\item 
 int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_ada689998b29b04b679d527790b15a5e3}{calculate\+Stealing}} (int stealing\+Quantity, bool even\+Distribute=false)
-\item 
+\begin{DoxyCompactList}\small\item\em Calculate particle distribution among nodes in a multiple stealing event. \end{DoxyCompactList}\item 
 virtual int \mbox{\hyperlink{classMatchmaker_a6e87c91133a790f192a658d15ccbb39b}{check\+Termination}} ()
-\item 
+\begin{DoxyCompactList}\small\item\em Checks termination flag. \end{DoxyCompactList}\item 
 virtual thread \mbox{\hyperlink{classMatchmaker_a978de2aa3d7a25e132419885c8674836}{activate\+Status\+Thread}} ()
-\item 
+\begin{DoxyCompactList}\small\item\em Activates status thread. \end{DoxyCompactList}\item 
 virtual thread \mbox{\hyperlink{classMatchmaker_a3b6053d81de9fa4b2701d7f19632b878}{activate\+Reciever\+Thread}} ()
-\item 
+\begin{DoxyCompactList}\small\item\em Activates reciever thread. \end{DoxyCompactList}\item 
 virtual void \mbox{\hyperlink{classMatchmaker_a49a3a4566356faf89c68709572864f76}{ending\+Procedure}} ()
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Begins ending procedure, in a normal matchmaker this is just a simple alert. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \doxysubsection*{Protected Member Functions inherited from \mbox{\hyperlink{classNode}{Node}}}
 \begin{DoxyCompactItemize}
 \item 
@@ -97,25 +97,23 @@ void \mbox{\hyperlink{classNode_a3e8e2835b7f01ba3b44e57b181a175b8}{declare\+Stat
 \begin{DoxyCompactItemize}
 \item 
 int \mbox{\hyperlink{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}{child\+Number}}
-\item 
+\begin{DoxyCompactList}\small\item\em Number of childs of a matchmaker. \end{DoxyCompactList}\item 
 int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f}{child\+Ranks}}
-\item 
+\begin{DoxyCompactList}\small\item\em Ranks of childs. \end{DoxyCompactList}\item 
 int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_a625ea9bbc12d495154525548f04c811b}{tag\+Array}}
-\item 
+\begin{DoxyCompactList}\small\item\em Current status of childs. \end{DoxyCompactList}\item 
 int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_ae698ae3f1e531e1a442b6994815bd9b3}{value\+Array}}
-\item 
+\begin{DoxyCompactList}\small\item\em Current particle number of childs. \end{DoxyCompactList}\item 
 int \mbox{\hyperlink{classMatchmaker_ac3bde3080d6cf11b6f902b209a836462}{last\+Victim\+Rank}}
-\item 
+\begin{DoxyCompactList}\small\item\em Last victim rank. \end{DoxyCompactList}\item 
 int \mbox{\hyperlink{classMatchmaker_ad4512bbf669aaac288546043363112d9}{last\+Target\+Rank}}
-\item 
+\begin{DoxyCompactList}\small\item\em Last target rank. \end{DoxyCompactList}\item 
 int \mbox{\hyperlink{classMatchmaker_a3b4fd71a833ff0ddd031ae9101281fb5}{offset}}
-\item 
+\begin{DoxyCompactList}\small\item\em Offset of rank for child. \end{DoxyCompactList}\item 
 float \mbox{\hyperlink{classMatchmaker_a459253acc3e96eee3bdf2146f2bea106}{lower\+Average}}
-\item 
+\begin{DoxyCompactList}\small\item\em Average of lower nodes. \end{DoxyCompactList}\item 
 int \mbox{\hyperlink{classMatchmaker_ad15c9e004d5e0d59ba91b2d2991b0cee}{lower\+Threshold}}
-\item 
-int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_a4ba0484c69ccdc3d6b024b11653a8a18}{child\+Flag}}
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Threshold of lower nodes. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \doxysubsection*{Protected Attributes inherited from \mbox{\hyperlink{classNode}{Node}}}
 \begin{DoxyCompactItemize}
 \item 

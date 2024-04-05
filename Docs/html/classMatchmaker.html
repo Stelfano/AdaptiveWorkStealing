@@ -116,10 +116,13 @@ Inheritance diagram for Matchmaker:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aa04768d11858ccbdc64f429714cd69e6" id="r_aa04768d11858ccbdc64f429714cd69e6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa04768d11858ccbdc64f429714cd69e6">matchmakerMainLoop</a> (int *globalResult)</td></tr>
+<tr class="memdesc:aa04768d11858ccbdc64f429714cd69e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begins matchmaker main loop.  <br /></td></tr>
 <tr class="separator:aa04768d11858ccbdc64f429714cd69e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31e43eacbec0cd8032c04afb26eb5435" id="r_a31e43eacbec0cd8032c04afb26eb5435"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a31e43eacbec0cd8032c04afb26eb5435">Matchmaker</a> (int <a class="el" href="classNode.html#af6f5d2b4b37ba297fa6eebc17542dad4">parentRank</a>, int <a class="el" href="classNode.html#a57eaf1618c1bf6e9efdb1679c7c88f4b">chunkSize</a>, int *<a class="el" href="classNode.html#aec1b644887e939fba2f43ff628ecd7eb">recvBuffer</a>, int <a class="el" href="classNode.html#a56e05c172ac32c53ce36483cb826fcf8">totalParticles</a>, float <a class="el" href="classNode.html#a3152534caf4db66c422fccd375473e1e">localAverage</a>, int <a class="el" href="classNode.html#a42508a8dadd837a7936ab40b4de38d53">localThreshold</a>, int <a class="el" href="#ac04df1c7928487fb03549a95ea5fbdde">childNumber</a>, int *<a class="el" href="#a2d07a7c412fb92f23f2b0f69efbb286f">childRanks</a>)</td></tr>
+<tr class="memdesc:a31e43eacbec0cd8032c04afb26eb5435"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new <a class="el" href="classMatchmaker.html">Matchmaker</a> object The constructor intializes the following variables:  <br /></td></tr>
 <tr class="separator:a31e43eacbec0cd8032c04afb26eb5435"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a037ac2765012704d3860f4d2f7e32c92" id="r_a037ac2765012704d3860f4d2f7e32c92"><td class="memItemLeft" align="right" valign="top">virtual&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a037ac2765012704d3860f4d2f7e32c92">~Matchmaker</a> ()</td></tr>
+<tr class="memdesc:a037ac2765012704d3860f4d2f7e32c92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroy the <a class="el" href="classMatchmaker.html">Matchmaker</a> object The following objects are deleted here :  <br /></td></tr>
 <tr class="separator:a037ac2765012704d3860f4d2f7e32c92"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classNode"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classNode')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classNode.html">Node</a></td></tr>
 <tr class="memitem:a48511c73b8d4174af4405f14fc7bb37a inherit pub_methods_classNode" id="r_a48511c73b8d4174af4405f14fc7bb37a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNode.html#a48511c73b8d4174af4405f14fc7bb37a">sendStatusFunction</a> ()</td></tr>
@@ -138,52 +141,73 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
 <tr class="memitem:af9914b1ee5e39e4be03a87da3365f30c" id="r_af9914b1ee5e39e4be03a87da3365f30c"><td class="memItemLeft" align="right" valign="top">MPI_Status&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af9914b1ee5e39e4be03a87da3365f30c">waitControlMessages</a> (int *recvFlag)</td></tr>
+<tr class="memdesc:af9914b1ee5e39e4be03a87da3365f30c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recieves a messagge from a child in a blocking function.  <br /></td></tr>
 <tr class="separator:af9914b1ee5e39e4be03a87da3365f30c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a130a7d388e90a1e4e36fbf4cfd26ee85" id="r_a130a7d388e90a1e4e36fbf4cfd26ee85"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a130a7d388e90a1e4e36fbf4cfd26ee85">findPossibleVictim</a> (int victim)</td></tr>
+<tr class="memdesc:a130a7d388e90a1e4e36fbf4cfd26ee85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find available victim for work stealing.  <br /></td></tr>
 <tr class="separator:a130a7d388e90a1e4e36fbf4cfd26ee85"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af37f3f7a4631daca80ba7fb7bf561923" id="r_af37f3f7a4631daca80ba7fb7bf561923"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af37f3f7a4631daca80ba7fb7bf561923">findPossibleTarget</a> (int target)</td></tr>
+<tr class="memdesc:af37f3f7a4631daca80ba7fb7bf561923"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find available target for work stealing.  <br /></td></tr>
 <tr class="separator:af37f3f7a4631daca80ba7fb7bf561923"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31c01388721ceff6876d0a74e5490f88" id="r_a31c01388721ceff6876d0a74e5490f88"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a31c01388721ceff6876d0a74e5490f88">checkActiveProcesses</a> ()</td></tr>
+<tr class="memdesc:a31c01388721ceff6876d0a74e5490f88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check number of still elaborating ranks.  <br /></td></tr>
 <tr class="separator:a31c01388721ceff6876d0a74e5490f88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2cb68818288876d55caf0a9dd2a4b27c" id="r_a2cb68818288876d55caf0a9dd2a4b27c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2cb68818288876d55caf0a9dd2a4b27c">anyNodeIsLocked</a> ()</td></tr>
+<tr class="memdesc:a2cb68818288876d55caf0a9dd2a4b27c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks whether a node is in LOCKED status.  <br /></td></tr>
 <tr class="separator:a2cb68818288876d55caf0a9dd2a4b27c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0dc41961c3fc9aaaaa7cdc6a7b56c1fe" id="r_a0dc41961c3fc9aaaaa7cdc6a7b56c1fe"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0dc41961c3fc9aaaaa7cdc6a7b56c1fe">updateAverage</a> ()</td></tr>
+<tr class="memdesc:a0dc41961c3fc9aaaaa7cdc6a7b56c1fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates current average.  <br /></td></tr>
 <tr class="separator:a0dc41961c3fc9aaaaa7cdc6a7b56c1fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82f68f895ddefa72cc5a7a292bf1b355" id="r_a82f68f895ddefa72cc5a7a292bf1b355"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a82f68f895ddefa72cc5a7a292bf1b355">updateValues</a> (int source, int *localFlag)</td></tr>
+<tr class="memdesc:a82f68f895ddefa72cc5a7a292bf1b355"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to modify tagArray and valueArray.  <br /></td></tr>
 <tr class="separator:a82f68f895ddefa72cc5a7a292bf1b355"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f7217ec4dac6e5c2418c6f819b42aea" id="r_a9f7217ec4dac6e5c2418c6f819b42aea"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9f7217ec4dac6e5c2418c6f819b42aea">notifyAverage</a> (int reciever)</td></tr>
+<tr class="memdesc:a9f7217ec4dac6e5c2418c6f819b42aea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Notifies new average value to a rank.  <br /></td></tr>
 <tr class="separator:a9f7217ec4dac6e5c2418c6f819b42aea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0c10deeb6942d0067cb45968695d4b84" id="r_a0c10deeb6942d0067cb45968695d4b84"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0c10deeb6942d0067cb45968695d4b84">notifyThreshold</a> ()</td></tr>
+<tr class="memdesc:a0c10deeb6942d0067cb45968695d4b84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Notifies threshold to all child ranks.  <br /></td></tr>
 <tr class="separator:a0c10deeb6942d0067cb45968695d4b84"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92b2ad780c7cff68deba79da414545a5" id="r_a92b2ad780c7cff68deba79da414545a5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a92b2ad780c7cff68deba79da414545a5">checkForDoubleSteal</a> (int currentVictimRank, int currentTargetRank)</td></tr>
+<tr class="memdesc:a92b2ad780c7cff68deba79da414545a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if double stealing event has append and increases threshold.  <br /></td></tr>
 <tr class="separator:a92b2ad780c7cff68deba79da414545a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad32cb881a3493ce7a960bfbb0725df76" id="r_ad32cb881a3493ce7a960bfbb0725df76"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad32cb881a3493ce7a960bfbb0725df76">setStealingQuantity</a> (int targetIndex, int victimIndex)</td></tr>
+<tr class="memdesc:ad32cb881a3493ce7a960bfbb0725df76"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates stealing quantity for stealing event.  <br /></td></tr>
 <tr class="separator:ad32cb881a3493ce7a960bfbb0725df76"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a691dbf9e4358c767049b3312a83de708" id="r_a691dbf9e4358c767049b3312a83de708"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a691dbf9e4358c767049b3312a83de708">printMetrics</a> ()</td></tr>
+<tr class="memdesc:a691dbf9e4358c767049b3312a83de708"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes to standard output current values of child ranks and their current status.  <br /></td></tr>
 <tr class="separator:a691dbf9e4358c767049b3312a83de708"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1eb5487f91c5a7e74aa4afcadd1b16b8" id="r_a1eb5487f91c5a7e74aa4afcadd1b16b8"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1eb5487f91c5a7e74aa4afcadd1b16b8">deleteDataFromNode</a> (int stealingQuantity)</td></tr>
-<tr class="memdesc:a1eb5487f91c5a7e74aa4afcadd1b16b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Basic template of data deletion for a node.  <br /></td></tr>
+<tr class="memdesc:a1eb5487f91c5a7e74aa4afcadd1b16b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deletes data from child nodes.  <br /></td></tr>
 <tr class="separator:a1eb5487f91c5a7e74aa4afcadd1b16b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adaab737f7915c125f113459673676d68" id="r_adaab737f7915c125f113459673676d68"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adaab737f7915c125f113459673676d68">injectDataInNode</a> (int stealingQuantity)</td></tr>
-<tr class="memdesc:adaab737f7915c125f113459673676d68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Basic template of data injection for a node.  <br /></td></tr>
+<tr class="memdesc:adaab737f7915c125f113459673676d68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Injects data in child nodes.  <br /></td></tr>
 <tr class="separator:adaab737f7915c125f113459673676d68"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a64a4bf9ea9671163e3da509404a2feb8" id="r_a64a4bf9ea9671163e3da509404a2feb8"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a64a4bf9ea9671163e3da509404a2feb8">distributeData</a> (int stealingQuantity)</td></tr>
+<tr class="memdesc:a64a4bf9ea9671163e3da509404a2feb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Distributes data among child nodes.  <br /></td></tr>
 <tr class="separator:a64a4bf9ea9671163e3da509404a2feb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada689998b29b04b679d527790b15a5e3" id="r_ada689998b29b04b679d527790b15a5e3"><td class="memItemLeft" align="right" valign="top">int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ada689998b29b04b679d527790b15a5e3">calculateStealing</a> (int stealingQuantity, bool evenDistribute=false)</td></tr>
+<tr class="memdesc:ada689998b29b04b679d527790b15a5e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate particle distribution among nodes in a multiple stealing event.  <br /></td></tr>
 <tr class="separator:ada689998b29b04b679d527790b15a5e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acc74e44c22ca882d310cb9a527705454" id="r_acc74e44c22ca882d310cb9a527705454"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acc74e44c22ca882d310cb9a527705454">gatherData</a> (int stealingQuantity)</td></tr>
+<tr class="memdesc:acc74e44c22ca882d310cb9a527705454"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gathers data from lower nodes.  <br /></td></tr>
 <tr class="separator:acc74e44c22ca882d310cb9a527705454"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a36f4239dfe732de00954f07b599b1a1c" id="r_a36f4239dfe732de00954f07b599b1a1c"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a36f4239dfe732de00954f07b599b1a1c">stealFromVictim</a> (int *stealingQuantity, int victimRank)</td></tr>
+<tr class="memdesc:a36f4239dfe732de00954f07b599b1a1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Steals data from a node.  <br /></td></tr>
 <tr class="separator:a36f4239dfe732de00954f07b599b1a1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a23ac0ed2927e896c51d4204a99234d88" id="r_a23ac0ed2927e896c51d4204a99234d88"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a23ac0ed2927e896c51d4204a99234d88">sendToTarget</a> (int *stealingQuantity, int targetRank)</td></tr>
+<tr class="memdesc:a23ac0ed2927e896c51d4204a99234d88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sends stolen data to a single target.  <br /></td></tr>
 <tr class="separator:a23ac0ed2927e896c51d4204a99234d88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6e87c91133a790f192a658d15ccbb39b" id="r_a6e87c91133a790f192a658d15ccbb39b"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6e87c91133a790f192a658d15ccbb39b">checkTermination</a> ()</td></tr>
+<tr class="memdesc:a6e87c91133a790f192a658d15ccbb39b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks termination flag.  <br /></td></tr>
 <tr class="separator:a6e87c91133a790f192a658d15ccbb39b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a978de2aa3d7a25e132419885c8674836" id="r_a978de2aa3d7a25e132419885c8674836"><td class="memItemLeft" align="right" valign="top">virtual thread&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a978de2aa3d7a25e132419885c8674836">activateStatusThread</a> ()</td></tr>
+<tr class="memdesc:a978de2aa3d7a25e132419885c8674836"><td class="mdescLeft">&#160;</td><td class="mdescRight">Activates status thread.  <br /></td></tr>
 <tr class="separator:a978de2aa3d7a25e132419885c8674836"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b6053d81de9fa4b2701d7f19632b878" id="r_a3b6053d81de9fa4b2701d7f19632b878"><td class="memItemLeft" align="right" valign="top">virtual thread&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3b6053d81de9fa4b2701d7f19632b878">activateRecieverThread</a> ()</td></tr>
+<tr class="memdesc:a3b6053d81de9fa4b2701d7f19632b878"><td class="mdescLeft">&#160;</td><td class="mdescRight">Activates reciever thread.  <br /></td></tr>
 <tr class="separator:a3b6053d81de9fa4b2701d7f19632b878"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a49a3a4566356faf89c68709572864f76" id="r_a49a3a4566356faf89c68709572864f76"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a49a3a4566356faf89c68709572864f76">endingProcedure</a> ()</td></tr>
+<tr class="memdesc:a49a3a4566356faf89c68709572864f76"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begins ending procedure, in a normal matchmaker this is just a simple alert.  <br /></td></tr>
 <tr class="separator:a49a3a4566356faf89c68709572864f76"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classNode"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_methods_classNode')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classNode.html">Node</a></td></tr>
 <tr class="memitem:a3e8e2835b7f01ba3b44e57b181a175b8 inherit pro_methods_classNode" id="r_a3e8e2835b7f01ba3b44e57b181a175b8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNode.html#a3e8e2835b7f01ba3b44e57b181a175b8">declareStatus</a> (int <a class="el" href="classNode.html#addabd01a35fcce9e4ced5fe9b6b6da82">status</a>)</td></tr>
@@ -193,25 +217,32 @@ Protected Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
 <tr class="memitem:ac04df1c7928487fb03549a95ea5fbdde" id="r_ac04df1c7928487fb03549a95ea5fbdde"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac04df1c7928487fb03549a95ea5fbdde">childNumber</a></td></tr>
+<tr class="memdesc:ac04df1c7928487fb03549a95ea5fbdde"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of childs of a matchmaker.  <br /></td></tr>
 <tr class="separator:ac04df1c7928487fb03549a95ea5fbdde"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d07a7c412fb92f23f2b0f69efbb286f" id="r_a2d07a7c412fb92f23f2b0f69efbb286f"><td class="memItemLeft" align="right" valign="top">int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2d07a7c412fb92f23f2b0f69efbb286f">childRanks</a></td></tr>
+<tr class="memdesc:a2d07a7c412fb92f23f2b0f69efbb286f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ranks of childs.  <br /></td></tr>
 <tr class="separator:a2d07a7c412fb92f23f2b0f69efbb286f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a625ea9bbc12d495154525548f04c811b" id="r_a625ea9bbc12d495154525548f04c811b"><td class="memItemLeft" align="right" valign="top">int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a625ea9bbc12d495154525548f04c811b">tagArray</a></td></tr>
+<tr class="memdesc:a625ea9bbc12d495154525548f04c811b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current status of childs.  <br /></td></tr>
 <tr class="separator:a625ea9bbc12d495154525548f04c811b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae698ae3f1e531e1a442b6994815bd9b3" id="r_ae698ae3f1e531e1a442b6994815bd9b3"><td class="memItemLeft" align="right" valign="top">int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae698ae3f1e531e1a442b6994815bd9b3">valueArray</a></td></tr>
+<tr class="memdesc:ae698ae3f1e531e1a442b6994815bd9b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current particle number of childs.  <br /></td></tr>
 <tr class="separator:ae698ae3f1e531e1a442b6994815bd9b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac3bde3080d6cf11b6f902b209a836462" id="r_ac3bde3080d6cf11b6f902b209a836462"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac3bde3080d6cf11b6f902b209a836462">lastVictimRank</a></td></tr>
+<tr class="memdesc:ac3bde3080d6cf11b6f902b209a836462"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last victim rank.  <br /></td></tr>
 <tr class="separator:ac3bde3080d6cf11b6f902b209a836462"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad4512bbf669aaac288546043363112d9" id="r_ad4512bbf669aaac288546043363112d9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad4512bbf669aaac288546043363112d9">lastTargetRank</a></td></tr>
+<tr class="memdesc:ad4512bbf669aaac288546043363112d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last target rank.  <br /></td></tr>
 <tr class="separator:ad4512bbf669aaac288546043363112d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b4fd71a833ff0ddd031ae9101281fb5" id="r_a3b4fd71a833ff0ddd031ae9101281fb5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3b4fd71a833ff0ddd031ae9101281fb5">offset</a></td></tr>
+<tr class="memdesc:a3b4fd71a833ff0ddd031ae9101281fb5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset of rank for child.  <br /></td></tr>
 <tr class="separator:a3b4fd71a833ff0ddd031ae9101281fb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a459253acc3e96eee3bdf2146f2bea106" id="r_a459253acc3e96eee3bdf2146f2bea106"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a459253acc3e96eee3bdf2146f2bea106">lowerAverage</a></td></tr>
+<tr class="memdesc:a459253acc3e96eee3bdf2146f2bea106"><td class="mdescLeft">&#160;</td><td class="mdescRight">Average of lower nodes.  <br /></td></tr>
 <tr class="separator:a459253acc3e96eee3bdf2146f2bea106"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad15c9e004d5e0d59ba91b2d2991b0cee" id="r_ad15c9e004d5e0d59ba91b2d2991b0cee"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad15c9e004d5e0d59ba91b2d2991b0cee">lowerThreshold</a></td></tr>
+<tr class="memdesc:ad15c9e004d5e0d59ba91b2d2991b0cee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Threshold of lower nodes.  <br /></td></tr>
 <tr class="separator:ad15c9e004d5e0d59ba91b2d2991b0cee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4ba0484c69ccdc3d6b024b11653a8a18" id="r_a4ba0484c69ccdc3d6b024b11653a8a18"><td class="memItemLeft" align="right" valign="top">int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4ba0484c69ccdc3d6b024b11653a8a18">childFlag</a></td></tr>
-<tr class="separator:a4ba0484c69ccdc3d6b024b11653a8a18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classNode"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_attribs_classNode')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classNode.html">Node</a></td></tr>
 <tr class="memitem:a65784e8a8e4c895cae1c71b6886dee32 inherit pro_attribs_classNode" id="r_a65784e8a8e4c895cae1c71b6886dee32"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classNode.html#a65784e8a8e4c895cae1c71b6886dee32">treeWidth</a></td></tr>
 <tr class="memdesc:a65784e8a8e4c895cae1c71b6886dee32 inherit pro_attribs_classNode"><td class="mdescLeft">&#160;</td><td class="mdescRight">Width of the computational tree.  <br /></td></tr>
@@ -323,6 +354,32 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Construct a new <a class="el" href="classMatchmaker.html">Matchmaker</a> object The constructor intializes the following variables: </p>
+<ul>
+<li>Child number -&gt; Passed as parameter</li>
+<li>Child ranks -&gt; Passed as parameter</li>
+<li>Tag array -&gt; is instatiated as a new int of child number dimension and all values are set to stable</li>
+<li>Value array -&gt; is instatiated as a new int of child number dimension and all values are set to total particles / child number</li>
+<li>lastVictimRank -&gt; set as -1</li>
+<li>lastTargetRank -&gt; set as -1</li>
+<li>offset -&gt; set as first child rank</li>
+<li>lowerAverage -&gt; set as total particles / child number</li>
+<li>lowerThreshold -&gt; set as a percentage of lower average (25% for the time being)</li>
+</ul>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parentRank</td><td>Rank of parent node </td></tr>
+    <tr><td class="paramname">chunkSize</td><td>Size of chunk </td></tr>
+    <tr><td class="paramname">recvBuffer</td><td>Initial reciever buffer </td></tr>
+    <tr><td class="paramname">totalParticles</td><td>Total particles of node </td></tr>
+    <tr><td class="paramname">localAverage</td><td>Local average of node </td></tr>
+    <tr><td class="paramname">localThreshold</td><td>Local threshold of node </td></tr>
+    <tr><td class="paramname">childNumber</td><td>Number of childs </td></tr>
+    <tr><td class="paramname">childRanks</td><td>Array containing child ranks </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <a id="a037ac2765012704d3860f4d2f7e32c92" name="a037ac2765012704d3860f4d2f7e32c92"></a>
@@ -347,6 +404,13 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Destroy the <a class="el" href="classMatchmaker.html">Matchmaker</a> object The following objects are deleted here : </p>
+<ul>
+<li>childRanks</li>
+<li>tagArray</li>
+<li>valueArray </li>
+</ul>
 
 </div>
 </div>
@@ -374,6 +438,9 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Activates reciever thread. </p>
+<dl class="section return"><dt>Returns</dt><dd>Reciever thread object </dd></dl>
+
 </div>
 </div>
 <a id="a978de2aa3d7a25e132419885c8674836" name="a978de2aa3d7a25e132419885c8674836"></a>
@@ -399,6 +466,9 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Activates status thread. </p>
+<dl class="section return"><dt>Returns</dt><dd>Status thread object </dd></dl>
+
 </div>
 </div>
 <a id="a2cb68818288876d55caf0a9dd2a4b27c" name="a2cb68818288876d55caf0a9dd2a4b27c"></a>
@@ -423,6 +493,11 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Checks whether a node is in LOCKED status. </p>
+<dl class="section return"><dt>Returns</dt><dd>true if any child node is in LOCKED status </dd>
+<dd>
+false all nodes are unlocked </dd></dl>
 
 </div>
 </div>
@@ -453,6 +528,16 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Calculate particle distribution among nodes in a multiple stealing event. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">stealingQuantity</td><td>Quantity of data to be delocated </td></tr>
+    <tr><td class="paramname">evenDistribute</td><td>True if distribution is uniform (Only when injecting data) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Array of ints containing number of particles to inject or steal for every core </dd></dl>
+
 </div>
 </div>
 <a id="a31c01388721ceff6876d0a74e5490f88" name="a31c01388721ceff6876d0a74e5490f88"></a>
@@ -477,6 +562,10 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Check number of still elaborating ranks. </p>
+<p>To prevent deadlock inside main function loop messages are recieved only if active processes are still elaborating data under a matchmaker inside computational tree, node in LOCKED status are considered still elaborating</p>
+<dl class="section return"><dt>Returns</dt><dd>int </dd></dl>
 
 </div>
 </div>
@@ -507,6 +596,15 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Check if double stealing event has append and increases threshold. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">currentVictimRank</td><td>Victim of current stealing event </td></tr>
+    <tr><td class="paramname">currentTargetRank</td><td>Target of current stealing event </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <a id="a6e87c91133a790f192a658d15ccbb39b" name="a6e87c91133a790f192a658d15ccbb39b"></a>
@@ -531,6 +629,9 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Checks termination flag. </p>
+<dl class="section return"><dt>Returns</dt><dd>1 if done flag is true </dd></dl>
 
 <p>Reimplemented in <a class="el" href="classInitiatorMatchmaker.html#a92ad3bbdb5f4002e85e130d7a1b06b8a">InitiatorMatchmaker</a>.</p>
 
@@ -559,11 +660,11 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Basic template of data deletion for a node. </p>
-<p>Particles are deleted from a node, this function is overloaded in specialization classes, at the end of the operation status is then declared with a special tag (UNLOCKED) to indicate to parent rank that the node is ready to perform work stealing</p>
+<p>Deletes data from child nodes. </p>
+<p>This function begins a multiple stealing event, when this has ended and data is gathered data is sent upwards, after all lower ranks are declared UNLOCKED matchmaker is also declared UNLOCKED and more work stealing can happen</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">stealingQuantity</td><td>Quantity of injected particles in node </td></tr>
+    <tr><td class="paramname">stealingQuantity</td><td>Quantity of particles to be stolen </td></tr>
   </table>
   </dd>
 </dl>
@@ -595,6 +696,15 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Distributes data among child nodes. </p>
+<p>Data is distributed to child nodes, child nodes are then locked after injecting the data, the distribution of data is uniform in the case of distribution so that every child recieves the same amount of particles</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">stealingQuantity</td><td>Quantity of data to be distributed </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <a id="a49a3a4566356faf89c68709572864f76" name="a49a3a4566356faf89c68709572864f76"></a>
@@ -619,6 +729,8 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Begins ending procedure, in a normal matchmaker this is just a simple alert. </p>
 
 <p>Reimplemented in <a class="el" href="classInitiatorMatchmaker.html#a5d8416b0e048da2f11d20532550aaae4">InitiatorMatchmaker</a>.</p>
 
@@ -647,6 +759,15 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Find available target for work stealing. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">target</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Rank of target node found, -1 if no node available is found </dd></dl>
+
 </div>
 </div>
 <a id="a130a7d388e90a1e4e36fbf4cfd26ee85" name="a130a7d388e90a1e4e36fbf4cfd26ee85"></a>
@@ -672,6 +793,15 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Find available victim for work stealing. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">victim</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>rank of victim node found, -1 if no node available is found </dd></dl>
+
 </div>
 </div>
 <a id="acc74e44c22ca882d310cb9a527705454" name="acc74e44c22ca882d310cb9a527705454"></a>
@@ -696,6 +826,16 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Gathers data from lower nodes. </p>
+<p>Gathers data from child ranks, before gathering lockes the nodes so that no other stealing event can happen then puts stolen data in buffer and signals all clear to upper rank</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">stealingQuantity</td><td>Quantity to be stolen </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Total number of particles stolen from childs </dd></dl>
 
 <p>Reimplemented in <a class="el" href="classTerminalMatchmaker.html#acd9680c941ef393d41d4fc31a8a24d6e">TerminalMatchmaker</a>.</p>
 
@@ -724,11 +864,10 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Basic template of data injection for a node. </p>
-<p>Particles are injected in a node, this function is overloaded in specialization classes, at the end of the operation status is then declared with a special tag (UNLOCKED) to indicate to parent rank that the node is ready to perform work stealing</p>
-<dl class="params"><dt>Parameters</dt><dd>
+<p>Injects data in child nodes. </p>
+<p>Data is sent to a matchmaker and distributed across all child nodes, after child nodes are all declared as UNLOCKED matchmaker aslo declares UNLOCKED status </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">stealingQuantity</td><td>Quantity of injected particles in node </td></tr>
+    <tr><td class="paramname">stealingQuantity</td><td>Quantity of particles to be injected </td></tr>
   </table>
   </dd>
 </dl>
@@ -760,6 +899,15 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Begins matchmaker main loop. </p>
+<p>Begins matchmaker main loop, this recieves messages and sets values until termination is reached When termination is reached alla lower nodes are alerted and computation is terminated</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">globalResult</td><td>Result of reduction </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <a id="a9f7217ec4dac6e5c2418c6f819b42aea" name="a9f7217ec4dac6e5c2418c6f819b42aea"></a>
@@ -784,6 +932,14 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Notifies new average value to a rank. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">reciever</td><td>Rank of reciever </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -810,6 +966,8 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Notifies threshold to all child ranks. </p>
+
 </div>
 </div>
 <a id="a691dbf9e4358c767049b3312a83de708" name="a691dbf9e4358c767049b3312a83de708"></a>
@@ -834,6 +992,8 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Writes to standard output current values of child ranks and their current status. </p>
 
 </div>
 </div>
@@ -863,6 +1023,16 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Sends stolen data to a single target. </p>
+<p>After stealing data is sent to a single source, target is locked before the procedure</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">stealingQuantity</td><td>Quantity of data to send </td></tr>
+    <tr><td class="paramname">targetRank</td><td>Rank of target </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p>Reimplemented in <a class="el" href="classTerminalMatchmaker.html#abaff71032c01aebfcf61cb60c8ec9daa">TerminalMatchmaker</a>.</p>
 
@@ -895,6 +1065,16 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Calculates stealing quantity for stealing event. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">targetIndex</td><td>Index of target inside value array </td></tr>
+    <tr><td class="paramname">victimIndex</td><td>Index of victim inside value array </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Number of items to steal </dd></dl>
+
 </div>
 </div>
 <a id="a36f4239dfe732de00954f07b599b1a1c" name="a36f4239dfe732de00954f07b599b1a1c"></a>
@@ -924,6 +1104,17 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Steals data from a node. </p>
+<p>If victim node is a matchmaker data is gathered from all underlying nodes and sent upwards, this function deals with stealing data from a single source and depositing them inside the input buffer to be sent</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">stealingQuantity</td><td>Quantity of data to be stolen </td></tr>
+    <tr><td class="paramname">victimRank</td><td>Rank of victim node </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Quantity of data effectivly stolen </dd></dl>
+
 <p>Reimplemented in <a class="el" href="classTerminalMatchmaker.html#a8180b70825454ccef7a5cfa132f07f7f">TerminalMatchmaker</a>.</p>
 
 </div>
@@ -950,6 +1141,9 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Updates current average. </p>
+<p>Updates average of particles in lower nodes, if average reaches zero value 1 is communicated instead to prevent early termination 0 is communicated only when upper level matchmakers communicate 0 value average </p>
 
 <p>Reimplemented in <a class="el" href="classInitiatorMatchmaker.html#a16124dbbf6cc343ab0310dba118b1277">InitiatorMatchmaker</a>.</p>
 
@@ -982,6 +1176,15 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Helper function to modify tagArray and valueArray. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">source</td><td>Source rank of child sender </td></tr>
+    <tr><td class="paramname">localFlag</td><td>Set of values containing new status and new particle numbers </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <a id="af9914b1ee5e39e4be03a87da3365f30c" name="af9914b1ee5e39e4be03a87da3365f30c"></a>
@@ -1007,31 +1210,22 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Recieves a messagge from a child in a blocking function. </p>
+<p>Recieves a message from a child using an MPI blocking function, this sets recvFlag with two parameters:</p><ul>
+<li>Total particles : The first element of the vector contains the current number of particles in possession of a node</li>
+<li>Status : Declaration of status of child node <dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">recvFlag</td><td>Contains the 2 items sent back by the child node as an update </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Status indicating UPDATE tag and rank of sender </dd></dl>
+</li>
+</ul>
+
 </div>
 </div>
 <h2 class="groupheader">Member Data Documentation</h2>
-<a id="a4ba0484c69ccdc3d6b024b11653a8a18" name="a4ba0484c69ccdc3d6b024b11653a8a18"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4ba0484c69ccdc3d6b024b11653a8a18">&#9670;&#160;</a></span>childFlag</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">int* Matchmaker::childFlag</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="ac04df1c7928487fb03549a95ea5fbdde" name="ac04df1c7928487fb03549a95ea5fbdde"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac04df1c7928487fb03549a95ea5fbdde">&#9670;&#160;</a></span>childNumber</h2>
 
@@ -1051,6 +1245,8 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Number of childs of a matchmaker. </p>
 
 </div>
 </div>
@@ -1074,6 +1270,8 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Ranks of childs. </p>
+
 </div>
 </div>
 <a id="ad4512bbf669aaac288546043363112d9" name="ad4512bbf669aaac288546043363112d9"></a>
@@ -1095,6 +1293,8 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Last target rank. </p>
 
 </div>
 </div>
@@ -1118,6 +1318,8 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Last victim rank. </p>
+
 </div>
 </div>
 <a id="a459253acc3e96eee3bdf2146f2bea106" name="a459253acc3e96eee3bdf2146f2bea106"></a>
@@ -1139,6 +1341,8 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Average of lower nodes. </p>
 
 </div>
 </div>
@@ -1162,6 +1366,8 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Threshold of lower nodes. </p>
+
 </div>
 </div>
 <a id="a3b4fd71a833ff0ddd031ae9101281fb5" name="a3b4fd71a833ff0ddd031ae9101281fb5"></a>
@@ -1183,6 +1389,8 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Offset of rank for child. </p>
 
 </div>
 </div>
@@ -1206,6 +1414,8 @@ Protected Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Current status of childs. </p>
+
 </div>
 </div>
 <a id="ae698ae3f1e531e1a442b6994815bd9b3" name="ae698ae3f1e531e1a442b6994815bd9b3"></a>
@@ -1227,6 +1437,8 @@ Protected Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Current particle number of childs. </p>
 
 </div>
 </div>
