@@ -1,0 +1,49 @@
+\doxysection{/home/stefano/\+Uni/\+Tirocinio/\+Adaptive\+Work\+Stealing/source/\+Worker.hpp File Reference}
+\hypertarget{Worker_8hpp}{}\label{Worker_8hpp}\index{/home/stefano/Uni/Tirocinio/AdaptiveWorkStealing/source/Worker.hpp@{/home/stefano/Uni/Tirocinio/AdaptiveWorkStealing/source/Worker.hpp}}
+{\ttfamily \#include $<$vector$>$}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{Worker_8hpp_abe8b3127acc154a1516631db17a667ef}{probability\+Increase\+Vector\+Size}} (std\+::vector$<$ int $>$ \texorpdfstring{$\ast$}{*}buffer, int generated\+Number)
+\item 
+void \mbox{\hyperlink{Worker_8hpp_ac4916847c8077de44df5993a9b294dc6}{declare\+Status}} (int \texorpdfstring{$\ast$}{*}task\+\_\+id, int status)
+\item 
+int \mbox{\hyperlink{Worker_8hpp_aae3229a2ce63398004c5c0a87b643a73}{local\+\_\+reduction}} (std\+::vector$<$ int $>$ \texorpdfstring{$\ast$}{*}buffer, float start\+\_\+average, int start\+\_\+treshold)
+\item 
+void \mbox{\hyperlink{Worker_8hpp_a8ff491f44c36075ccbca865577681859}{send\+Status\+Function}} (std\+::vector$<$ int $>$ \texorpdfstring{$\ast$}{*}buffer\+\_\+size, float \texorpdfstring{$\ast$}{*}local\+\_\+average, int \texorpdfstring{$\ast$}{*}threshold)
+\item 
+void \mbox{\hyperlink{Worker_8hpp_a1b7f20238d16d4a3d14e288869264891}{recieve\+Message\+From\+Matchmaker}} (float \texorpdfstring{$\ast$}{*}local\+\_\+average, int \texorpdfstring{$\ast$}{*}threshold)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{Worker_8hpp_ac4916847c8077de44df5993a9b294dc6}\label{Worker_8hpp_ac4916847c8077de44df5993a9b294dc6} 
+\index{Worker.hpp@{Worker.hpp}!declareStatus@{declareStatus}}
+\index{declareStatus@{declareStatus}!Worker.hpp@{Worker.hpp}}
+\doxysubsubsection{\texorpdfstring{declareStatus()}{declareStatus()}}
+{\footnotesize\ttfamily void declare\+Status (\begin{DoxyParamCaption}\item[{int \texorpdfstring{$\ast$}{*}}]{task\+\_\+id,  }\item[{int}]{status }\end{DoxyParamCaption})}
+
+\Hypertarget{Worker_8hpp_aae3229a2ce63398004c5c0a87b643a73}\label{Worker_8hpp_aae3229a2ce63398004c5c0a87b643a73} 
+\index{Worker.hpp@{Worker.hpp}!local\_reduction@{local\_reduction}}
+\index{local\_reduction@{local\_reduction}!Worker.hpp@{Worker.hpp}}
+\doxysubsubsection{\texorpdfstring{local\_reduction()}{local\_reduction()}}
+{\footnotesize\ttfamily int local\+\_\+reduction (\begin{DoxyParamCaption}\item[{std\+::vector$<$ int $>$ \texorpdfstring{$\ast$}{*}}]{buffer,  }\item[{float}]{start\+\_\+average,  }\item[{int}]{start\+\_\+treshold }\end{DoxyParamCaption})}
+
+\Hypertarget{Worker_8hpp_abe8b3127acc154a1516631db17a667ef}\label{Worker_8hpp_abe8b3127acc154a1516631db17a667ef} 
+\index{Worker.hpp@{Worker.hpp}!probabilityIncreaseVectorSize@{probabilityIncreaseVectorSize}}
+\index{probabilityIncreaseVectorSize@{probabilityIncreaseVectorSize}!Worker.hpp@{Worker.hpp}}
+\doxysubsubsection{\texorpdfstring{probabilityIncreaseVectorSize()}{probabilityIncreaseVectorSize()}}
+{\footnotesize\ttfamily void probability\+Increase\+Vector\+Size (\begin{DoxyParamCaption}\item[{std\+::vector$<$ int $>$ \texorpdfstring{$\ast$}{*}}]{buffer,  }\item[{int}]{generated\+Number }\end{DoxyParamCaption})}
+
+\Hypertarget{Worker_8hpp_a1b7f20238d16d4a3d14e288869264891}\label{Worker_8hpp_a1b7f20238d16d4a3d14e288869264891} 
+\index{Worker.hpp@{Worker.hpp}!recieveMessageFromMatchmaker@{recieveMessageFromMatchmaker}}
+\index{recieveMessageFromMatchmaker@{recieveMessageFromMatchmaker}!Worker.hpp@{Worker.hpp}}
+\doxysubsubsection{\texorpdfstring{recieveMessageFromMatchmaker()}{recieveMessageFromMatchmaker()}}
+{\footnotesize\ttfamily void recieve\+Message\+From\+Matchmaker (\begin{DoxyParamCaption}\item[{float \texorpdfstring{$\ast$}{*}}]{local\+\_\+average,  }\item[{int \texorpdfstring{$\ast$}{*}}]{threshold }\end{DoxyParamCaption})}
+
+\Hypertarget{Worker_8hpp_a8ff491f44c36075ccbca865577681859}\label{Worker_8hpp_a8ff491f44c36075ccbca865577681859} 
+\index{Worker.hpp@{Worker.hpp}!sendStatusFunction@{sendStatusFunction}}
+\index{sendStatusFunction@{sendStatusFunction}!Worker.hpp@{Worker.hpp}}
+\doxysubsubsection{\texorpdfstring{sendStatusFunction()}{sendStatusFunction()}}
+{\footnotesize\ttfamily void send\+Status\+Function (\begin{DoxyParamCaption}\item[{std\+::vector$<$ int $>$ \texorpdfstring{$\ast$}{*}}]{buffer\+\_\+size,  }\item[{float \texorpdfstring{$\ast$}{*}}]{local\+\_\+average,  }\item[{int \texorpdfstring{$\ast$}{*}}]{threshold }\end{DoxyParamCaption})}
+

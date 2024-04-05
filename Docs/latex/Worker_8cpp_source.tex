@@ -1,0 +1,130 @@
+\doxysection{Worker.\+cpp}
+\hypertarget{Worker_8cpp_source}{}\label{Worker_8cpp_source}\index{/home/stefano/Uni/Tirocinio/AdaptiveWorkStealing/source/Worker.cpp@{/home/stefano/Uni/Tirocinio/AdaptiveWorkStealing/source/Worker.cpp}}
+\mbox{\hyperlink{Worker_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00001}00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{Worker_8hpp}{Worker.hpp}}"{}}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00002}00002\ \textcolor{preprocessor}{\#include\ "{}mpi.h"{}}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00003}00003\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00004}00004\ \textcolor{preprocessor}{\#include\ <random>}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00005}00005\ \textcolor{preprocessor}{\#include\ <cstdlib>}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00006}00006\ \textcolor{preprocessor}{\#include\ <thread>}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00007}00007\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00008}\mbox{\hyperlink{Worker_8cpp_a6cf4f84ce1249c9fa265b0d6d697faaa}{00008}}\ \textcolor{preprocessor}{\#define\ OVERWORK\ 1}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00009}\mbox{\hyperlink{Worker_8cpp_aa8290939dc02192ebf7028e5b45b0ff9}{00009}}\ \textcolor{preprocessor}{\#define\ STABLE\ 2}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00010}\mbox{\hyperlink{Worker_8cpp_abafd49e7c13337429d6d835b3e8ce080}{00010}}\ \textcolor{preprocessor}{\#define\ UNDERWORK\ 3}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00011}\mbox{\hyperlink{Worker_8cpp_a9c21a7caee326d7803b94ae1952b27ca}{00011}}\ \textcolor{preprocessor}{\#define\ IDLE\ 4}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00012}\mbox{\hyperlink{Worker_8cpp_aad9ae913bdfab20dd94ad04ee2d5b045}{00012}}\ \textcolor{preprocessor}{\#define\ DATA\ 5}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00013}\mbox{\hyperlink{Worker_8cpp_a454ec9af8a278a80850ef1d5b575b081}{00013}}\ \textcolor{preprocessor}{\#define\ METRICS\ 6}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00015}00015\ \textcolor{keyword}{using\ namespace\ }std;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00016}00016\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00017}00017\ \textcolor{comment}{//\ SUPPORT\ FUNCTIONS\ FOR\ WORKERS}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00019}\mbox{\hyperlink{Worker_8cpp_a3cb9ce84779e973b9002cb91dd4e2b87}{00019}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{Worker_8cpp_a3cb9ce84779e973b9002cb91dd4e2b87}{probabilityIncreaseVectorSize}}(vector<int>\ *buffer,\ \textcolor{keywordtype}{int}\ generatedNumber)\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00020}00020\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00021}00021\ \ \ \ \ \textcolor{keywordflow}{if}(buffer-\/>size()\ <\ abs(generatedNumber))}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00022}00022\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00023}00023\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00024}00024\ \ \ \ \ \textcolor{keywordflow}{if}(generatedNumber\ >\ 0)\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00025}00025\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 0;i\ <\ generatedNumber;i++)\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00026}00026\ \ \ \ \ \ \ \ \ \ \ \ \ buffer-\/>push\_back(1);}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00027}00027\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00028}00028\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00029}00029\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00030}00030\ \ \ \ \ \textcolor{keywordflow}{if}(generatedNumber\ <\ 0)\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00031}00031\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 0;i\ <\ abs(generatedNumber);i++)\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00032}00032\ \ \ \ \ \ \ \ \ \ \ \ \ buffer-\/>pop\_back();}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00033}00033\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00034}00034\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00035}00035\ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00037}00037\ \textcolor{comment}{//Non\ c'è\ veramente\ bisogno\ di\ usare\ una\ funzione}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00038}\mbox{\hyperlink{Worker_8cpp_ad87949db8a71759dead75c2bf90261a8}{00038}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{Worker_8cpp_ad87949db8a71759dead75c2bf90261a8}{declareStatus}}(\textcolor{keywordtype}{int}\ *buffer\_size,\ \textcolor{keywordtype}{int}\ status)\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00039}00039\ \ \ \ \ MPI\_Send(buffer\_size,\ 1,\ MPI\_INT,\ 0,\ status,\ MPI\_COMM\_WORLD);}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00040}00040\ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00041}00041\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00042}00042\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00043}00043\ \textcolor{comment}{//Rimuovere\ buffer\_size}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00044}\mbox{\hyperlink{Worker_8cpp_a67832aed811528fe18bd6735765c511d}{00044}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{Worker_8cpp_a67832aed811528fe18bd6735765c511d}{local\_reduction}}(vector<int>\ *buffer,\ \textcolor{keywordtype}{float}\ start\_average,\ \textcolor{keywordtype}{int}\ start\_treshold)\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00045}00045\ \ \ \ \ \textcolor{keywordtype}{bool}\ sentFlag\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00046}00046\ \ \ \ \ \textcolor{keywordtype}{float}\ local\_average\ =\ start\_average;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00047}00047\ \ \ \ \ \textcolor{keywordtype}{int}\ threshold\ =\ start\_treshold;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00049}00049\ \ \ \ \ random\_device\ random\_dev;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00050}00050\ \ \ \ \ thread\ status\_thread;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00051}00051\ \ \ \ \ thread\ reciever\_thread;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00052}00052\ \ \ \ \ default\_random\_engine\ random\_eng(random\_dev());}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00053}00053\ \ \ \ \ uniform\_int\_distribution<int>\ uniform\_dist(0,\ 2);}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00054}00054\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00055}00055\ \ \ \ \ \textcolor{comment}{//Qui\ si\ lanciano\ i\ thread}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00056}00056\ \ \ \ \ status\_thread\ =\ thread(\mbox{\hyperlink{Worker_8cpp_a2e762d937d466a0581096313ff725f8f}{sendStatusFunction}},\ buffer,\ \&local\_average,\ \&threshold);}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00057}00057\ \ \ \ \ reciever\_thread\ =\ thread(\mbox{\hyperlink{Worker_8cpp_a1b7f20238d16d4a3d14e288869264891}{recieveMessageFromMatchmaker}},\ \&local\_average,\ \&threshold);}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00058}00058\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00059}00059\ \ \ \ \ \textcolor{keywordtype}{int}\ accumulated\_result\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00060}00060\ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}BUFFER\ SIZE\ :\ "{}}\ <<\ buffer-\/>size()\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00061}00061\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00062}00062\ \ \ \ \ \textcolor{keywordtype}{int}\ buffer\_size;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00063}00063\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00064}00064\ \ \ \ \ \textcolor{keywordflow}{while}(buffer-\/>size()\ !=\ 0)\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00065}00065\ \ \ \ \ \ \ \ \ accumulated\_result\ +=\ buffer-\/>back();}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00066}00066\ \ \ \ \ \ \ \ \ buffer-\/>pop\_back();}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00067}00067\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00068}00068\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ val\ =\ uniform\_dist(random\_eng);}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00069}00069\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Worker_8cpp_a3cb9ce84779e973b9002cb91dd4e2b87}{probabilityIncreaseVectorSize}}(buffer,\ val);}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00070}00070\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00071}00071\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00072}00072\ \ \ \ \ local\_average\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00073}00073\ \ \ \ \ threshold\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00074}00074\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00075}00075\ \ \ \ \ \textcolor{keywordflow}{return}\ accumulated\_result;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00076}00076\ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00077}00077\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00078}00078\ \textcolor{comment}{//Funzione\ per\ l'invio\ dei\ messaggi\ di\ status\ da\ parte\ di\ un\ thread}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00079}\mbox{\hyperlink{Worker_8cpp_a2e762d937d466a0581096313ff725f8f}{00079}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{Worker_8cpp_a2e762d937d466a0581096313ff725f8f}{sendStatusFunction}}(vector<int>\ *\ buffer,\ \textcolor{keywordtype}{float}\ *\ local\_average,\ \textcolor{keywordtype}{int}\ *\ threshold)\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00080}00080\ \ \ \ \ \textcolor{keywordtype}{int}\ buffer\_size\ =\ buffer-\/>size();}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00081}00081\ \ \ \ \ \textcolor{keywordtype}{bool}\ sentFlag\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00082}00082\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00083}00083\ \ \ \ \ \textcolor{keywordflow}{while}(*local\_average\ !=\ 0\ \&\&\ *threshold\ !=\ 0)\{\ \ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00084}00084\ \ \ \ \ \ \ \ \ buffer\_size\ =\ buffer-\/>size();}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00085}00085\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00086}00086\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(buffer-\/>size()\ >\ (*local\_average\ -\/\ *threshold)\ \&\&\ sentFlag\ ==\ \textcolor{keyword}{false})\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00087}00087\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Worker_8cpp_ad87949db8a71759dead75c2bf90261a8}{declareStatus}}(\&buffer\_size,\ \mbox{\hyperlink{Worker_8cpp_a6cf4f84ce1249c9fa265b0d6d697faaa}{OVERWORK}});}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00088}00088\ \ \ \ \ \ \ \ \ \ \ \ \ sentFlag\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00089}00089\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00090}00090\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00091}00091\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(buffer-\/>size()\ <\ (*local\_average\ +\ *threshold)\ \&\&\ buffer-\/>size()\ >\ (*local\_average\ -\/\ *threshold)\ \&\&\ sentFlag\ ==\ \textcolor{keyword}{true})\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Worker_8cpp_ad87949db8a71759dead75c2bf90261a8}{declareStatus}}(\&buffer\_size,\ \mbox{\hyperlink{Worker_8cpp_aa8290939dc02192ebf7028e5b45b0ff9}{STABLE}});}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ sentFlag\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00094}00094\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00095}00095\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00096}00096\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(buffer-\/>size()\ <\ (*local\_average\ -\/\ *threshold)\ \&\&\ sentFlag\ ==\ \textcolor{keyword}{false})\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Worker_8cpp_ad87949db8a71759dead75c2bf90261a8}{declareStatus}}(\&buffer\_size,\ \mbox{\hyperlink{Worker_8cpp_abafd49e7c13337429d6d835b3e8ce080}{UNDERWORK}});}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00098}00098\ \ \ \ \ \ \ \ \ \ \ \ \ sentFlag\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00099}00099\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00100}00100\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00101}00101\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(buffer-\/>size()\ ==\ 0\ \&\&\ sentFlag\ ==\ \textcolor{keyword}{true})\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Worker_8cpp_ad87949db8a71759dead75c2bf90261a8}{declareStatus}}(\&buffer\_size,\ \mbox{\hyperlink{Worker_8cpp_a9c21a7caee326d7803b94ae1952b27ca}{IDLE}});}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00103}00103\ \ \ \ \ \ \ \ \ \ \ \ \ sentFlag\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00104}00104\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00105}00105\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00106}00106\ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00107}00107\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00108}00108\ \textcolor{comment}{//Funzione\ per\ la\ ricezione\ delle\ metriche\ da\ parte\ del\ matchmaker}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00109}\mbox{\hyperlink{Worker_8cpp_a1b7f20238d16d4a3d14e288869264891}{00109}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{Worker_8cpp_a1b7f20238d16d4a3d14e288869264891}{recieveMessageFromMatchmaker}}(\textcolor{keywordtype}{float}\ *\ local\_average,\ \textcolor{keywordtype}{int}\ *\ threshold)\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00110}00110\ \ \ \ \ MPI\_Request\ request;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00111}00111\ \ \ \ \ \textcolor{keywordtype}{int}\ flag;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00112}00112\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00113}00113\ \ \ \ \ MPI\_Irecv(local\_average,\ 1,\ MPI\_FLOAT,\ 0,\ \mbox{\hyperlink{Worker_8cpp_a454ec9af8a278a80850ef1d5b575b081}{METRICS}},\ MPI\_COMM\_WORLD,\ \&request);}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00114}00114\ \ \ \ \ MPI\_Irecv(threshold,\ 1,\ MPI\_INT,\ 0,\ \mbox{\hyperlink{Worker_8cpp_a454ec9af8a278a80850ef1d5b575b081}{METRICS}},\ MPI\_COMM\_WORLD,\ \&request);}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00115}00115\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00116}00116\ \ \ \ \ \textcolor{keywordflow}{while}(*local\_average\ !=\ 0\ \&\&\ *threshold\ !=\ 0)\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00117}00117\ }
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00118}00118\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(MPI\_Test(\&request,\ \&flag,\ MPI\_STATUS\_IGNORE))\{}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00119}00119\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Irecv(local\_average,\ 1,\ MPI\_FLOAT,\ 0,\ \mbox{\hyperlink{Worker_8cpp_a454ec9af8a278a80850ef1d5b575b081}{METRICS}},\ MPI\_COMM\_WORLD,\ \&request);}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00120}00120\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Irecv(threshold,\ 1,\ MPI\_INT,\ 0,\ \mbox{\hyperlink{Worker_8cpp_a454ec9af8a278a80850ef1d5b575b081}{METRICS}},\ MPI\_COMM\_WORLD,\ \&request);}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00121}00121\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}\ METRICS\ RECIEVED!"{}}\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00122}00122\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00123}00123\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Worker_8cpp_source_l00124}00124\ \}}
+
+\end{DoxyCode}

@@ -1,0 +1,407 @@
+\doxysection{Node Class Reference}
+\hypertarget{classNode}{}\label{classNode}\index{Node@{Node}}
+
+
+\doxylink{classNode}{Node} class is the base class from which every node specialization comes from, this class implements all base functions for communication and other routines shared across all elements in communication.  
+
+
+
+
+{\ttfamily \#include $<$Node.\+hpp$>$}
+
+Inheritance diagram for Node\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classNode}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classNode_a48511c73b8d4174af4405f14fc7bb37a}{send\+Status\+Function}} ()
+\begin{DoxyCompactList}\small\item\em Update function for a node, this function is assigned to a thread to be able to update status when necessary. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classNode_a452fc104fe4726da9630696fe769832f}{recieve\+Message\+From\+Matchmaker}} ()
+\begin{DoxyCompactList}\small\item\em Reciever function to obtain metric updates on average, threshold and recieve work stealing related messages. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classNode_a98d4466b06851d7779677eeb6c7ec9dd}{inject\+Data\+In\+Node}} (int stealing\+Quantity)
+\begin{DoxyCompactList}\small\item\em Basic template of data injection for a node. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classNode_a7b77321aa26c41900b8d8056114461bf}{delete\+Data\+From\+Node}} (int stealing\+Quantity)
+\begin{DoxyCompactList}\small\item\em Basic template of data deletion for a node. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classNode_a1dd944b4340f50721541e1e720f586cd}{Node}} (int \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parent\+Rank}}, int \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunk\+Size}}, int \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recv\+Buffer}}, int \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{total\+Particles}}, float \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{local\+Average}}, int \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{local\+Threshold}})
+\begin{DoxyCompactList}\small\item\em Construct a new \doxylink{classNode}{Node} object. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classNode_af5e3fa79300bf5f3f2f3ecae6e795a94}{\texorpdfstring{$\sim$}{\string~}\+Node}} ()
+\begin{DoxyCompactList}\small\item\em Destroy the \doxylink{classNode}{Node} object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classNode_a3e8e2835b7f01ba3b44e57b181a175b8}{declare\+Status}} (int \mbox{\hyperlink{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}{status}})
+\begin{DoxyCompactList}\small\item\em Status declaration function, status is updated and then communicated to parent rank in the hierarchy. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{classNode_a65784e8a8e4c895cae1c71b6886dee32}{tree\+Width}}
+\begin{DoxyCompactList}\small\item\em Width of the computational tree. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_a17aa93a6a65de6390afdeccf54538e3f}{node\+Rank}}
+\begin{DoxyCompactList}\small\item\em Rank of node. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parent\+Rank}}
+\begin{DoxyCompactList}\small\item\em Rank of parent (if the current node is 0 parent rank is -\/1) \end{DoxyCompactList}\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classNode_a0ec74d1471ab1093e62588cb919bf8ea}{in\+Window\+Buffer}}
+\begin{DoxyCompactList}\small\item\em Pointer to input window buffer. \end{DoxyCompactList}\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classNode_abe556d993e821e964d2158edda89683f}{out\+Window\+Buffer}}
+\begin{DoxyCompactList}\small\item\em Pointer to output window buffer. \end{DoxyCompactList}\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recv\+Buffer}}
+\begin{DoxyCompactList}\small\item\em Pointer to initial recieve buffer. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunk\+Size}}
+\begin{DoxyCompactList}\small\item\em Number of particle sent in a single chunk. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}{status}}
+\begin{DoxyCompactList}\small\item\em Status of node. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{total\+Particles}}
+\begin{DoxyCompactList}\small\item\em Total particle present in the node. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{local\+Average}}
+\begin{DoxyCompactList}\small\item\em Current average of node. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{local\+Threshold}}
+\begin{DoxyCompactList}\small\item\em Current threshold of node. \end{DoxyCompactList}\item 
+MPI\+\_\+\+Win \mbox{\hyperlink{classNode_adb103e96748537b115c18c2a2b27a9d9}{in\+Window}}
+\begin{DoxyCompactList}\small\item\em MPI object to use RDMA for input window buffer. \end{DoxyCompactList}\item 
+MPI\+\_\+\+Win \mbox{\hyperlink{classNode_a187219708add28a69d82fbe647aaf612}{out\+Window}}
+\begin{DoxyCompactList}\small\item\em MPI object to use RDMA for output window buffer. \end{DoxyCompactList}\item 
+atomic$<$ bool $>$ \mbox{\hyperlink{classNode_a95b7033e5e44fd68c8952a10af367d92}{done}}
+\begin{DoxyCompactList}\small\item\em Atomic variable to signal termination. \end{DoxyCompactList}\item 
+bool \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sent\+Flag}}
+\begin{DoxyCompactList}\small\item\em Use flag to send data upwards, prevents multiple update of the same status. \end{DoxyCompactList}\item 
+shared\+\_\+mutex \mbox{\hyperlink{classNode_a3d817091a1acc63fea4c65352564a73d}{total\+Particle\+Mutex}}
+\begin{DoxyCompactList}\small\item\em Shared mutex to prevent race condition on Total particles and Particle buffer(\+Only in worker) \end{DoxyCompactList}\item 
+shared\+\_\+mutex \mbox{\hyperlink{classNode_afd3788a41ab04ded3a98566ea7f0081f}{sent\+Flag\+Mutex}}
+\begin{DoxyCompactList}\small\item\em Shared mutex to prevent race condition on status update flag array. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\doxylink{classNode}{Node} class is the base class from which every node specialization comes from, this class implements all base functions for communication and other routines shared across all elements in communication. 
+
+This class implements basic recieve and send update functions necessary to the correct execution of the program, it is a clean slate necessary to specialize more specific roles inside the overall system, this class is not abstract nor an interface but it\textquotesingle{}s still not intended to be instanciated 
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classNode_a1dd944b4340f50721541e1e720f586cd}\label{classNode_a1dd944b4340f50721541e1e720f586cd} 
+\index{Node@{Node}!Node@{Node}}
+\index{Node@{Node}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{Node()}{Node()}}
+{\footnotesize\ttfamily Node\+::\+Node (\begin{DoxyParamCaption}\item[{int}]{parent\+Rank,  }\item[{int}]{chunk\+Size,  }\item[{int \texorpdfstring{$\ast$}{*}}]{recv\+Buffer,  }\item[{int}]{total\+Particles,  }\item[{float}]{local\+Average,  }\item[{int}]{local\+Threshold }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Construct a new \doxylink{classNode}{Node} object. 
+
+Constructor initializes the following elements\+:
+\begin{DoxyItemize}
+\item node\+Rank -\/\texorpdfstring{$>$}{>} Inizialized by calling MPI\+\_\+\+Comm\+\_\+rank function
+\item parent\+Rank -\/\texorpdfstring{$>$}{>} Parent rank is passed as one of the parameters
+\item chunk\+Size -\/\texorpdfstring{$>$}{>} Chunk size is passed as one of the parameters
+\item in\+Window\+Buffer -\/\texorpdfstring{$>$}{>} Input window buffer is allocated
+\item out\+Window\+Buffer -\/\texorpdfstring{$>$}{>} Output window buffer is allocated
+\item recv\+Buffer -\/\texorpdfstring{$>$}{>} Recieve buffer is passed as one of the parameters
+\item status -\/\texorpdfstring{$>$}{>} Status is set as STABLE by default as every node has the same number of particles at the beginning of computation
+\item totalparticles -\/\texorpdfstring{$>$}{>} Total particles number is passed as one the parameters
+\item local\+Average -\/\texorpdfstring{$>$}{>} Local Average is passed as one of the parameters
+\item local\+Threshold -\/\texorpdfstring{$>$}{>} Local threshold is passed as one of the parameters
+\item sent\+Flag -\/\texorpdfstring{$>$}{>} Flag array is initialized and STABLE flag is set to 1
+\item done -\/\texorpdfstring{$>$}{>} Termination flag is set to false
+\item in\+Window -\/\texorpdfstring{$>$}{>} in\+Window MPI object is initialized with the corrisponding MPI function
+\item out\+Window -\/\texorpdfstring{$>$}{>} out\+Window MPI object is initialized with the corrisponding MPI function
+\end{DoxyItemize}
+
+
+\begin{DoxyParams}{Parameters}
+{\em parent\+Rank} & Rank of parent \\
+\hline
+{\em chunk\+Size} & Chunk size, differs with the level at which the node is located \\
+\hline
+{\em recv\+Buffer} & recv\+Buffer is passed as a pointer \\
+\hline
+{\em total\+Particles} & total\+Particles, initial particle assigned to a node, differs with the level of a node \\
+\hline
+{\em local\+Average} & initial local Average differs with level and is passed when object is created \\
+\hline
+{\em local\+Threshold} & initial threshold is set as a percentage of local average (10\% -\/ 30\% of initial average) \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classNode_af5e3fa79300bf5f3f2f3ecae6e795a94}\label{classNode_af5e3fa79300bf5f3f2f3ecae6e795a94} 
+\index{Node@{Node}!````~Node@{\texorpdfstring{$\sim$}{\string~}Node}}
+\index{````~Node@{\texorpdfstring{$\sim$}{\string~}Node}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{\texorpdfstring{$\sim$}{\string~}Node()}{\string~Node()}}
+{\footnotesize\ttfamily virtual Node\+::\texorpdfstring{$\sim$}{\string~}\+Node (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Destroy the \doxylink{classNode}{Node} object. 
+
+Core objects present in all node specialization are destroyed here\+:
+\begin{DoxyItemize}
+\item recv\+Buffer
+\item out\+Window\+Buffer
+\item in\+Window\+Buffer
+\item sent\+Flag 
+\end{DoxyItemize}
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classNode_a3e8e2835b7f01ba3b44e57b181a175b8}\label{classNode_a3e8e2835b7f01ba3b44e57b181a175b8} 
+\index{Node@{Node}!declareStatus@{declareStatus}}
+\index{declareStatus@{declareStatus}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{declareStatus()}{declareStatus()}}
+{\footnotesize\ttfamily void Node\+::declare\+Status (\begin{DoxyParamCaption}\item[{int}]{status }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+Status declaration function, status is updated and then communicated to parent rank in the hierarchy. 
+
+In order to prevent the wrong reception on parent rank (There are many Recv posted at the same time with different tags, a Recv in a matchmaker could Recv the wrong message) status and total particle count are communicated through a vector of ints, firts position of array contains total particle count, second position is an int indicating update of status updates are signaled using the UPDATE tag to prevent the aformentioned issue 
+\begin{DoxyParams}{Parameters}
+{\em status} & Status sent to upper node \\
+\hline
+\end{DoxyParams}
+\Hypertarget{classNode_a7b77321aa26c41900b8d8056114461bf}\label{classNode_a7b77321aa26c41900b8d8056114461bf} 
+\index{Node@{Node}!deleteDataFromNode@{deleteDataFromNode}}
+\index{deleteDataFromNode@{deleteDataFromNode}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{deleteDataFromNode()}{deleteDataFromNode()}}
+{\footnotesize\ttfamily virtual void Node\+::delete\+Data\+From\+Node (\begin{DoxyParamCaption}\item[{int}]{stealing\+Quantity }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Basic template of data deletion for a node. 
+
+Particles are deleted from a node, this function is overloaded in specialization classes, at the end of the operation status is then declared with a special tag (UNLOCKED) to indicate to parent rank that the node is ready to perform work stealing
+
+
+\begin{DoxyParams}{Parameters}
+{\em stealing\+Quantity} & Quantity of injected particles in node \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented in \mbox{\hyperlink{classMatchmaker_a1eb5487f91c5a7e74aa4afcadd1b16b8}{Matchmaker}}, and \mbox{\hyperlink{classWorker_aa15f15c920d95d0ff639cb875a146252}{Worker}}.
+
+\Hypertarget{classNode_a98d4466b06851d7779677eeb6c7ec9dd}\label{classNode_a98d4466b06851d7779677eeb6c7ec9dd} 
+\index{Node@{Node}!injectDataInNode@{injectDataInNode}}
+\index{injectDataInNode@{injectDataInNode}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{injectDataInNode()}{injectDataInNode()}}
+{\footnotesize\ttfamily virtual void Node\+::inject\+Data\+In\+Node (\begin{DoxyParamCaption}\item[{int}]{stealing\+Quantity }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+Basic template of data injection for a node. 
+
+Particles are injected in a node, this function is overloaded in specialization classes, at the end of the operation status is then declared with a special tag (UNLOCKED) to indicate to parent rank that the node is ready to perform work stealing
+
+
+\begin{DoxyParams}{Parameters}
+{\em stealing\+Quantity} & Quantity of injected particles in node \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented in \mbox{\hyperlink{classMatchmaker_adaab737f7915c125f113459673676d68}{Matchmaker}}, and \mbox{\hyperlink{classWorker_a94ff3c7b15e3b8d42f00f44783dfae34}{Worker}}.
+
+\Hypertarget{classNode_a452fc104fe4726da9630696fe769832f}\label{classNode_a452fc104fe4726da9630696fe769832f} 
+\index{Node@{Node}!recieveMessageFromMatchmaker@{recieveMessageFromMatchmaker}}
+\index{recieveMessageFromMatchmaker@{recieveMessageFromMatchmaker}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{recieveMessageFromMatchmaker()}{recieveMessageFromMatchmaker()}}
+{\footnotesize\ttfamily void Node\+::recieve\+Message\+From\+Matchmaker (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Reciever function to obtain metric updates on average, threshold and recieve work stealing related messages. 
+
+This fuction recieves updates from parent rank matchmaker, when recieving work-\/stealing messages function are called with respect to the reqeusted operation it is important to note that the thread assigned to this function executes work stealing and passes around particles, this comes with a series of problems and advantages, reduction(if in a worker) is not stopped, the mechanism has to be regulated to not interfiere with other parts of the system
+
+The thread assigned to the function is also the one that sets termination flag to 0 indicating the end of reduction and the beginning of gathering operations, this flag is set to 0 when the parent matchmaker sends an update signaling that the local average is 0, this cancels all recieving calls of MPI and begins ending procedure in the node \Hypertarget{classNode_a48511c73b8d4174af4405f14fc7bb37a}\label{classNode_a48511c73b8d4174af4405f14fc7bb37a} 
+\index{Node@{Node}!sendStatusFunction@{sendStatusFunction}}
+\index{sendStatusFunction@{sendStatusFunction}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{sendStatusFunction()}{sendStatusFunction()}}
+{\footnotesize\ttfamily void Node\+::send\+Status\+Function (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Update function for a node, this function is assigned to a thread to be able to update status when necessary. 
+
+This function is responsable to send status update upwards, status update are sent using 4 different states\+:
+\begin{DoxyItemize}
+\item OVERWORK \+: $Total Particles > {\mu} + {\sigma}$
+\item STABLE \+: mu -\/ sigma \texorpdfstring{$<$}{<}= Total Particles \texorpdfstring{$<$}{<}= mu + sigma
+\item UNDERWORK \+: Total Particles \texorpdfstring{$<$}{<} mu -\/ sigma
+\item IDLE \+: Total Particles = 0 
+\end{DoxyItemize}
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}\label{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b} 
+\index{Node@{Node}!chunkSize@{chunkSize}}
+\index{chunkSize@{chunkSize}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{chunkSize}{chunkSize}}
+{\footnotesize\ttfamily int Node\+::chunk\+Size\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Number of particle sent in a single chunk. 
+
+\Hypertarget{classNode_a95b7033e5e44fd68c8952a10af367d92}\label{classNode_a95b7033e5e44fd68c8952a10af367d92} 
+\index{Node@{Node}!done@{done}}
+\index{done@{done}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{done}{done}}
+{\footnotesize\ttfamily atomic$<$bool$>$ Node\+::done\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Atomic variable to signal termination. 
+
+\Hypertarget{classNode_adb103e96748537b115c18c2a2b27a9d9}\label{classNode_adb103e96748537b115c18c2a2b27a9d9} 
+\index{Node@{Node}!inWindow@{inWindow}}
+\index{inWindow@{inWindow}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{inWindow}{inWindow}}
+{\footnotesize\ttfamily MPI\+\_\+\+Win Node\+::in\+Window\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+MPI object to use RDMA for input window buffer. 
+
+\Hypertarget{classNode_a0ec74d1471ab1093e62588cb919bf8ea}\label{classNode_a0ec74d1471ab1093e62588cb919bf8ea} 
+\index{Node@{Node}!inWindowBuffer@{inWindowBuffer}}
+\index{inWindowBuffer@{inWindowBuffer}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{inWindowBuffer}{inWindowBuffer}}
+{\footnotesize\ttfamily int\texorpdfstring{$\ast$}{*} Node\+::in\+Window\+Buffer\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Pointer to input window buffer. 
+
+\Hypertarget{classNode_a3152534caf4db66c422fccd375473e1e}\label{classNode_a3152534caf4db66c422fccd375473e1e} 
+\index{Node@{Node}!localAverage@{localAverage}}
+\index{localAverage@{localAverage}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{localAverage}{localAverage}}
+{\footnotesize\ttfamily float Node\+::local\+Average\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Current average of node. 
+
+\Hypertarget{classNode_a42508a8dadd837a7936ab40b4de38d53}\label{classNode_a42508a8dadd837a7936ab40b4de38d53} 
+\index{Node@{Node}!localThreshold@{localThreshold}}
+\index{localThreshold@{localThreshold}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{localThreshold}{localThreshold}}
+{\footnotesize\ttfamily int Node\+::local\+Threshold\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Current threshold of node. 
+
+\Hypertarget{classNode_a17aa93a6a65de6390afdeccf54538e3f}\label{classNode_a17aa93a6a65de6390afdeccf54538e3f} 
+\index{Node@{Node}!nodeRank@{nodeRank}}
+\index{nodeRank@{nodeRank}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{nodeRank}{nodeRank}}
+{\footnotesize\ttfamily int Node\+::node\+Rank\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Rank of node. 
+
+\Hypertarget{classNode_a187219708add28a69d82fbe647aaf612}\label{classNode_a187219708add28a69d82fbe647aaf612} 
+\index{Node@{Node}!outWindow@{outWindow}}
+\index{outWindow@{outWindow}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{outWindow}{outWindow}}
+{\footnotesize\ttfamily MPI\+\_\+\+Win Node\+::out\+Window\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+MPI object to use RDMA for output window buffer. 
+
+\Hypertarget{classNode_abe556d993e821e964d2158edda89683f}\label{classNode_abe556d993e821e964d2158edda89683f} 
+\index{Node@{Node}!outWindowBuffer@{outWindowBuffer}}
+\index{outWindowBuffer@{outWindowBuffer}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{outWindowBuffer}{outWindowBuffer}}
+{\footnotesize\ttfamily int\texorpdfstring{$\ast$}{*} Node\+::out\+Window\+Buffer\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Pointer to output window buffer. 
+
+\Hypertarget{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}\label{classNode_af6f5d2b4b37ba297fa6eebc17542dad4} 
+\index{Node@{Node}!parentRank@{parentRank}}
+\index{parentRank@{parentRank}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{parentRank}{parentRank}}
+{\footnotesize\ttfamily int Node\+::parent\+Rank\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Rank of parent (if the current node is 0 parent rank is -\/1) 
+
+\Hypertarget{classNode_aec1b644887e939fba2f43ff628ecd7eb}\label{classNode_aec1b644887e939fba2f43ff628ecd7eb} 
+\index{Node@{Node}!recvBuffer@{recvBuffer}}
+\index{recvBuffer@{recvBuffer}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{recvBuffer}{recvBuffer}}
+{\footnotesize\ttfamily int\texorpdfstring{$\ast$}{*} Node\+::recv\+Buffer\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Pointer to initial recieve buffer. 
+
+\Hypertarget{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}\label{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf} 
+\index{Node@{Node}!sentFlag@{sentFlag}}
+\index{sentFlag@{sentFlag}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{sentFlag}{sentFlag}}
+{\footnotesize\ttfamily bool\texorpdfstring{$\ast$}{*} Node\+::sent\+Flag\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Use flag to send data upwards, prevents multiple update of the same status. 
+
+\Hypertarget{classNode_afd3788a41ab04ded3a98566ea7f0081f}\label{classNode_afd3788a41ab04ded3a98566ea7f0081f} 
+\index{Node@{Node}!sentFlagMutex@{sentFlagMutex}}
+\index{sentFlagMutex@{sentFlagMutex}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{sentFlagMutex}{sentFlagMutex}}
+{\footnotesize\ttfamily shared\+\_\+mutex Node\+::sent\+Flag\+Mutex\hspace{0.3cm}{\ttfamily [mutable]}, {\ttfamily [protected]}}
+
+
+
+Shared mutex to prevent race condition on status update flag array. 
+
+\Hypertarget{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}\label{classNode_addabd01a35fcce9e4ced5fe9b6b6da82} 
+\index{Node@{Node}!status@{status}}
+\index{status@{status}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{status}{status}}
+{\footnotesize\ttfamily int Node\+::status\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Status of node. 
+
+\Hypertarget{classNode_a3d817091a1acc63fea4c65352564a73d}\label{classNode_a3d817091a1acc63fea4c65352564a73d} 
+\index{Node@{Node}!totalParticleMutex@{totalParticleMutex}}
+\index{totalParticleMutex@{totalParticleMutex}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{totalParticleMutex}{totalParticleMutex}}
+{\footnotesize\ttfamily shared\+\_\+mutex Node\+::total\+Particle\+Mutex\hspace{0.3cm}{\ttfamily [mutable]}, {\ttfamily [protected]}}
+
+
+
+Shared mutex to prevent race condition on Total particles and Particle buffer(\+Only in worker) 
+
+\Hypertarget{classNode_a56e05c172ac32c53ce36483cb826fcf8}\label{classNode_a56e05c172ac32c53ce36483cb826fcf8} 
+\index{Node@{Node}!totalParticles@{totalParticles}}
+\index{totalParticles@{totalParticles}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{totalParticles}{totalParticles}}
+{\footnotesize\ttfamily int Node\+::total\+Particles\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Total particle present in the node. 
+
+\Hypertarget{classNode_a65784e8a8e4c895cae1c71b6886dee32}\label{classNode_a65784e8a8e4c895cae1c71b6886dee32} 
+\index{Node@{Node}!treeWidth@{treeWidth}}
+\index{treeWidth@{treeWidth}!Node@{Node}}
+\doxysubsubsection{\texorpdfstring{treeWidth}{treeWidth}}
+{\footnotesize\ttfamily int Node\+::tree\+Width\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+Width of the computational tree. 
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{Node_8hpp}{Node.\+hpp}}\end{DoxyCompactItemize}

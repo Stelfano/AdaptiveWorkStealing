@@ -1,0 +1,70 @@
+\doxysection{Terminal\+Class.\+hpp}
+\hypertarget{TerminalClass_8hpp_source}{}\label{TerminalClass_8hpp_source}\mbox{\hyperlink{TerminalClass_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classTerminalMatchmaker}{TerminalMatchmaker}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classMatchmaker}{Matchmaker}}\{}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00026\ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classTerminalMatchmaker_a8180b70825454ccef7a5cfa132f07f7f}{stealFromVictim}}(\textcolor{keywordtype}{int}\ *stealingQuantity,\ \textcolor{keywordtype}{int}\ victimRank)\{}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ actualSteal\ =\ 0;}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(*stealingQuantity\ >\ \mbox{\hyperlink{utils_8hpp_a9fa59b79ea6d9d908e2f4e59cba96c9a}{MAX\_STEAL}})\{}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *stealingQuantity\ =\ \mbox{\hyperlink{utils_8hpp_a9fa59b79ea6d9d908e2f4e59cba96c9a}{MAX\_STEAL}};}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \ \ \ \ memset(\mbox{\hyperlink{classNode_abe556d993e821e964d2158edda89683f}{outWindowBuffer}},\ 0,\ \mbox{\hyperlink{utils_8hpp_a9fa59b79ea6d9d908e2f4e59cba96c9a}{MAX\_STEAL}}\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int}));}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Send(stealingQuantity,\ 1,\ MPI\_INT,\ victimRank,\ \mbox{\hyperlink{utils_8hpp_a8c72ff488add88e967e15b319b84c481}{VICTIM}},\ MPI\_COMM\_WORLD);}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Recv(\&actualSteal,\ 1,\ MPI\_INT,\ victimRank,\ \mbox{\hyperlink{utils_8hpp_a46fff4184b5d787de1ed367b97cb6091}{COMM}},\ MPI\_COMM\_WORLD,\ MPI\_STATUS\_IGNORE);}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Win\_lock(MPI\_LOCK\_EXCLUSIVE,\ victimRank,\ 0,\ \mbox{\hyperlink{classNode_a187219708add28a69d82fbe647aaf612}{outWindow}});}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Get(\mbox{\hyperlink{classNode_abe556d993e821e964d2158edda89683f}{outWindowBuffer}},\ actualSteal,\ MPI\_INT,\ victimRank,\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int}),\ *stealingQuantity,\ MPI\_INT,\ \mbox{\hyperlink{classNode_a187219708add28a69d82fbe647aaf612}{outWindow}});}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Win\_unlock(victimRank,\ \mbox{\hyperlink{classNode_a187219708add28a69d82fbe647aaf612}{outWindow}});}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ actualSteal;}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classTerminalMatchmaker_abaff71032c01aebfcf61cb60c8ec9daa}{sendToTarget}}(\textcolor{keywordtype}{int}\ *stealingQuantity,\ \textcolor{keywordtype}{int}\ targetRank)\{}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(*stealingQuantity\ >\ \mbox{\hyperlink{utils_8hpp_a9fa59b79ea6d9d908e2f4e59cba96c9a}{MAX\_STEAL}})\{}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ *stealingQuantity\ =\ \mbox{\hyperlink{utils_8hpp_a9fa59b79ea6d9d908e2f4e59cba96c9a}{MAX\_STEAL}};}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Win\_lock(MPI\_LOCK\_EXCLUSIVE,\ targetRank,\ 0,\ \mbox{\hyperlink{classNode_adb103e96748537b115c18c2a2b27a9d9}{inWindow}});}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Put(\mbox{\hyperlink{classNode_a0ec74d1471ab1093e62588cb919bf8ea}{inWindowBuffer}},\ *stealingQuantity,\ MPI\_INT,\ targetRank,\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int}),\ *stealingQuantity,\ MPI\_INT,\ \mbox{\hyperlink{classNode_adb103e96748537b115c18c2a2b27a9d9}{inWindow}});}
+\DoxyCodeLine{00059\ }
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Send(stealingQuantity,\ 1,\ MPI\_INT,\ targetRank,\ \mbox{\hyperlink{utils_8hpp_a9fec70a17d0bcef23cf03c45a7b7caba}{TARGET}},\ MPI\_COMM\_WORLD);}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \ \ \ \ memset(\mbox{\hyperlink{classNode_a0ec74d1471ab1093e62588cb919bf8ea}{inWindowBuffer}},\ 0,\ \mbox{\hyperlink{utils_8hpp_a9fa59b79ea6d9d908e2f4e59cba96c9a}{MAX\_STEAL}}\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int}));}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Win\_unlock(targetRank,\ \mbox{\hyperlink{classNode_adb103e96748537b115c18c2a2b27a9d9}{inWindow}});}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00065\ }
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classTerminalMatchmaker_acd9680c941ef393d41d4fc31a8a24d6e}{gatherData}}(\textcolor{keywordtype}{int}\ stealingQuantity)\{}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ *stealingArray\ =\ \mbox{\hyperlink{classMatchmaker_ada689998b29b04b679d527790b15a5e3}{calculateStealing}}(stealingQuantity);}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ *tempArray\ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{int}[\mbox{\hyperlink{utils_8hpp_a9fa59b79ea6d9d908e2f4e59cba96c9a}{MAX\_STEAL}}];}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ arrayOffset\ =\ 0;}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ actualSteal\ =\ 0;}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 0;i<\mbox{\hyperlink{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}{childNumber}};i++)\{}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classMatchmaker_a625ea9bbc12d495154525548f04c811b}{tagArray}}[i]\ =\ \mbox{\hyperlink{utils_8hpp_a00de8f7e0b615f88335573ba3909583d}{LOCKED}};}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}STEALING\ FROM\ WORKER\ :\ "{}}\ <<\ \mbox{\hyperlink{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f}{childRanks}}[i]\ <<\ \textcolor{stringliteral}{"{}\ "{}}\ <<\ stealingArray[i]\ <<\ \textcolor{stringliteral}{"{}\ PARTICLES"{}}\ <<\ endl;}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ actualSteal\ =\ \mbox{\hyperlink{classTerminalMatchmaker_a8180b70825454ccef7a5cfa132f07f7f}{stealFromVictim}}(stealingArray+i,\ \mbox{\hyperlink{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f}{childRanks}}[i]);}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}STOLEN\ :\ "{}}\ <<\ actualSteal\ <<\ \textcolor{stringliteral}{"{}\ FROM\ WORKER\ :\ "{}}\ <<\ (i+\mbox{\hyperlink{classMatchmaker_a3b4fd71a833ff0ddd031ae9101281fb5}{offset}})\ <<\ endl;}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//memcpy(tempArray+arrayOffset,\ outWindowBuffer,\ actualSteal);}}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ arrayOffset\ +=\ actualSteal;}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \ \ \ \ memcpy(\mbox{\hyperlink{classNode_abe556d993e821e964d2158edda89683f}{outWindowBuffer}}+arrayOffset,\ tempArray,\ actualSteal);}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}I\ HAVE\ STOLEN\ :\ "{}}\ <<\ arrayOffset\ <<\ \textcolor{stringliteral}{"{}\ PARTICLES\ "{}}\ <<\ endl;}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}[]\ tempArray;}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}[]\ stealingArray;}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ arrayOffset;}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classTerminalMatchmaker_a225b974078a45c53348144c563016173}{TerminalMatchmaker}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunkSize}},\ \textcolor{keywordtype}{int}\ *\mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recvBuffer}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}},\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{localAverage}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{localThreshold}},}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}{childNumber}},\ \textcolor{keywordtype}{int}\ *\mbox{\hyperlink{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f}{childRanks}})\ :\ \mbox{\hyperlink{classMatchmaker}{Matchmaker}}(\mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}},\ \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunkSize}},\ \mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recvBuffer}},\ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}},\ \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{localAverage}},\ \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{localThreshold}},}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}{childNumber}},\ \mbox{\hyperlink{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f}{childRanks}})\{\};}
+\DoxyCodeLine{00101\ \};}
+
+\end{DoxyCode}

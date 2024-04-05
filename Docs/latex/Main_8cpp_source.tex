@@ -1,0 +1,90 @@
+\doxysection{Main.\+cpp}
+\hypertarget{Main_8cpp_source}{}\label{Main_8cpp_source}\index{/home/stefano/Uni/Tirocinio/AdaptiveWorkStealing/source/Main.cpp@{/home/stefano/Uni/Tirocinio/AdaptiveWorkStealing/source/Main.cpp}}
+\mbox{\hyperlink{Main_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00002}00002\ \textcolor{comment}{//ERRORI\ VISIBILI\ CON\ mpirun\ -\/np\ 7\ -\/-\/mca\ btl\_base-\/verbose\ 100\ ./Test}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00003}00003\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00015}00015\ \textcolor{preprocessor}{\#include\ <iostream>}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00016}00016\ \textcolor{preprocessor}{\#include\ "{}mpi.h"{}}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00017}00017\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{Worker_8hpp}{Worker.hpp}}"{}}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00018}00018\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{Matchmaker_8hpp}{Matchmaker.hpp}}"{}}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00019}00019\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00020}00020\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00021}\mbox{\hyperlink{Main_8cpp_a6cf4f84ce1249c9fa265b0d6d697faaa}{00021}}\ \textcolor{preprocessor}{\#define\ OVERWORK\ 1}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00022}\mbox{\hyperlink{Main_8cpp_aa8290939dc02192ebf7028e5b45b0ff9}{00022}}\ \textcolor{preprocessor}{\#define\ STABLE\ 2}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00023}\mbox{\hyperlink{Main_8cpp_abafd49e7c13337429d6d835b3e8ce080}{00023}}\ \textcolor{preprocessor}{\#define\ UNDERWORK\ 3}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00024}\mbox{\hyperlink{Main_8cpp_a9c21a7caee326d7803b94ae1952b27ca}{00024}}\ \textcolor{preprocessor}{\#define\ IDLE\ 4}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00025}\mbox{\hyperlink{Main_8cpp_aad9ae913bdfab20dd94ad04ee2d5b045}{00025}}\ \textcolor{preprocessor}{\#define\ DATA\ 5}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00027}00027\ \textcolor{keyword}{using\ namespace\ }std;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00029}\mbox{\hyperlink{Main_8cpp_a700a0caa5b70a06d1064e576f9f3cf65}{00029}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{Main_8cpp_a700a0caa5b70a06d1064e576f9f3cf65}{main}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}\ *args[])\{}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00030}00030\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00031}00031\ \textcolor{keywordtype}{int}\ provided;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00033}00033\ MPI\_Init\_thread(\&argc,\ \&args,\ MPI\_THREAD\_MULTIPLE,\ \&provided);}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00034}00034\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00035}00035\ \textcolor{keywordtype}{int}\ dim\ =\ 65532;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00036}00036\ \textcolor{keywordtype}{int}\ num\_proc;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00037}00037\ \textcolor{keywordtype}{int}\ task\_id;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00038}00038\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00039}00039\ MPI\_Comm\_size(MPI\_COMM\_WORLD,\ \&num\_proc);}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00040}00040\ MPI\_Comm\_rank(MPI\_COMM\_WORLD,\ \&task\_id);}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00041}00041\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00042}00042\ MPI\_Request\ req;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00043}00043\ \textcolor{keywordtype}{int}*\ array\ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{int}[dim];}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00044}00044\ \textcolor{keywordtype}{int}\ chunk\_size\ =\ dim/(num\_proc-\/1);}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00045}00045\ \textcolor{keywordtype}{int}*\ recv\_buffer\ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{int}[chunk\_size];}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00046}00046\ \textcolor{keywordtype}{int}\ local\_result\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00047}00047\ \textcolor{keywordtype}{int}\ global\_result\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00048}00048\ \textcolor{keywordtype}{int}\ sendArray[num\_proc];}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00049}00049\ \textcolor{keywordtype}{int}\ dispArray[num\_proc];}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00050}00050\ \textcolor{keywordtype}{bool}\ sentFlag\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00051}00051\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00052}00052\ \textcolor{keywordtype}{float}\ local\_average;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00053}00053\ \textcolor{keywordtype}{int}\ threshold;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00054}00054\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00055}00055\ \textcolor{keywordflow}{if}(task\_id\ ==\ 0)\{}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00056}00056\ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}PROBLEM\ DIMENSION\ :\ "{}}\ <<\ dim\ <<\ \textcolor{stringliteral}{"{}\ WITH\ "{}}\ <<\ num\_proc-\/1\ <<\ \textcolor{stringliteral}{"{}\ WORKERS"{}}\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00057}00057\ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}CHUNK\ SIZE\ :\ "{}}\ <<\ chunk\_size\ <<\ \textcolor{stringliteral}{"{}\ PERCENTAGE\ :\ "{}}\ <<\ ((float)chunk\_size/dim)*100\ <<\ \textcolor{stringliteral}{"{}\%"{}}\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00058}00058\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 0;i<dim;i++)}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00059}00059\ \ \ \ \ \ \ \ \ \ \ \ \ array[i]\ =\ 1;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00060}00060\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00061}00061\ \ \ \ \ \ \ \ \ sendArray[0]\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00062}00062\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00063}00063\ \ \ \ \ \textcolor{comment}{//SendArray\ e\ dispArray\ servono\ a\ regolare\ quanti\ dati\ mandare\ ad\ ogni\ worker\ nella\ scatterv}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00064}00064\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 1;i<num\_proc;i++)\{}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00065}00065\ \ \ \ \ \ \ \ \ \ \ \ \ sendArray[i]\ =\ chunk\_size;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00066}00066\ \ \ \ \ \ \ \ \ \ \ \ \ dispArray[i]\ =\ (i-\/1)*chunk\_size;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00067}00067\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00068}00068\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00069}00069\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00070}00070\ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}PROCESSOR\ :\ "{}}\ <<\ task\_id\ <<\ \textcolor{stringliteral}{"{}\ CALLING\ SCATTER..."{}}\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00071}00071\ \ \ \ \ MPI\_Scatterv(array,\ sendArray,\ dispArray,\ MPI\_INT,\ recv\_buffer,\ chunk\_size,\ MPI\_INT,\ 0,\ MPI\_COMM\_WORLD);}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00072}00072\ \ \ \ \ local\_average\ =\ chunk\_size;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00073}00073\ \ \ \ \ threshold\ =\ 100;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00074}00074\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00075}00075\ \ \ \ \ \textcolor{keywordflow}{if}(task\_id\ ==\ 0)\{}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00076}00076\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Matchmaker_8cpp_a4a87dec580572701efbc15ef14fdc9f4}{matchmakerMainLoop}}(num\_proc,\ \&global\_result,\ chunk\_size);}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00077}00077\ \ \ \ \ \}\textcolor{keywordflow}{else}\{}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00078}00078\ \ \ \ \ \ \ \ \ vector<int>\ vector\_buffer(recv\_buffer,\ recv\_buffer\ +\ chunk\_size);}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00079}00079\ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}PROCESSOR\ :\ "{}}\ <<\ task\_id\ <<\ \textcolor{stringliteral}{"{}\ BEGIN\ REDUCTION"{}}\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00080}00080\ \ \ \ \ \ \ \ \ local\_result\ =\ \mbox{\hyperlink{Worker_8cpp_a67832aed811528fe18bd6735765c511d}{local\_reduction}}(\&vector\_buffer,\ local\_average,\ threshold);}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00081}00081\ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}PROCESSOR\ :\ "{}}\ <<\ task\_id\ <<\ \textcolor{stringliteral}{"{}\ COMPUTATION\ ENDED,\ GOING\ IDLE\ WITH\ RESULT\ :\ "{}}\ <<\ local\_result\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00082}00082\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00083}00083\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00084}00084\ \ \ \ \ \textcolor{keywordflow}{if}(task\_id\ !=\ 0)\{}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00085}00085\ \ \ \ \ \ \ \ \ MPI\_Send(\&local\_result,\ 1,\ MPI\_INT,\ 0,\ \mbox{\hyperlink{Main_8cpp_aad9ae913bdfab20dd94ad04ee2d5b045}{DATA}},\ MPI\_COMM\_WORLD);}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00086}00086\ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}FINAL\ VALUE\ SENT!"{}}\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00087}00087\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00088}00088\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00089}00089\ \ \ \ \ \textcolor{keywordflow}{if}(task\_id\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00090}00090\ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}PROCESS\ ENDED\ WITH\ RESULT\ :\ "{}}\ <<\ global\_result\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00091}00091\ }
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00092}00092\ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}PROCESSOR\ :\ "{}}\ <<\ task\_id\ <<\ \textcolor{stringliteral}{"{}\ CLOSING..."{}}\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00093}00093\ \ \ \ \ MPI\_Finalize();}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00094}00094\ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{\Hypertarget{Main_8cpp_source_l00095}00095\ \}}
+
+\end{DoxyCode}

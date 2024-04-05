@@ -1,0 +1,60 @@
+\doxysection{Main.\+cpp File Reference}
+\hypertarget{Main_8cpp}{}\label{Main_8cpp}\index{Main.cpp@{Main.cpp}}
+
+
+Adaptive work stealing scheduler for distributed computing.  
+
+
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$mpi.\+h$>$}\newline
+{\ttfamily \#include "{}Worker\+Class.\+hpp"{}}\newline
+{\ttfamily \#include "{}Initiator\+Class.\+hpp"{}}\newline
+{\ttfamily \#include "{}Terminal\+Class.\+hpp"{}}\newline
+{\ttfamily \#include "{}utils.\+hpp"{}}\newline
+{\ttfamily \#include $<$vector$>$}\newline
+{\ttfamily \#include $<$cstdio$>$}\newline
+{\ttfamily \#include $<$syncstream$>$}\newline
+{\ttfamily \#include $<$cstring$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{Main_8cpp_a700a0caa5b70a06d1064e576f9f3cf65}{main}} (int argc, char \texorpdfstring{$\ast$}{*}args\mbox{[}$\,$\mbox{]})
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+std\+::chrono\+::time\+\_\+point$<$ std\+::chrono\+::system\+\_\+clock $>$ \mbox{\hyperlink{Main_8cpp_aee8571a3d7e27606d7ea00794059642f}{start}} = std\+::chrono\+::system\+\_\+clock\+::now()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Adaptive work stealing scheduler for distributed computing. 
+
+\begin{DoxyAuthor}{Author}
+Stefano Romeo 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+0.\+1 
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+2023-\/11-\/22 
+\end{DoxyDate}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{Main_8cpp_a700a0caa5b70a06d1064e576f9f3cf65}\label{Main_8cpp_a700a0caa5b70a06d1064e576f9f3cf65} 
+\index{Main.cpp@{Main.cpp}!main@{main}}
+\index{main@{main}!Main.cpp@{Main.cpp}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char \texorpdfstring{$\ast$}{*}}]{args\mbox{[}$\,$\mbox{]} }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{Main_8cpp_aee8571a3d7e27606d7ea00794059642f}\label{Main_8cpp_aee8571a3d7e27606d7ea00794059642f} 
+\index{Main.cpp@{Main.cpp}!start@{start}}
+\index{start@{start}!Main.cpp@{Main.cpp}}
+\doxysubsubsection{\texorpdfstring{start}{start}}
+{\footnotesize\ttfamily std\+::chrono\+::time\+\_\+point$<$std\+::chrono\+::system\+\_\+clock$>$ start = std\+::chrono\+::system\+\_\+clock\+::now()}
+

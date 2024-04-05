@@ -1,0 +1,121 @@
+\doxysection{utils.\+cpp File Reference}
+\hypertarget{utils_8cpp}{}\label{utils_8cpp}\index{utils.cpp@{utils.cpp}}
+
+
+Various functions and utilities.  
+
+
+{\ttfamily \#include "{}utils.\+hpp"{}}\newline
+{\ttfamily \#include $<$cmath$>$}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{utils_8cpp_a73d711c2ea70f5243f68a2ecb7aa3698}{calculate\+\_\+time}} ()
+\begin{DoxyCompactList}\small\item\em Simple function to calculate time of execution. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{utils_8cpp_a241e39ce5d7385b1e0e7d46919ea874e}{set\+Position\+In\+Tree}} (int node\+Rank, int total\+Ranks, int tree\+Width, int \texorpdfstring{$\ast$}{*}childs)
+\begin{DoxyCompactList}\small\item\em Find the position of a node inside the computational tree. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{utils_8cpp_adaf480e44b281e1c354702e502a55f82}{find\+Level\+In\+Tree}} (int node\+Rank, int tree\+Width)
+\begin{DoxyCompactList}\small\item\em This function is used to find the level of a node inside the computational tree. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{utils_8cpp_a54ec61c64c84a40ed54b6ed440d4dad2}{find\+Level\+In\+Binary\+Tree}} (int node\+Rank)
+\begin{DoxyCompactList}\small\item\em This function finds the level of the node in the case of a binary tree. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{utils_8cpp_aa271630282ca86b1c1fbe0a5f5db5868}{find\+Initial\+Leaf}} (int total\+Ranks, int tree\+Width)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Various functions and utilities. 
+
+\begin{DoxyAuthor}{Author}
+Stefano Romeo 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+0.\+1 
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+2024-\/04-\/03 
+\end{DoxyDate}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{utils_8cpp_a73d711c2ea70f5243f68a2ecb7aa3698}\label{utils_8cpp_a73d711c2ea70f5243f68a2ecb7aa3698} 
+\index{utils.cpp@{utils.cpp}!calculate\_time@{calculate\_time}}
+\index{calculate\_time@{calculate\_time}!utils.cpp@{utils.cpp}}
+\doxysubsubsection{\texorpdfstring{calculate\_time()}{calculate\_time()}}
+{\footnotesize\ttfamily void calculate\+\_\+time (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Simple function to calculate time of execution. 
+
+This function is used to append a time to every output, this is used to have a timestamp and to trace when a certain operation has executed \Hypertarget{utils_8cpp_aa271630282ca86b1c1fbe0a5f5db5868}\label{utils_8cpp_aa271630282ca86b1c1fbe0a5f5db5868} 
+\index{utils.cpp@{utils.cpp}!findInitialLeaf@{findInitialLeaf}}
+\index{findInitialLeaf@{findInitialLeaf}!utils.cpp@{utils.cpp}}
+\doxysubsubsection{\texorpdfstring{findInitialLeaf()}{findInitialLeaf()}}
+{\footnotesize\ttfamily int find\+Initial\+Leaf (\begin{DoxyParamCaption}\item[{int}]{total\+Ranks,  }\item[{int}]{tree\+Width }\end{DoxyParamCaption})}
+
+\Hypertarget{utils_8cpp_a54ec61c64c84a40ed54b6ed440d4dad2}\label{utils_8cpp_a54ec61c64c84a40ed54b6ed440d4dad2} 
+\index{utils.cpp@{utils.cpp}!findLevelInBinaryTree@{findLevelInBinaryTree}}
+\index{findLevelInBinaryTree@{findLevelInBinaryTree}!utils.cpp@{utils.cpp}}
+\doxysubsubsection{\texorpdfstring{findLevelInBinaryTree()}{findLevelInBinaryTree()}}
+{\footnotesize\ttfamily int find\+Level\+In\+Binary\+Tree (\begin{DoxyParamCaption}\item[{int}]{node\+Rank }\end{DoxyParamCaption})}
+
+
+
+This function finds the level of the node in the case of a binary tree. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em node\+Rank} & Rank of node \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Level of node inside computational tree 
+\end{DoxyReturn}
+\Hypertarget{utils_8cpp_adaf480e44b281e1c354702e502a55f82}\label{utils_8cpp_adaf480e44b281e1c354702e502a55f82} 
+\index{utils.cpp@{utils.cpp}!findLevelInTree@{findLevelInTree}}
+\index{findLevelInTree@{findLevelInTree}!utils.cpp@{utils.cpp}}
+\doxysubsubsection{\texorpdfstring{findLevelInTree()}{findLevelInTree()}}
+{\footnotesize\ttfamily int find\+Level\+In\+Tree (\begin{DoxyParamCaption}\item[{int}]{node\+Rank,  }\item[{int}]{tree\+Width }\end{DoxyParamCaption})}
+
+
+
+This function is used to find the level of a node inside the computational tree. 
+
+\doxylink{classNode}{Node} level is used to calculate how many particles a node will recieve, for matchamker this level is the sum of all nodes below
+
+
+\begin{DoxyParams}{Parameters}
+{\em node\+Rank} & Rank of current node \\
+\hline
+{\em tree\+Width} & With of the n-\/th tree \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Level of the node inside the tree 
+\end{DoxyReturn}
+\Hypertarget{utils_8cpp_a241e39ce5d7385b1e0e7d46919ea874e}\label{utils_8cpp_a241e39ce5d7385b1e0e7d46919ea874e} 
+\index{utils.cpp@{utils.cpp}!setPositionInTree@{setPositionInTree}}
+\index{setPositionInTree@{setPositionInTree}!utils.cpp@{utils.cpp}}
+\doxysubsubsection{\texorpdfstring{setPositionInTree()}{setPositionInTree()}}
+{\footnotesize\ttfamily int set\+Position\+In\+Tree (\begin{DoxyParamCaption}\item[{int}]{node\+Rank,  }\item[{int}]{total\+Ranks,  }\item[{int}]{tree\+Width,  }\item[{int \texorpdfstring{$\ast$}{*}}]{childs }\end{DoxyParamCaption})}
+
+
+
+Find the position of a node inside the computational tree. 
+
+This function finds the position of a node in a n-\/th tree, inside the function child ranks are assigned to the child array Childs are assigned using the formula\+:
+
+
+\begin{DoxyParams}{Parameters}
+{\em node\+Rank} & Rank of current node \\
+\hline
+{\em total\+Ranks} & Total number of node in computational tree \\
+\hline
+{\em tree\+Width} & Width of the n-\/th tree \\
+\hline
+{\em childs} & Child vector (uninizialized before entering the function) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+first child rank to be used as an offset to send messages 
+\end{DoxyReturn}

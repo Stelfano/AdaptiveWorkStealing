@@ -1,8 +1,28 @@
+/**
+ * @file TerminalClass.hpp
+ * @author Stefano Romeo
+ * @brief Terminal Matchmaker definition
+ * @version 0.1
+ * @date 2024-04-03
+ *
+ * This file implements a Terminal Matchmaker, this is the last Matchmaker element before a worker, it reimplements work stealing related functions
+ * to adapt them to the worker and the worker-matchmaker interaction instead of a matchmaker-matchmaker interaction
+ */
+
 class TerminalMatchmaker : public Matchmaker{
 
-//Il terminal matchmaker è a diretto contatto con un worker
-
     protected:
+    /**
+     * @brief This function steals an amount of particles from a worker
+     * 
+     * During this function the stealing quantity is negotiated with the worker node and the window is then locked, after stealing has happend the actual
+     * number of particles stolen is then returned, this function is also used in worker - matchmaker - worker interactions to move data from and to workers
+     * in the same branch
+     *
+     * @param stealingQuantity Number of stolen particles
+     * @param victimRank Rank of victim worker
+     * @return Number of particle stolen (during reduction there could be remaining less particle that the number of intended particles to be stolen) 
+     */
          virtual int stealFromVictim(int *stealingQuantity, int victimRank){
             int actualSteal = 0;
 
@@ -21,6 +41,13 @@ class TerminalMatchmaker : public Matchmaker{
             return actualSteal;
         }
 
+        /**
+         * @brief Stolen particles are sent to a worker
+         * Particles are injected in the window buffer of a worker, the latter is then informed of the prensence of those particles
+         * 
+         * @param stealingQuantity Number of particles to inject in a worker
+         * @param targetRank Rank of target
+         */
         virtual void sendToTarget(int *stealingQuantity, int targetRank){
 
             if(*stealingQuantity > MAX_STEAL){
@@ -36,6 +63,14 @@ class TerminalMatchmaker : public Matchmaker{
 
         }
 
+        /**
+         * @brief Function for worker - matchmaker - matchmaker interaction to push upwards stolen particles
+         * This function gathers data from all child workers and pushes stolen particles upwards to another matchmaker, terminal - worker interaction
+         * are the same as the single stealing functions, data are stolen in order and the procedure must be complete in order to steal from the next worker node
+         * 
+         * @param stealingQuantity Quantity to be stolen from all workers
+         * @return Total number of particles stolen from all workers
+         */
         virtual int gatherData(int stealingQuantity){
             int *stealingArray = calculateStealing(stealingQuantity);
             int *tempArray = new int[MAX_STEAL];

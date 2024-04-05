@@ -1,0 +1,247 @@
+\doxysection{Node.\+hpp}
+\hypertarget{Node_8hpp_source}{}\label{Node_8hpp_source}\mbox{\hyperlink{Node_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ NODE}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ NODE}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8hpp}{utils.hpp}}"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}mpi.h"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <random>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <cstdlib>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <thread>}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <atomic>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <cstring>}\ }
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ <shared\_mutex>}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ <mutex>}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00024\ \textcolor{keyword}{using\ namespace\ }std;}
+\DoxyCodeLine{00032\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classNode}{Node}}\{}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_a65784e8a8e4c895cae1c71b6886dee32}{treeWidth}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_a17aa93a6a65de6390afdeccf54538e3f}{nodeRank}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ *\mbox{\hyperlink{classNode_a0ec74d1471ab1093e62588cb919bf8ea}{inWindowBuffer}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ *\mbox{\hyperlink{classNode_abe556d993e821e964d2158edda89683f}{outWindowBuffer}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ *\mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recvBuffer}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunkSize}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}{status}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{localAverage}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{localThreshold}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ MPI\_Win\ \mbox{\hyperlink{classNode_adb103e96748537b115c18c2a2b27a9d9}{inWindow}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ MPI\_Win\ \mbox{\hyperlink{classNode_a187219708add28a69d82fbe647aaf612}{outWindow}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ atomic<bool>\ \mbox{\hyperlink{classNode_a95b7033e5e44fd68c8952a10af367d92}{done}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ *\mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \textcolor{keyword}{mutable}\ shared\_mutex\ \mbox{\hyperlink{classNode_a3d817091a1acc63fea4c65352564a73d}{totalParticleMutex}};\ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \textcolor{keyword}{mutable}\ shared\_mutex\ \mbox{\hyperlink{classNode_afd3788a41ab04ded3a98566ea7f0081f}{sentFlagMutex}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classNode_a3e8e2835b7f01ba3b44e57b181a175b8}{declareStatus}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}{status}})\{}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>status\ =\ \mbox{\hyperlink{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}{status}};}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ *temp\ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{int}[2];}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ temp[0]\ =\ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}};}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \ \ \ \ temp[1]\ =\ \mbox{\hyperlink{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}{status}};}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Send(temp,\ 2,\ MPI\_INT,\ \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}},\ \mbox{\hyperlink{utils_8hpp_ac2558c32fa879d85fe59f8c5f8dfbc04}{UPDATE}},\ MPI\_COMM\_WORLD);}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}[]\ temp;}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classNode_a48511c73b8d4174af4405f14fc7bb37a}{sendStatusFunction}}()\{}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \ \ \ \ shared\_lock<shared\_mutex>\ totalParticlesLock(\mbox{\hyperlink{classNode_a3d817091a1acc63fea4c65352564a73d}{totalParticleMutex}},\ defer\_lock);}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \ \ \ \ unique\_lock<shared\_mutex>\ sentFlagLock(\mbox{\hyperlink{classNode_afd3788a41ab04ded3a98566ea7f0081f}{sentFlagMutex}},\ defer\_lock);}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}(!\mbox{\hyperlink{classNode_a95b7033e5e44fd68c8952a10af367d92}{done}})\{\ \ \ }
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(\mbox{\hyperlink{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}{status}}\ !=\ \mbox{\hyperlink{utils_8hpp_a00de8f7e0b615f88335573ba3909583d}{LOCKED}})\{}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ totalParticlesLock.lock();}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(\mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}}\ >\ (\mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{localAverage}}\ +\ \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{localThreshold}})\ \&\&\ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[3]\ ==\ \textcolor{keyword}{false}\ \&\&\ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}}\ !=\ 0)\{}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a3e8e2835b7f01ba3b44e57b181a175b8}{declareStatus}}(\mbox{\hyperlink{utils_8hpp_a6cf4f84ce1249c9fa265b0d6d697faaa}{OVERWORK}});}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sentFlagLock.lock();}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[3]\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[2]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[1]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[0]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sentFlagLock.unlock();}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00103\ }
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(\mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}}\ <=\ (\mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{localAverage}}\ +\ \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{localThreshold}})\ \&\&\ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}}\ >=\ (\mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{localAverage}}\ -\/\ \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{localThreshold}})\ \&\&\ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[2]\ ==\ \textcolor{keyword}{false}\ \&\&\ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}}\ !=\ 0)\{}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a3e8e2835b7f01ba3b44e57b181a175b8}{declareStatus}}(\mbox{\hyperlink{utils_8hpp_aa8290939dc02192ebf7028e5b45b0ff9}{STABLE}});}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sentFlagLock.lock();}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[2]\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[3]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[1]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[0]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sentFlagLock.unlock();}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(\mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}}\ <\ (\mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{localAverage}}\ -\/\ \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{localThreshold}})\ \&\&\ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[1]\ ==\ \textcolor{keyword}{false}\ \&\&\ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}}\ !=\ 0)\{}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a3e8e2835b7f01ba3b44e57b181a175b8}{declareStatus}}(\mbox{\hyperlink{utils_8hpp_abafd49e7c13337429d6d835b3e8ce080}{UNDERWORK}});}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sentFlagLock.lock();}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[1]\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[3]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[2]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[0]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sentFlagLock.unlock();}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(\mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}}\ ==\ 0\ \&\&\ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[0]\ ==\ \textcolor{keyword}{false})\{}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}}\ =\ 0;}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a3e8e2835b7f01ba3b44e57b181a175b8}{declareStatus}}(\mbox{\hyperlink{utils_8hpp_a9c21a7caee326d7803b94ae1952b27ca}{IDLE}});}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sentFlagLock.lock();}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[0]\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[3]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[2]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[1]\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sentFlagLock.unlock();}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ totalParticlesLock.unlock();}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{utils_8cpp_a73d711c2ea70f5243f68a2ecb7aa3698}{calculate\_time}}();}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}SENDER\ THREAD\ TERMINATING\ IN\ RANK\ :\ "{}}<<\ \mbox{\hyperlink{classNode_a17aa93a6a65de6390afdeccf54538e3f}{nodeRank}}\ <<\ endl;}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classNode_a452fc104fe4726da9630696fe769832f}{recieveMessageFromMatchmaker}}()\{}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Status\ stat1,\ stat2,\ stat3,\ stat4;}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Request\ req1,\ req2,\ req3,\ req4;}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ flag1\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ flag2\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ flag3\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ flag4\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ bufferAvg\ =\ this-\/>\mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{localAverage}};}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ bufferThreshold\ =\ this-\/>\mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{localThreshold}};}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ stealingBuffer\ =\ 0;}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \ \ \ \ unique\_lock<shared\_mutex>\ totalParticlesLock(\mbox{\hyperlink{classNode_a3d817091a1acc63fea4c65352564a73d}{totalParticleMutex}},\ defer\_lock);}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \ \ \ \ unique\_lock<shared\_mutex>\ sentFlagLock(\mbox{\hyperlink{classNode_afd3788a41ab04ded3a98566ea7f0081f}{sentFlagMutex}},\ defer\_lock);}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{utils_8cpp_a73d711c2ea70f5243f68a2ecb7aa3698}{calculate\_time}}();}
+\DoxyCodeLine{00173\ }
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Irecv(\&bufferAvg,\ 1,\ MPI\_FLOAT,\ \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}},\ \mbox{\hyperlink{utils_8hpp_a1f98b8446b6c3c9f699cc2c046c49f87}{AVERAGE}},\ MPI\_COMM\_WORLD,\ \&req1);}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Irecv(\&bufferThreshold,\ 1,\ MPI\_INT,\ \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}},\ \mbox{\hyperlink{utils_8hpp_a4679d8ea8690999a6c6c7c0cb245c879}{THRESHOLD}},\ MPI\_COMM\_WORLD,\ \&req2);}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Irecv(\&stealingBuffer,\ 1,\ MPI\_INT,\ \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}},\ \mbox{\hyperlink{utils_8hpp_a8c72ff488add88e967e15b319b84c481}{VICTIM}},\ MPI\_COMM\_WORLD,\ \&req3);}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Irecv(\&stealingBuffer,\ 1,\ MPI\_INT,\ \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}},\ \mbox{\hyperlink{utils_8hpp_a9fec70a17d0bcef23cf03c45a7b7caba}{TARGET}},\ MPI\_COMM\_WORLD,\ \&req4);}
+\DoxyCodeLine{00178\ }
+\DoxyCodeLine{00179\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}(bufferAvg\ >\ 0)\{}
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Test(\&req1,\ \&flag1,\ \&stat1);}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Test(\&req2,\ \&flag2,\ \&stat2);}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Test(\&req3,\ \&flag3,\ \&stat3);}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Test(\&req4,\ \&flag4,\ \&stat4);}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(flag1\ ==\ \textcolor{keyword}{true})\{}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Irecv(\&bufferAvg,\ 1,\ MPI\_FLOAT,\ \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}},\ \mbox{\hyperlink{utils_8hpp_a1f98b8446b6c3c9f699cc2c046c49f87}{AVERAGE}},\ MPI\_COMM\_WORLD,\ \&req1);}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}RANK\ :\ "{}}\ <<\ \mbox{\hyperlink{classNode_a17aa93a6a65de6390afdeccf54538e3f}{nodeRank}}\ <<\ \textcolor{stringliteral}{"{}\ RECIEVED\ AVG\ OF\ :\ "{}}\ <<\ bufferAvg\ <<\ endl;}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{localAverage}}\ =\ bufferAvg;}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(bufferAvg\ ==\ 0)\{}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}-\/-\/-\/-\/-\/-\/RECIEVED\ TERMINATION\ IN\ RANK\ :\ "{}}\ <<\ \mbox{\hyperlink{classNode_a17aa93a6a65de6390afdeccf54538e3f}{nodeRank}}\ <<\ endl;}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ flag1\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00193\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(flag2\ ==\ \textcolor{keyword}{true})\{}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Irecv(\&bufferThreshold,\ 1,\ MPI\_INT,\ \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}},\ \mbox{\hyperlink{utils_8hpp_a4679d8ea8690999a6c6c7c0cb245c879}{THRESHOLD}},\ MPI\_COMM\_WORLD,\ \&req2);}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{localThreshold}}\ =\ bufferThreshold;}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ flag2\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(flag3\ ==\ \textcolor{keyword}{true})\{}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}{status}}\ =\ \mbox{\hyperlink{utils_8hpp_a00de8f7e0b615f88335573ba3909583d}{LOCKED}};}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Irecv(\&stealingBuffer,\ 1,\ MPI\_INT,\ \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}},\ \mbox{\hyperlink{utils_8hpp_a8c72ff488add88e967e15b319b84c481}{VICTIM}},\ MPI\_COMM\_WORLD,\ \&req3);}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ totalParticlesLock.lock();}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a7b77321aa26c41900b8d8056114461bf}{deleteDataFromNode}}(stealingBuffer);}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ totalParticlesLock.unlock();}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sentFlagLock.lock();}
+\DoxyCodeLine{00210\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ memset(\mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}},\ 0,\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{bool})\ *\ 4);}
+\DoxyCodeLine{00211\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sentFlagLock.unlock();}
+\DoxyCodeLine{00212\ }
+\DoxyCodeLine{00213\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ flag3\ =\ \textcolor{keyword}{false};\ \ }
+\DoxyCodeLine{00214\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00215\ }
+\DoxyCodeLine{00216\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(flag4\ ==\ \textcolor{keyword}{true})\{}
+\DoxyCodeLine{00217\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}\ NODE\ :\ "{}}\ <<\ \mbox{\hyperlink{classNode_a17aa93a6a65de6390afdeccf54538e3f}{nodeRank}}\ <<\ \textcolor{stringliteral}{"{}\ RECIEVED\ INJECTION\ OF\ :\ "{}}\ <<\ stealingBuffer\ <<\ \textcolor{stringliteral}{"{}\ PARTICLES"{}}\ <<\ endl;}
+\DoxyCodeLine{00218\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}{status}}\ =\ \mbox{\hyperlink{utils_8hpp_a00de8f7e0b615f88335573ba3909583d}{LOCKED}};}
+\DoxyCodeLine{00219\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Irecv(\&stealingBuffer,\ 1,\ MPI\_INT,\ \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}},\ \mbox{\hyperlink{utils_8hpp_a9fec70a17d0bcef23cf03c45a7b7caba}{TARGET}},\ MPI\_COMM\_WORLD,\ \&req4);}
+\DoxyCodeLine{00220\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{utils_8cpp_a73d711c2ea70f5243f68a2ecb7aa3698}{calculate\_time}}();}
+\DoxyCodeLine{00221\ }
+\DoxyCodeLine{00222\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ totalParticlesLock.lock();}
+\DoxyCodeLine{00223\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a98d4466b06851d7779677eeb6c7ec9dd}{injectDataInNode}}(stealingBuffer);}
+\DoxyCodeLine{00224\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ totalParticlesLock.unlock();}
+\DoxyCodeLine{00225\ }
+\DoxyCodeLine{00226\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sentFlagLock.lock();}
+\DoxyCodeLine{00227\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ memset(\mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}},\ 0,\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{bool})\ *\ 4);}
+\DoxyCodeLine{00228\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sentFlagLock.unlock();}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00230\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ flag4\ =\ \textcolor{keyword}{false};\ \ }
+\DoxyCodeLine{00231\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00232\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00233\ }
+\DoxyCodeLine{00234\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a95b7033e5e44fd68c8952a10af367d92}{done}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00235\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Cancel(\&req1);}
+\DoxyCodeLine{00236\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Cancel(\&req2);}
+\DoxyCodeLine{00237\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Cancel(\&req3);}
+\DoxyCodeLine{00238\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Cancel(\&req4);}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{utils_8cpp_a73d711c2ea70f5243f68a2ecb7aa3698}{calculate\_time}}();}
+\DoxyCodeLine{00240\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}CLOSING\ RECIEVE\ THREAD\ IN\ RANK\ :\ "{}}\ <<\ \mbox{\hyperlink{classNode_a17aa93a6a65de6390afdeccf54538e3f}{nodeRank}}\ <<\ endl;}
+\DoxyCodeLine{00241\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00242\ }
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classNode_a98d4466b06851d7779677eeb6c7ec9dd}{injectDataInNode}}(\textcolor{keywordtype}{int}\ stealingQuantity)\{}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}}\ +=\ stealingQuantity;}
+\DoxyCodeLine{00253\ }
+\DoxyCodeLine{00254\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a3e8e2835b7f01ba3b44e57b181a175b8}{declareStatus}}(\mbox{\hyperlink{utils_8hpp_af0591d953a49374b660c9de8964825fe}{UNLOCKED}});}
+\DoxyCodeLine{00255\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00256\ }
+\DoxyCodeLine{00265\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classNode_a7b77321aa26c41900b8d8056114461bf}{deleteDataFromNode}}(\textcolor{keywordtype}{int}\ stealingQuantity)\{}
+\DoxyCodeLine{00266\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}}\ -\/=\ stealingQuantity;}
+\DoxyCodeLine{00267\ \ }
+\DoxyCodeLine{00268\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a3e8e2835b7f01ba3b44e57b181a175b8}{declareStatus}}(\mbox{\hyperlink{utils_8hpp_af0591d953a49374b660c9de8964825fe}{UNLOCKED}});}
+\DoxyCodeLine{00269\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00270\ }
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00299\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a1dd944b4340f50721541e1e720f586cd}{Node}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunkSize}},\ \textcolor{keywordtype}{int}\ *\mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recvBuffer}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}},\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{localAverage}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{localThreshold}})\{}
+\DoxyCodeLine{00300\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Comm\_rank(MPI\_COMM\_WORLD,\ \&(this-\/>nodeRank));}
+\DoxyCodeLine{00301\ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>parentRank\ =\ \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}};}
+\DoxyCodeLine{00302\ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>chunkSize\ =\ \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunkSize}};}
+\DoxyCodeLine{00303\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a0ec74d1471ab1093e62588cb919bf8ea}{inWindowBuffer}}\ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{int}[\mbox{\hyperlink{utils_8hpp_a9fa59b79ea6d9d908e2f4e59cba96c9a}{MAX\_STEAL}}];}
+\DoxyCodeLine{00304\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_abe556d993e821e964d2158edda89683f}{outWindowBuffer}}\ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{int}[\mbox{\hyperlink{utils_8hpp_a9fa59b79ea6d9d908e2f4e59cba96c9a}{MAX\_STEAL}}];}
+\DoxyCodeLine{00305\ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>recvBuffer\ =\ \mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recvBuffer}};}
+\DoxyCodeLine{00306\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}{status}}\ =\ \mbox{\hyperlink{utils_8hpp_aa8290939dc02192ebf7028e5b45b0ff9}{STABLE}};}
+\DoxyCodeLine{00307\ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>totalParticles\ =\ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}};}
+\DoxyCodeLine{00308\ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>localAverage\ =\ \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{localAverage}};}
+\DoxyCodeLine{00309\ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>localThreshold\ =\ \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{localThreshold}};}
+\DoxyCodeLine{00310\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}\ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{bool}[4];}
+\DoxyCodeLine{00311\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[0]\ =\ 0;}
+\DoxyCodeLine{00312\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[1]\ =\ 0;}
+\DoxyCodeLine{00313\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[2]\ =\ 1;}
+\DoxyCodeLine{00314\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}}[3]\ =\ 0;}
+\DoxyCodeLine{00315\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a95b7033e5e44fd68c8952a10af367d92}{done}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00316\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00317\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Win\_create(\mbox{\hyperlink{classNode_a0ec74d1471ab1093e62588cb919bf8ea}{inWindowBuffer}},\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int})\ *\ \mbox{\hyperlink{utils_8hpp_a9fa59b79ea6d9d908e2f4e59cba96c9a}{MAX\_STEAL}},\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int}),\ MPI\_INFO\_NULL,\ MPI\_COMM\_WORLD,\ \&(this-\/>inWindow));}
+\DoxyCodeLine{00318\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Win\_create(\mbox{\hyperlink{classNode_abe556d993e821e964d2158edda89683f}{outWindowBuffer}},\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int})\ *\ \mbox{\hyperlink{utils_8hpp_a9fa59b79ea6d9d908e2f4e59cba96c9a}{MAX\_STEAL}},\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{int}),\ MPI\_INFO\_NULL,\ MPI\_COMM\_WORLD,\ \&(this-\/>outWindow));}
+\DoxyCodeLine{00319\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00320\ }
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \mbox{\hyperlink{classNode_af5e3fa79300bf5f3f2f3ecae6e795a94}{\string~Node}}()\{}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recvBuffer}};}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\mbox{\hyperlink{classNode_abe556d993e821e964d2158edda89683f}{outWindowBuffer}};}
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\mbox{\hyperlink{classNode_a0ec74d1471ab1093e62588cb919bf8ea}{inWindowBuffer}};}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{delete}\ []\mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sentFlag}};}
+\DoxyCodeLine{00335\ }
+\DoxyCodeLine{00336\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}DELETION\ SUCCESSFUL\ OF\ NODE\ :\ "{}}\ <<\ \mbox{\hyperlink{classNode_a17aa93a6a65de6390afdeccf54538e3f}{nodeRank}}\ <<\ endl;\ }
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00338\ \};}
+\DoxyCodeLine{00339\ }
+\DoxyCodeLine{00340\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

@@ -1,0 +1,17 @@
+\doxysection{Matchmaker.\+hpp}
+\hypertarget{Matchmaker_8hpp_source}{}\label{Matchmaker_8hpp_source}\index{/home/stefano/Uni/Tirocinio/AdaptiveWorkStealing/source/Matchmaker.hpp@{/home/stefano/Uni/Tirocinio/AdaptiveWorkStealing/source/Matchmaker.hpp}}
+\mbox{\hyperlink{Matchmaker_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#include\ "{}mpi.h"{}}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{Matchmaker_8hpp_a4a87dec580572701efbc15ef14fdc9f4}{matchmakerMainLoop}}(\textcolor{keywordtype}{int}\ num\_proc,\ \textcolor{keywordtype}{int}\ *\ global\_result,\ \textcolor{keywordtype}{int}\ chunk\_size);}
+\DoxyCodeLine{00005\ MPI\_Status\ \mbox{\hyperlink{Matchmaker_8hpp_ad42d947f6b6016c4726530807ccb674e}{waitControlMessages}}(\textcolor{keywordtype}{int}\ *recv\_flag);}
+\DoxyCodeLine{00006\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{Matchmaker_8hpp_a1e4f54ecabf221c5f60ff26c52e7d2d5}{checkTermination}}(\textcolor{keywordtype}{int}*\ tagArray,\ \textcolor{keywordtype}{int}\ num\_proc);}
+\DoxyCodeLine{00007\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{Matchmaker_8hpp_ac3b37f33b0db975cd4061e9e67ab3284}{findPossibleTarget}}(\textcolor{keywordtype}{int}*\ tagArray,\ \textcolor{keywordtype}{int}\ num\_proc,\ \textcolor{keywordtype}{int}\ victim);}
+\DoxyCodeLine{00008\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{Matchmaker_8hpp_a407b54881a888ef92f77e446619ced88}{findPossibleReciever}}(\textcolor{keywordtype}{int}*\ tagArray,\ \textcolor{keywordtype}{int}\ num\_proc,\ \textcolor{keywordtype}{int}\ target);}
+\DoxyCodeLine{00009\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{Matchmaker_8hpp_a82c40b619e6213184cd688cfce052492}{updateMetrics}}(\textcolor{keywordtype}{float}\ *\ local\_average,\ \textcolor{keywordtype}{int}\ num\_proc,\ \textcolor{keywordtype}{int}\ *\ valueArray);}
+\DoxyCodeLine{00010\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{Matchmaker_8hpp_a3ec5ed6a911cf0e692d5ec07b0718ab9}{notifyMetrics}}(\textcolor{keywordtype}{float}\ *\ local\_average,\ \textcolor{keywordtype}{int}\ reciever,\ \textcolor{keywordtype}{int}\ *\ threshold);}
+\DoxyCodeLine{00011\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{Matchmaker_8hpp_abec5c77f729f5e7e233163df4cd6c370}{checkForDoubleSteal}}(\textcolor{keywordtype}{int}\ *\ treshold,\ \textcolor{keywordtype}{int}\ *\ last\_victim,\ \textcolor{keywordtype}{int}\ *\ last\_target,\ \textcolor{keywordtype}{int}\ current\_victim,\ \textcolor{keywordtype}{int}\ current\_target);}
+
+\end{DoxyCode}

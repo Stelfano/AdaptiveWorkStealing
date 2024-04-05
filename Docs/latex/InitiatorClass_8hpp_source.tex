@@ -1,0 +1,62 @@
+\doxysection{Initiator\+Class.\+hpp}
+\hypertarget{InitiatorClass_8hpp_source}{}\label{InitiatorClass_8hpp_source}\mbox{\hyperlink{InitiatorClass_8hpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ }
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ "{}mpi.h"{}}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{MatchmakerClass_8hpp}{MatchmakerClass.hpp}}"{}}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ "{}iostream"{}}}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \textcolor{keyword}{using\ namespace\ }std;}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classInitiatorMatchmaker}{InitiatorMatchmaker}}\ :\ \textcolor{keyword}{public}\ \mbox{\hyperlink{classMatchmaker}{Matchmaker}}\{}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \ \ \ \ MPI\_Comm\ \mbox{\hyperlink{classInitiatorMatchmaker_abfb5841d9aa72c6b5e14b1f0b5f999df}{dataComm}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classInitiatorMatchmaker_a89ba5c5886ce4c27d9bf7150bdd67d01}{globalResult}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keyword}{protected}:}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classInitiatorMatchmaker_a92ad3bbdb5f4002e85e130d7a1b06b8a}{checkTermination}}()\{}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(\mbox{\hyperlink{classMatchmaker_a459253acc3e96eee3bdf2146f2bea106}{lowerAverage}}\ ==\ 0)}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 1;}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classInitiatorMatchmaker_a5d8416b0e048da2f11d20532550aaae4}{endingProcedure}}()\{}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ dataCommSize\ =\ 0;}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Status\ stat;}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ localFlag;}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Comm\_size(\mbox{\hyperlink{classInitiatorMatchmaker_abfb5841d9aa72c6b5e14b1f0b5f999df}{dataComm}},\ \&dataCommSize);}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 0;i<dataCommSize-\/1;i++)\{}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ MPI\_Recv(\&localFlag,\ 1,\ MPI\_INT,\ MPI\_ANY\_SOURCE,\ \mbox{\hyperlink{utils_8hpp_aad9ae913bdfab20dd94ad04ee2d5b045}{DATA}},\ \mbox{\hyperlink{classInitiatorMatchmaker_abfb5841d9aa72c6b5e14b1f0b5f999df}{dataComm}},\ \&stat);}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classInitiatorMatchmaker_a89ba5c5886ce4c27d9bf7150bdd67d01}{globalResult}}\ +=\ localFlag;}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}TOTAL\ REDUCTION\ HAS\ ENDED\ WITH\ RESULT\ :\ "{}}\ <<\ \mbox{\hyperlink{classInitiatorMatchmaker_a89ba5c5886ce4c27d9bf7150bdd67d01}{globalResult}}\ <<\ endl;}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \textcolor{keyword}{virtual}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{classInitiatorMatchmaker_a16124dbbf6cc343ab0310dba118b1277}{updateAverage}}()\{}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ localSum\ =\ 0;}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 0;i<\mbox{\hyperlink{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}{childNumber}};i++)\{}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ localSum\ +=\ \mbox{\hyperlink{classMatchmaker_ae698ae3f1e531e1a442b6994815bd9b3}{valueArray}}[i];}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//Attenzione\ potrebbe\ verificarsi\ una\ race\ condition}}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classMatchmaker_a459253acc3e96eee3bdf2146f2bea106}{lowerAverage}}\ =\ localSum/\mbox{\hyperlink{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}{childNumber}};}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}}\ =\ localSum;}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00091\ \ \ \ \ \mbox{\hyperlink{classInitiatorMatchmaker_ac38a539ce6866f474779ebbcdd0fd6d7}{InitiatorMatchmaker}}(\textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunkSize}},\ \textcolor{keywordtype}{int}\ *\mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recvBuffer}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}},\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{localAverage}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{localThreshold}},}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}{childNumber}},\ \textcolor{keywordtype}{int}\ *\mbox{\hyperlink{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f}{childRanks}},\ MPI\_Comm\ \mbox{\hyperlink{classInitiatorMatchmaker_abfb5841d9aa72c6b5e14b1f0b5f999df}{dataComm}})\ :\ \mbox{\hyperlink{classMatchmaker}{Matchmaker}}(\mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parentRank}},\ \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunkSize}},\ \mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recvBuffer}},\ \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{totalParticles}},\ \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{localAverage}},\ }
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{localThreshold}},\ \mbox{\hyperlink{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}{childNumber}},\ \mbox{\hyperlink{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f}{childRanks}})\{}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>dataComm\ =\ \mbox{\hyperlink{classInitiatorMatchmaker_abfb5841d9aa72c6b5e14b1f0b5f999df}{dataComm}};}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{classInitiatorMatchmaker_a89ba5c5886ce4c27d9bf7150bdd67d01}{globalResult}}\ =\ 0;}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00097\ }
+\DoxyCodeLine{00098\ \};}
+
+\end{DoxyCode}

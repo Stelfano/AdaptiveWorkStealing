@@ -1,0 +1,264 @@
+\doxysection{utils.\+hpp File Reference}
+\hypertarget{utils_8hpp}{}\label{utils_8hpp}\index{utils.hpp@{utils.hpp}}
+
+
+File definition for different macros and tags.  
+
+
+{\ttfamily \#include $<$chrono$>$}\newline
+{\ttfamily \#include $<$mpi.\+h$>$}\newline
+{\ttfamily \#include $<$ctime$>$}\newline
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$syncstream$>$}\newline
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_a6cf4f84ce1249c9fa265b0d6d697faaa}{OVERWORK}}~1
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_aa8290939dc02192ebf7028e5b45b0ff9}{STABLE}}~2
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_abafd49e7c13337429d6d835b3e8ce080}{UNDERWORK}}~3
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_a9c21a7caee326d7803b94ae1952b27ca}{IDLE}}~4
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_aad9ae913bdfab20dd94ad04ee2d5b045}{DATA}}~5
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_a1f98b8446b6c3c9f699cc2c046c49f87}{AVERAGE}}~6
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_a4679d8ea8690999a6c6c7c0cb245c879}{THRESHOLD}}~7
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_a8c72ff488add88e967e15b319b84c481}{VICTIM}}~8
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_a9fec70a17d0bcef23cf03c45a7b7caba}{TARGET}}~9
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_a00de8f7e0b615f88335573ba3909583d}{LOCKED}}~10
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_af0591d953a49374b660c9de8964825fe}{UNLOCKED}}~11
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_a46fff4184b5d787de1ed367b97cb6091}{COMM}}~12
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_ac2558c32fa879d85fe59f8c5f8dfbc04}{UPDATE}}~13
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_a9fa59b79ea6d9d908e2f4e59cba96c9a}{MAX\+\_\+\+STEAL}}~50000
+\item 
+\#define \mbox{\hyperlink{utils_8hpp_aa3c9d5bc3f1c3dfec69046200aecb29a}{MIN\+\_\+\+THRESHOLD}}~1000
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{utils_8hpp_a73d711c2ea70f5243f68a2ecb7aa3698}{calculate\+\_\+time}} ()
+\begin{DoxyCompactList}\small\item\em Simple function to calculate time of execution. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{utils_8hpp_a241e39ce5d7385b1e0e7d46919ea874e}{set\+Position\+In\+Tree}} (int node\+Rank, int total\+Ranks, int tree\+Width, int \texorpdfstring{$\ast$}{*}childs)
+\begin{DoxyCompactList}\small\item\em Find the position of a node inside the computational tree. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{utils_8hpp_aa271630282ca86b1c1fbe0a5f5db5868}{find\+Initial\+Leaf}} (int total\+Ranks, int tree\+Width)
+\item 
+int \mbox{\hyperlink{utils_8hpp_adaf480e44b281e1c354702e502a55f82}{find\+Level\+In\+Tree}} (int node\+Rank, int tree\+Width)
+\begin{DoxyCompactList}\small\item\em This function is used to find the level of a node inside the computational tree. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{utils_8hpp_a54ec61c64c84a40ed54b6ed440d4dad2}{find\+Level\+In\+Binary\+Tree}} (int node\+Rank)
+\begin{DoxyCompactList}\small\item\em This function finds the level of the node in the case of a binary tree. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+std\+::chrono\+::time\+\_\+point$<$ std\+::chrono\+::system\+\_\+clock $>$ \mbox{\hyperlink{utils_8hpp_aee8571a3d7e27606d7ea00794059642f}{start}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+File definition for different macros and tags. 
+
+\begin{DoxyAuthor}{Author}
+Stefano Romeo 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+0.\+1 
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+2024-\/04-\/03 
+\end{DoxyDate}
+
+
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{utils_8hpp_a1f98b8446b6c3c9f699cc2c046c49f87}\label{utils_8hpp_a1f98b8446b6c3c9f699cc2c046c49f87} 
+\index{utils.hpp@{utils.hpp}!AVERAGE@{AVERAGE}}
+\index{AVERAGE@{AVERAGE}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{AVERAGE}{AVERAGE}}
+{\footnotesize\ttfamily \#define AVERAGE~6}
+
+Tag reserved to average updates from matchmaker to a node below in the hierarchy \Hypertarget{utils_8hpp_a46fff4184b5d787de1ed367b97cb6091}\label{utils_8hpp_a46fff4184b5d787de1ed367b97cb6091} 
+\index{utils.hpp@{utils.hpp}!COMM@{COMM}}
+\index{COMM@{COMM}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{COMM}{COMM}}
+{\footnotesize\ttfamily \#define COMM~12}
+
+Special tag used in communication of suppementary information inside a workstealing operation \Hypertarget{utils_8hpp_aad9ae913bdfab20dd94ad04ee2d5b045}\label{utils_8hpp_aad9ae913bdfab20dd94ad04ee2d5b045} 
+\index{utils.hpp@{utils.hpp}!DATA@{DATA}}
+\index{DATA@{DATA}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{DATA}{DATA}}
+{\footnotesize\ttfamily \#define DATA~5}
+
+This tag is reserved to the final reduction indicating that the message sent contains data obtained by the reduction operatio\+This tag is reserved to the final reduction indicating that the message sent contains data obtained by the reduction operation \Hypertarget{utils_8hpp_a9c21a7caee326d7803b94ae1952b27ca}\label{utils_8hpp_a9c21a7caee326d7803b94ae1952b27ca} 
+\index{utils.hpp@{utils.hpp}!IDLE@{IDLE}}
+\index{IDLE@{IDLE}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{IDLE}{IDLE}}
+{\footnotesize\ttfamily \#define IDLE~4}
+
+IDLE Tag indicates that a core has fallen in an idle state and all the particles have been consumed, this should immediatly cause an allert between all cores and cause work stealing except in the final phase of reduction \Hypertarget{utils_8hpp_a00de8f7e0b615f88335573ba3909583d}\label{utils_8hpp_a00de8f7e0b615f88335573ba3909583d} 
+\index{utils.hpp@{utils.hpp}!LOCKED@{LOCKED}}
+\index{LOCKED@{LOCKED}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{LOCKED}{LOCKED}}
+{\footnotesize\ttfamily \#define LOCKED~10}
+
+This tag prevents any work stealing operation to appen on a node, when a node is locked, it\textquotesingle{}s parent is also locked, effectivly stopping work stealing in a brach of the computational tree To remove this status an UNLOCKED message has to follow, any other message not tagged as UNLOCKED will be ignored \Hypertarget{utils_8hpp_a9fa59b79ea6d9d908e2f4e59cba96c9a}\label{utils_8hpp_a9fa59b79ea6d9d908e2f4e59cba96c9a} 
+\index{utils.hpp@{utils.hpp}!MAX\_STEAL@{MAX\_STEAL}}
+\index{MAX\_STEAL@{MAX\_STEAL}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{MAX\_STEAL}{MAX\_STEAL}}
+{\footnotesize\ttfamily \#define MAX\+\_\+\+STEAL~50000}
+
+Indicates max number of particles to be stolen in a work stealing event, it is also an upper bound of the in\+Window\+Buffer and out\+Window\+Buffer \Hypertarget{utils_8hpp_aa3c9d5bc3f1c3dfec69046200aecb29a}\label{utils_8hpp_aa3c9d5bc3f1c3dfec69046200aecb29a} 
+\index{utils.hpp@{utils.hpp}!MIN\_THRESHOLD@{MIN\_THRESHOLD}}
+\index{MIN\_THRESHOLD@{MIN\_THRESHOLD}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{MIN\_THRESHOLD}{MIN\_THRESHOLD}}
+{\footnotesize\ttfamily \#define MIN\+\_\+\+THRESHOLD~1000}
+
+Defines the lower bound of the threshold metric, in order to prevent stealing events of little importance and to prevent stealing al low particle count \Hypertarget{utils_8hpp_a6cf4f84ce1249c9fa265b0d6d697faaa}\label{utils_8hpp_a6cf4f84ce1249c9fa265b0d6d697faaa} 
+\index{utils.hpp@{utils.hpp}!OVERWORK@{OVERWORK}}
+\index{OVERWORK@{OVERWORK}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{OVERWORK}{OVERWORK}}
+{\footnotesize\ttfamily \#define OVERWORK~1}
+
+This Tag is used to signal the OVERWORK status, in this status a node has too many particles for the current average, this should cause work stealing if there are any cores available \Hypertarget{utils_8hpp_aa8290939dc02192ebf7028e5b45b0ff9}\label{utils_8hpp_aa8290939dc02192ebf7028e5b45b0ff9} 
+\index{utils.hpp@{utils.hpp}!STABLE@{STABLE}}
+\index{STABLE@{STABLE}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{STABLE}{STABLE}}
+{\footnotesize\ttfamily \#define STABLE~2}
+
+This Tag signals STABLE status, in this status a node declares to be in line with the current average of data that every node has, this is an healthy state and does not cause any further operation on the node \Hypertarget{utils_8hpp_a9fec70a17d0bcef23cf03c45a7b7caba}\label{utils_8hpp_a9fec70a17d0bcef23cf03c45a7b7caba} 
+\index{utils.hpp@{utils.hpp}!TARGET@{TARGET}}
+\index{TARGET@{TARGET}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{TARGET}{TARGET}}
+{\footnotesize\ttfamily \#define TARGET~9}
+
+This tag signals that a node has been selected to be a target of work stealing (the message containes the number of particles to be injected) \Hypertarget{utils_8hpp_a4679d8ea8690999a6c6c7c0cb245c879}\label{utils_8hpp_a4679d8ea8690999a6c6c7c0cb245c879} 
+\index{utils.hpp@{utils.hpp}!THRESHOLD@{THRESHOLD}}
+\index{THRESHOLD@{THRESHOLD}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{THRESHOLD}{THRESHOLD}}
+{\footnotesize\ttfamily \#define THRESHOLD~7}
+
+Tag reserved to threshold updates from matchmaker to a node below in the hierarchy \Hypertarget{utils_8hpp_abafd49e7c13337429d6d835b3e8ce080}\label{utils_8hpp_abafd49e7c13337429d6d835b3e8ce080} 
+\index{utils.hpp@{utils.hpp}!UNDERWORK@{UNDERWORK}}
+\index{UNDERWORK@{UNDERWORK}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{UNDERWORK}{UNDERWORK}}
+{\footnotesize\ttfamily \#define UNDERWORK~3}
+
+UNDERWORK status signals that the node has a lower number of particles and declares himself available to recieve data from other nodes \Hypertarget{utils_8hpp_af0591d953a49374b660c9de8964825fe}\label{utils_8hpp_af0591d953a49374b660c9de8964825fe} 
+\index{utils.hpp@{utils.hpp}!UNLOCKED@{UNLOCKED}}
+\index{UNLOCKED@{UNLOCKED}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{UNLOCKED}{UNLOCKED}}
+{\footnotesize\ttfamily \#define UNLOCKED~11}
+
+This tag unlocks a core, when unlocking a core is not placed in any other status but it is able to communicate normally again after a workstealing event \Hypertarget{utils_8hpp_ac2558c32fa879d85fe59f8c5f8dfbc04}\label{utils_8hpp_ac2558c32fa879d85fe59f8c5f8dfbc04} 
+\index{utils.hpp@{utils.hpp}!UPDATE@{UPDATE}}
+\index{UPDATE@{UPDATE}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{UPDATE}{UPDATE}}
+{\footnotesize\ttfamily \#define UPDATE~13}
+
+Special tag used to prevent wrong recieve operation in a matchmaker \Hypertarget{utils_8hpp_a8c72ff488add88e967e15b319b84c481}\label{utils_8hpp_a8c72ff488add88e967e15b319b84c481} 
+\index{utils.hpp@{utils.hpp}!VICTIM@{VICTIM}}
+\index{VICTIM@{VICTIM}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{VICTIM}{VICTIM}}
+{\footnotesize\ttfamily \#define VICTIM~8}
+
+This tag signals that a node has been selected to be a victim of work stealing (the message containes the number of particles to be stolen) 
+
+\doxysubsection{Function Documentation}
+\Hypertarget{utils_8hpp_a73d711c2ea70f5243f68a2ecb7aa3698}\label{utils_8hpp_a73d711c2ea70f5243f68a2ecb7aa3698} 
+\index{utils.hpp@{utils.hpp}!calculate\_time@{calculate\_time}}
+\index{calculate\_time@{calculate\_time}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{calculate\_time()}{calculate\_time()}}
+{\footnotesize\ttfamily void calculate\+\_\+time (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Simple function to calculate time of execution. 
+
+This function is used to append a time to every output, this is used to have a timestamp and to trace when a certain operation has executed \Hypertarget{utils_8hpp_aa271630282ca86b1c1fbe0a5f5db5868}\label{utils_8hpp_aa271630282ca86b1c1fbe0a5f5db5868} 
+\index{utils.hpp@{utils.hpp}!findInitialLeaf@{findInitialLeaf}}
+\index{findInitialLeaf@{findInitialLeaf}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{findInitialLeaf()}{findInitialLeaf()}}
+{\footnotesize\ttfamily int find\+Initial\+Leaf (\begin{DoxyParamCaption}\item[{int}]{total\+Ranks,  }\item[{int}]{tree\+Width }\end{DoxyParamCaption})}
+
+\Hypertarget{utils_8hpp_a54ec61c64c84a40ed54b6ed440d4dad2}\label{utils_8hpp_a54ec61c64c84a40ed54b6ed440d4dad2} 
+\index{utils.hpp@{utils.hpp}!findLevelInBinaryTree@{findLevelInBinaryTree}}
+\index{findLevelInBinaryTree@{findLevelInBinaryTree}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{findLevelInBinaryTree()}{findLevelInBinaryTree()}}
+{\footnotesize\ttfamily int find\+Level\+In\+Binary\+Tree (\begin{DoxyParamCaption}\item[{int}]{node\+Rank }\end{DoxyParamCaption})}
+
+
+
+This function finds the level of the node in the case of a binary tree. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em node\+Rank} & Rank of node \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Level of node inside computational tree 
+\end{DoxyReturn}
+\Hypertarget{utils_8hpp_adaf480e44b281e1c354702e502a55f82}\label{utils_8hpp_adaf480e44b281e1c354702e502a55f82} 
+\index{utils.hpp@{utils.hpp}!findLevelInTree@{findLevelInTree}}
+\index{findLevelInTree@{findLevelInTree}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{findLevelInTree()}{findLevelInTree()}}
+{\footnotesize\ttfamily int find\+Level\+In\+Tree (\begin{DoxyParamCaption}\item[{int}]{node\+Rank,  }\item[{int}]{tree\+Width }\end{DoxyParamCaption})}
+
+
+
+This function is used to find the level of a node inside the computational tree. 
+
+\doxylink{classNode}{Node} level is used to calculate how many particles a node will recieve, for matchamker this level is the sum of all nodes below
+
+
+\begin{DoxyParams}{Parameters}
+{\em node\+Rank} & Rank of current node \\
+\hline
+{\em tree\+Width} & With of the n-\/th tree \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Level of the node inside the tree 
+\end{DoxyReturn}
+\Hypertarget{utils_8hpp_a241e39ce5d7385b1e0e7d46919ea874e}\label{utils_8hpp_a241e39ce5d7385b1e0e7d46919ea874e} 
+\index{utils.hpp@{utils.hpp}!setPositionInTree@{setPositionInTree}}
+\index{setPositionInTree@{setPositionInTree}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{setPositionInTree()}{setPositionInTree()}}
+{\footnotesize\ttfamily int set\+Position\+In\+Tree (\begin{DoxyParamCaption}\item[{int}]{node\+Rank,  }\item[{int}]{total\+Ranks,  }\item[{int}]{tree\+Width,  }\item[{int \texorpdfstring{$\ast$}{*}}]{childs }\end{DoxyParamCaption})}
+
+
+
+Find the position of a node inside the computational tree. 
+
+This function finds the position of a node in a n-\/th tree, inside the function child ranks are assigned to the child array Childs are assigned using the formula\+:
+
+
+\begin{DoxyParams}{Parameters}
+{\em node\+Rank} & Rank of current node \\
+\hline
+{\em total\+Ranks} & Total number of node in computational tree \\
+\hline
+{\em tree\+Width} & Width of the n-\/th tree \\
+\hline
+{\em childs} & Child vector (uninizialized before entering the function) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+first child rank to be used as an offset to send messages 
+\end{DoxyReturn}
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{utils_8hpp_aee8571a3d7e27606d7ea00794059642f}\label{utils_8hpp_aee8571a3d7e27606d7ea00794059642f} 
+\index{utils.hpp@{utils.hpp}!start@{start}}
+\index{start@{start}!utils.hpp@{utils.hpp}}
+\doxysubsubsection{\texorpdfstring{start}{start}}
+{\footnotesize\ttfamily std\+::chrono\+::time\+\_\+point$<$std\+::chrono\+::system\+\_\+clock$>$ start\hspace{0.3cm}{\ttfamily [extern]}}
+

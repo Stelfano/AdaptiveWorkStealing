@@ -1,0 +1,274 @@
+\doxysection{Initiator\+Matchmaker Class Reference}
+\hypertarget{classInitiatorMatchmaker}{}\label{classInitiatorMatchmaker}\index{InitiatorMatchmaker@{InitiatorMatchmaker}}
+
+
+{\ttfamily \#include $<$Initiator\+Class.\+hpp$>$}
+
+Inheritance diagram for Initiator\+Matchmaker\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classInitiatorMatchmaker}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classInitiatorMatchmaker_ac38a539ce6866f474779ebbcdd0fd6d7}{Initiator\+Matchmaker}} (int \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parent\+Rank}}, int \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunk\+Size}}, int \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recv\+Buffer}}, int \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{total\+Particles}}, float \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{local\+Average}}, int \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{local\+Threshold}}, int \mbox{\hyperlink{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}{child\+Number}}, int \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f}{child\+Ranks}}, MPI\+\_\+\+Comm \mbox{\hyperlink{classInitiatorMatchmaker_abfb5841d9aa72c6b5e14b1f0b5f999df}{data\+Comm}})
+\begin{DoxyCompactList}\small\item\em Construct a new Initiator \doxylink{classMatchmaker}{Matchmaker} object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{classMatchmaker}{Matchmaker}}}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classMatchmaker_aa04768d11858ccbdc64f429714cd69e6}{matchmaker\+Main\+Loop}} (int \texorpdfstring{$\ast$}{*}global\+Result)
+\item 
+\mbox{\hyperlink{classMatchmaker_a31e43eacbec0cd8032c04afb26eb5435}{Matchmaker}} (int \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parent\+Rank}}, int \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunk\+Size}}, int \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recv\+Buffer}}, int \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{total\+Particles}}, float \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{local\+Average}}, int \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{local\+Threshold}}, int \mbox{\hyperlink{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}{child\+Number}}, int \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f}{child\+Ranks}})
+\item 
+virtual \mbox{\hyperlink{classMatchmaker_a037ac2765012704d3860f4d2f7e32c92}{\texorpdfstring{$\sim$}{\string~}\+Matchmaker}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{classNode}{Node}}}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classNode_a48511c73b8d4174af4405f14fc7bb37a}{send\+Status\+Function}} ()
+\begin{DoxyCompactList}\small\item\em Update function for a node, this function is assigned to a thread to be able to update status when necessary. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classNode_a452fc104fe4726da9630696fe769832f}{recieve\+Message\+From\+Matchmaker}} ()
+\begin{DoxyCompactList}\small\item\em Reciever function to obtain metric updates on average, threshold and recieve work stealing related messages. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classNode_a1dd944b4340f50721541e1e720f586cd}{Node}} (int \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parent\+Rank}}, int \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunk\+Size}}, int \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recv\+Buffer}}, int \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{total\+Particles}}, float \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{local\+Average}}, int \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{local\+Threshold}})
+\begin{DoxyCompactList}\small\item\em Construct a new \doxylink{classNode}{Node} object. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classNode_af5e3fa79300bf5f3f2f3ecae6e795a94}{\texorpdfstring{$\sim$}{\string~}\+Node}} ()
+\begin{DoxyCompactList}\small\item\em Destroy the \doxylink{classNode}{Node} object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+virtual int \mbox{\hyperlink{classInitiatorMatchmaker_a92ad3bbdb5f4002e85e130d7a1b06b8a}{check\+Termination}} ()
+\begin{DoxyCompactList}\small\item\em Function to check termination of computation If lower average is 0 causes all below nodes to recieve 0 average update and thus causing them to initiate termination procedures, only the initiator rank can communicate instatly this value, all other matchmaker are prevented to send 0 value average to avoid early termination of reduction. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classInitiatorMatchmaker_a5d8416b0e048da2f11d20532550aaae4}{ending\+Procedure}} ()
+\begin{DoxyCompactList}\small\item\em Ending procedure function to reduce all data This function closes computation gathering all data from all workers, final values are recieved in order from every worker and the displayed. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classInitiatorMatchmaker_a16124dbbf6cc343ab0310dba118b1277}{update\+Average}} ()
+\begin{DoxyCompactList}\small\item\em This function updates average when metrics from the nodes below are recieved. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions inherited from \mbox{\hyperlink{classMatchmaker}{Matchmaker}}}
+\begin{DoxyCompactItemize}
+\item 
+MPI\+\_\+\+Status \mbox{\hyperlink{classMatchmaker_af9914b1ee5e39e4be03a87da3365f30c}{wait\+Control\+Messages}} (int \texorpdfstring{$\ast$}{*}recv\+Flag)
+\item 
+int \mbox{\hyperlink{classMatchmaker_a130a7d388e90a1e4e36fbf4cfd26ee85}{find\+Possible\+Victim}} (int victim)
+\item 
+int \mbox{\hyperlink{classMatchmaker_af37f3f7a4631daca80ba7fb7bf561923}{find\+Possible\+Target}} (int target)
+\item 
+int \mbox{\hyperlink{classMatchmaker_a31c01388721ceff6876d0a74e5490f88}{check\+Active\+Processes}} ()
+\item 
+bool \mbox{\hyperlink{classMatchmaker_a2cb68818288876d55caf0a9dd2a4b27c}{any\+Node\+Is\+Locked}} ()
+\item 
+void \mbox{\hyperlink{classMatchmaker_a82f68f895ddefa72cc5a7a292bf1b355}{update\+Values}} (int source, int \texorpdfstring{$\ast$}{*}local\+Flag)
+\item 
+void \mbox{\hyperlink{classMatchmaker_a9f7217ec4dac6e5c2418c6f819b42aea}{notify\+Average}} (int reciever)
+\item 
+void \mbox{\hyperlink{classMatchmaker_a0c10deeb6942d0067cb45968695d4b84}{notify\+Threshold}} ()
+\item 
+void \mbox{\hyperlink{classMatchmaker_a92b2ad780c7cff68deba79da414545a5}{check\+For\+Double\+Steal}} (int current\+Victim\+Rank, int current\+Target\+Rank)
+\item 
+int \mbox{\hyperlink{classMatchmaker_ad32cb881a3493ce7a960bfbb0725df76}{set\+Stealing\+Quantity}} (int target\+Index, int victim\+Index)
+\item 
+void \mbox{\hyperlink{classMatchmaker_a691dbf9e4358c767049b3312a83de708}{print\+Metrics}} ()
+\item 
+virtual void \mbox{\hyperlink{classMatchmaker_a1eb5487f91c5a7e74aa4afcadd1b16b8}{delete\+Data\+From\+Node}} (int stealing\+Quantity)
+\begin{DoxyCompactList}\small\item\em Basic template of data deletion for a node. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classMatchmaker_adaab737f7915c125f113459673676d68}{inject\+Data\+In\+Node}} (int stealing\+Quantity)
+\begin{DoxyCompactList}\small\item\em Basic template of data injection for a node. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classMatchmaker_a64a4bf9ea9671163e3da509404a2feb8}{distribute\+Data}} (int stealing\+Quantity)
+\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_ada689998b29b04b679d527790b15a5e3}{calculate\+Stealing}} (int stealing\+Quantity, bool even\+Distribute=false)
+\item 
+virtual int \mbox{\hyperlink{classMatchmaker_acc74e44c22ca882d310cb9a527705454}{gather\+Data}} (int stealing\+Quantity)
+\item 
+virtual int \mbox{\hyperlink{classMatchmaker_a36f4239dfe732de00954f07b599b1a1c}{steal\+From\+Victim}} (int \texorpdfstring{$\ast$}{*}stealing\+Quantity, int victim\+Rank)
+\item 
+virtual void \mbox{\hyperlink{classMatchmaker_a23ac0ed2927e896c51d4204a99234d88}{send\+To\+Target}} (int \texorpdfstring{$\ast$}{*}stealing\+Quantity, int target\+Rank)
+\item 
+virtual thread \mbox{\hyperlink{classMatchmaker_a978de2aa3d7a25e132419885c8674836}{activate\+Status\+Thread}} ()
+\item 
+virtual thread \mbox{\hyperlink{classMatchmaker_a3b6053d81de9fa4b2701d7f19632b878}{activate\+Reciever\+Thread}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions inherited from \mbox{\hyperlink{classNode}{Node}}}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classNode_a3e8e2835b7f01ba3b44e57b181a175b8}{declare\+Status}} (int \mbox{\hyperlink{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}{status}})
+\begin{DoxyCompactList}\small\item\em Status declaration function, status is updated and then communicated to parent rank in the hierarchy. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+MPI\+\_\+\+Comm \mbox{\hyperlink{classInitiatorMatchmaker_abfb5841d9aa72c6b5e14b1f0b5f999df}{data\+Comm}}
+\begin{DoxyCompactList}\small\item\em Communicator group of all reduction elements (root and worker nodes) \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classInitiatorMatchmaker_a89ba5c5886ce4c27d9bf7150bdd67d01}{global\+Result}}
+\begin{DoxyCompactList}\small\item\em Final result of computation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Additional Inherited Members}
+\doxysubsection*{Protected Attributes inherited from \mbox{\hyperlink{classMatchmaker}{Matchmaker}}}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}{child\+Number}}
+\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f}{child\+Ranks}}
+\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_a625ea9bbc12d495154525548f04c811b}{tag\+Array}}
+\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_ae698ae3f1e531e1a442b6994815bd9b3}{value\+Array}}
+\item 
+int \mbox{\hyperlink{classMatchmaker_ac3bde3080d6cf11b6f902b209a836462}{last\+Victim\+Rank}}
+\item 
+int \mbox{\hyperlink{classMatchmaker_ad4512bbf669aaac288546043363112d9}{last\+Target\+Rank}}
+\item 
+int \mbox{\hyperlink{classMatchmaker_a3b4fd71a833ff0ddd031ae9101281fb5}{offset}}
+\item 
+float \mbox{\hyperlink{classMatchmaker_a459253acc3e96eee3bdf2146f2bea106}{lower\+Average}}
+\item 
+int \mbox{\hyperlink{classMatchmaker_ad15c9e004d5e0d59ba91b2d2991b0cee}{lower\+Threshold}}
+\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_a4ba0484c69ccdc3d6b024b11653a8a18}{child\+Flag}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes inherited from \mbox{\hyperlink{classNode}{Node}}}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{classNode_a65784e8a8e4c895cae1c71b6886dee32}{tree\+Width}}
+\begin{DoxyCompactList}\small\item\em Width of the computational tree. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_a17aa93a6a65de6390afdeccf54538e3f}{node\+Rank}}
+\begin{DoxyCompactList}\small\item\em Rank of node. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parent\+Rank}}
+\begin{DoxyCompactList}\small\item\em Rank of parent (if the current node is 0 parent rank is -\/1) \end{DoxyCompactList}\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classNode_a0ec74d1471ab1093e62588cb919bf8ea}{in\+Window\+Buffer}}
+\begin{DoxyCompactList}\small\item\em Pointer to input window buffer. \end{DoxyCompactList}\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classNode_abe556d993e821e964d2158edda89683f}{out\+Window\+Buffer}}
+\begin{DoxyCompactList}\small\item\em Pointer to output window buffer. \end{DoxyCompactList}\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recv\+Buffer}}
+\begin{DoxyCompactList}\small\item\em Pointer to initial recieve buffer. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunk\+Size}}
+\begin{DoxyCompactList}\small\item\em Number of particle sent in a single chunk. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}{status}}
+\begin{DoxyCompactList}\small\item\em Status of node. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{total\+Particles}}
+\begin{DoxyCompactList}\small\item\em Total particle present in the node. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{local\+Average}}
+\begin{DoxyCompactList}\small\item\em Current average of node. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{local\+Threshold}}
+\begin{DoxyCompactList}\small\item\em Current threshold of node. \end{DoxyCompactList}\item 
+MPI\+\_\+\+Win \mbox{\hyperlink{classNode_adb103e96748537b115c18c2a2b27a9d9}{in\+Window}}
+\begin{DoxyCompactList}\small\item\em MPI object to use RDMA for input window buffer. \end{DoxyCompactList}\item 
+MPI\+\_\+\+Win \mbox{\hyperlink{classNode_a187219708add28a69d82fbe647aaf612}{out\+Window}}
+\begin{DoxyCompactList}\small\item\em MPI object to use RDMA for output window buffer. \end{DoxyCompactList}\item 
+atomic$<$ bool $>$ \mbox{\hyperlink{classNode_a95b7033e5e44fd68c8952a10af367d92}{done}}
+\begin{DoxyCompactList}\small\item\em Atomic variable to signal termination. \end{DoxyCompactList}\item 
+bool \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sent\+Flag}}
+\begin{DoxyCompactList}\small\item\em Use flag to send data upwards, prevents multiple update of the same status. \end{DoxyCompactList}\item 
+shared\+\_\+mutex \mbox{\hyperlink{classNode_a3d817091a1acc63fea4c65352564a73d}{total\+Particle\+Mutex}}
+\begin{DoxyCompactList}\small\item\em Shared mutex to prevent race condition on Total particles and Particle buffer(\+Only in worker) \end{DoxyCompactList}\item 
+shared\+\_\+mutex \mbox{\hyperlink{classNode_afd3788a41ab04ded3a98566ea7f0081f}{sent\+Flag\+Mutex}}
+\begin{DoxyCompactList}\small\item\em Shared mutex to prevent race condition on status update flag array. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classInitiatorMatchmaker_ac38a539ce6866f474779ebbcdd0fd6d7}\label{classInitiatorMatchmaker_ac38a539ce6866f474779ebbcdd0fd6d7} 
+\index{InitiatorMatchmaker@{InitiatorMatchmaker}!InitiatorMatchmaker@{InitiatorMatchmaker}}
+\index{InitiatorMatchmaker@{InitiatorMatchmaker}!InitiatorMatchmaker@{InitiatorMatchmaker}}
+\doxysubsubsection{\texorpdfstring{InitiatorMatchmaker()}{InitiatorMatchmaker()}}
+{\footnotesize\ttfamily Initiator\+Matchmaker\+::\+Initiator\+Matchmaker (\begin{DoxyParamCaption}\item[{int}]{parent\+Rank,  }\item[{int}]{chunk\+Size,  }\item[{int \texorpdfstring{$\ast$}{*}}]{recv\+Buffer,  }\item[{int}]{total\+Particles,  }\item[{float}]{local\+Average,  }\item[{int}]{local\+Threshold,  }\item[{int}]{child\+Number,  }\item[{int \texorpdfstring{$\ast$}{*}}]{child\+Ranks,  }\item[{MPI\+\_\+\+Comm}]{data\+Comm }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Construct a new Initiator \doxylink{classMatchmaker}{Matchmaker} object. 
+
+The only initiator in the hierarchy is the root rank which creates a communicator group with all worker nodes, the constructor also inizializes global\+Result variable to zero (used for final reduction)
+
+
+\begin{DoxyParams}{Parameters}
+{\em parent\+Rank} & Rank of parent node (always -\/1 since this node is the root of the tree) \\
+\hline
+{\em chunk\+Size} & Size of the chunk \\
+\hline
+{\em recv\+Buffer} & Pointer to initial reciever buffer \\
+\hline
+{\em total\+Particles} & Number of total particles (in this case the total number of starting particles) \\
+\hline
+{\em local\+Average} & Local Average for root rank (total particles / number of childs) \\
+\hline
+{\em local\+Threshold} & Local Threshold \\
+\hline
+{\em child\+Number} & Number of childs \\
+\hline
+{\em child\+Ranks} & Ranks of childs \\
+\hline
+{\em data\+Comm} & Communicator containing all workers and root rank \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classInitiatorMatchmaker_a92ad3bbdb5f4002e85e130d7a1b06b8a}\label{classInitiatorMatchmaker_a92ad3bbdb5f4002e85e130d7a1b06b8a} 
+\index{InitiatorMatchmaker@{InitiatorMatchmaker}!checkTermination@{checkTermination}}
+\index{checkTermination@{checkTermination}!InitiatorMatchmaker@{InitiatorMatchmaker}}
+\doxysubsubsection{\texorpdfstring{checkTermination()}{checkTermination()}}
+{\footnotesize\ttfamily virtual int Initiator\+Matchmaker\+::check\+Termination (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Function to check termination of computation If lower average is 0 causes all below nodes to recieve 0 average update and thus causing them to initiate termination procedures, only the initiator rank can communicate instatly this value, all other matchmaker are prevented to send 0 value average to avoid early termination of reduction. 
+
+\begin{DoxyReturn}{Returns}
+1 if lower average is 0 
+\end{DoxyReturn}
+
+
+Reimplemented from \mbox{\hyperlink{classMatchmaker_a6e87c91133a790f192a658d15ccbb39b}{Matchmaker}}.
+
+\Hypertarget{classInitiatorMatchmaker_a5d8416b0e048da2f11d20532550aaae4}\label{classInitiatorMatchmaker_a5d8416b0e048da2f11d20532550aaae4} 
+\index{InitiatorMatchmaker@{InitiatorMatchmaker}!endingProcedure@{endingProcedure}}
+\index{endingProcedure@{endingProcedure}!InitiatorMatchmaker@{InitiatorMatchmaker}}
+\doxysubsubsection{\texorpdfstring{endingProcedure()}{endingProcedure()}}
+{\footnotesize\ttfamily virtual void Initiator\+Matchmaker\+::ending\+Procedure (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Ending procedure function to reduce all data This function closes computation gathering all data from all workers, final values are recieved in order from every worker and the displayed. 
+
+
+
+Reimplemented from \mbox{\hyperlink{classMatchmaker_a49a3a4566356faf89c68709572864f76}{Matchmaker}}.
+
+\Hypertarget{classInitiatorMatchmaker_a16124dbbf6cc343ab0310dba118b1277}\label{classInitiatorMatchmaker_a16124dbbf6cc343ab0310dba118b1277} 
+\index{InitiatorMatchmaker@{InitiatorMatchmaker}!updateAverage@{updateAverage}}
+\index{updateAverage@{updateAverage}!InitiatorMatchmaker@{InitiatorMatchmaker}}
+\doxysubsubsection{\texorpdfstring{updateAverage()}{updateAverage()}}
+{\footnotesize\ttfamily virtual void Initiator\+Matchmaker\+::update\+Average (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+This function updates average when metrics from the nodes below are recieved. 
+
+This version of the function is the only one that thruthfully communicates real value average to below nodes, to initialize termination this function is able to set lower average value to 0 and the send this average value to all childs, this causes cascade termination 
+
+Reimplemented from \mbox{\hyperlink{classMatchmaker_a0dc41961c3fc9aaaaa7cdc6a7b56c1fe}{Matchmaker}}.
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classInitiatorMatchmaker_abfb5841d9aa72c6b5e14b1f0b5f999df}\label{classInitiatorMatchmaker_abfb5841d9aa72c6b5e14b1f0b5f999df} 
+\index{InitiatorMatchmaker@{InitiatorMatchmaker}!dataComm@{dataComm}}
+\index{dataComm@{dataComm}!InitiatorMatchmaker@{InitiatorMatchmaker}}
+\doxysubsubsection{\texorpdfstring{dataComm}{dataComm}}
+{\footnotesize\ttfamily MPI\+\_\+\+Comm Initiator\+Matchmaker\+::data\+Comm\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Communicator group of all reduction elements (root and worker nodes) 
+
+\Hypertarget{classInitiatorMatchmaker_a89ba5c5886ce4c27d9bf7150bdd67d01}\label{classInitiatorMatchmaker_a89ba5c5886ce4c27d9bf7150bdd67d01} 
+\index{InitiatorMatchmaker@{InitiatorMatchmaker}!globalResult@{globalResult}}
+\index{globalResult@{globalResult}!InitiatorMatchmaker@{InitiatorMatchmaker}}
+\doxysubsubsection{\texorpdfstring{globalResult}{globalResult}}
+{\footnotesize\ttfamily int Initiator\+Matchmaker\+::global\+Result\hspace{0.3cm}{\ttfamily [private]}}
+
+
+
+Final result of computation. 
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{InitiatorClass_8hpp}{Initiator\+Class.\+hpp}}\end{DoxyCompactItemize}

@@ -1,0 +1,154 @@
+\doxysection{/home/stefano/\+Uni/\+Tirocinio/\+Adaptive\+Work\+Stealing/source/\+Worker.cpp File Reference}
+\hypertarget{Worker_8cpp}{}\label{Worker_8cpp}\index{/home/stefano/Uni/Tirocinio/AdaptiveWorkStealing/source/Worker.cpp@{/home/stefano/Uni/Tirocinio/AdaptiveWorkStealing/source/Worker.cpp}}
+{\ttfamily \#include "{}Worker.\+hpp"{}}\newline
+{\ttfamily \#include "{}mpi.\+h"{}}\newline
+{\ttfamily \#include $<$vector$>$}\newline
+{\ttfamily \#include $<$random$>$}\newline
+{\ttfamily \#include $<$cstdlib$>$}\newline
+{\ttfamily \#include $<$thread$>$}\newline
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{Worker_8cpp_a6cf4f84ce1249c9fa265b0d6d697faaa}{OVERWORK}}~1
+\item 
+\#define \mbox{\hyperlink{Worker_8cpp_aa8290939dc02192ebf7028e5b45b0ff9}{STABLE}}~2
+\item 
+\#define \mbox{\hyperlink{Worker_8cpp_abafd49e7c13337429d6d835b3e8ce080}{UNDERWORK}}~3
+\item 
+\#define \mbox{\hyperlink{Worker_8cpp_a9c21a7caee326d7803b94ae1952b27ca}{IDLE}}~4
+\item 
+\#define \mbox{\hyperlink{Worker_8cpp_aad9ae913bdfab20dd94ad04ee2d5b045}{DATA}}~5
+\item 
+\#define \mbox{\hyperlink{Worker_8cpp_a454ec9af8a278a80850ef1d5b575b081}{METRICS}}~6
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{Worker_8cpp_a3cb9ce84779e973b9002cb91dd4e2b87}{probability\+Increase\+Vector\+Size}} (vector$<$ int $>$ \texorpdfstring{$\ast$}{*}buffer, int generated\+Number)
+\begin{DoxyCompactList}\small\item\em Aggiunge elementi al vettore. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{Worker_8cpp_ad87949db8a71759dead75c2bf90261a8}{declare\+Status}} (int \texorpdfstring{$\ast$}{*}buffer\+\_\+size, int status)
+\item 
+int \mbox{\hyperlink{Worker_8cpp_a67832aed811528fe18bd6735765c511d}{local\+\_\+reduction}} (vector$<$ int $>$ \texorpdfstring{$\ast$}{*}buffer, float start\+\_\+average, int start\+\_\+treshold)
+\begin{DoxyCompactList}\small\item\em Funzione di riduzione locale per il worker. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{Worker_8cpp_a2e762d937d466a0581096313ff725f8f}{send\+Status\+Function}} (vector$<$ int $>$ \texorpdfstring{$\ast$}{*}buffer, float \texorpdfstring{$\ast$}{*}local\+\_\+average, int \texorpdfstring{$\ast$}{*}threshold)
+\begin{DoxyCompactList}\small\item\em Funzione che regola la comunicazione Worker -\/\texorpdfstring{$>$}{>} Matchmaker. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{Worker_8cpp_a1b7f20238d16d4a3d14e288869264891}{recieve\+Message\+From\+Matchmaker}} (float \texorpdfstring{$\ast$}{*}local\+\_\+average, int \texorpdfstring{$\ast$}{*}threshold)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{Worker_8cpp_aad9ae913bdfab20dd94ad04ee2d5b045}\label{Worker_8cpp_aad9ae913bdfab20dd94ad04ee2d5b045} 
+\index{Worker.cpp@{Worker.cpp}!DATA@{DATA}}
+\index{DATA@{DATA}!Worker.cpp@{Worker.cpp}}
+\doxysubsubsection{\texorpdfstring{DATA}{DATA}}
+{\footnotesize\ttfamily \#define DATA~5}
+
+Tag utilizzato nei messaggi per segnalare al worker che i dati contenuti nel messaggio sono dati computazionali e non messaggi di stato sul sistema \Hypertarget{Worker_8cpp_a9c21a7caee326d7803b94ae1952b27ca}\label{Worker_8cpp_a9c21a7caee326d7803b94ae1952b27ca} 
+\index{Worker.cpp@{Worker.cpp}!IDLE@{IDLE}}
+\index{IDLE@{IDLE}!Worker.cpp@{Worker.cpp}}
+\doxysubsubsection{\texorpdfstring{IDLE}{IDLE}}
+{\footnotesize\ttfamily \#define IDLE~4}
+
+Segnala status di Idle, in questo stato un worker deve essere target di work stealing al più presto per massimizzare le prestazioni, quando un core raggiunge questo stato viene invocata la procedura del targeting e viene data priorità al targeting verso core Idle \Hypertarget{Worker_8cpp_a454ec9af8a278a80850ef1d5b575b081}\label{Worker_8cpp_a454ec9af8a278a80850ef1d5b575b081} 
+\index{Worker.cpp@{Worker.cpp}!METRICS@{METRICS}}
+\index{METRICS@{METRICS}!Worker.cpp@{Worker.cpp}}
+\doxysubsubsection{\texorpdfstring{METRICS}{METRICS}}
+{\footnotesize\ttfamily \#define METRICS~6}
+
+Tag utilizzato per indicare che il contenuto dei messaggi è un aggiornamento sulle metriche di sistema \Hypertarget{Worker_8cpp_a6cf4f84ce1249c9fa265b0d6d697faaa}\label{Worker_8cpp_a6cf4f84ce1249c9fa265b0d6d697faaa} 
+\index{Worker.cpp@{Worker.cpp}!OVERWORK@{OVERWORK}}
+\index{OVERWORK@{OVERWORK}!Worker.cpp@{Worker.cpp}}
+\doxysubsubsection{\texorpdfstring{OVERWORK}{OVERWORK}}
+{\footnotesize\ttfamily \#define OVERWORK~1}
+
+Segnala status di overworking, in questo stato un worker non può essere target di work stealing (non può ricevere altri dati), non appena questo status è segnalato viene invocata una procedura per determinare un target a cui dare parte del lavoro del nodo sovraccarico \Hypertarget{Worker_8cpp_aa8290939dc02192ebf7028e5b45b0ff9}\label{Worker_8cpp_aa8290939dc02192ebf7028e5b45b0ff9} 
+\index{Worker.cpp@{Worker.cpp}!STABLE@{STABLE}}
+\index{STABLE@{STABLE}!Worker.cpp@{Worker.cpp}}
+\doxysubsubsection{\texorpdfstring{STABLE}{STABLE}}
+{\footnotesize\ttfamily \#define STABLE~2}
+
+Segnala status di stable, in questo stato un worker non può essere vittima o target di una procedura di work stealing, il nodo è interamente occupato ad elaborare e computare i dati attuali \Hypertarget{Worker_8cpp_abafd49e7c13337429d6d835b3e8ce080}\label{Worker_8cpp_abafd49e7c13337429d6d835b3e8ce080} 
+\index{Worker.cpp@{Worker.cpp}!UNDERWORK@{UNDERWORK}}
+\index{UNDERWORK@{UNDERWORK}!Worker.cpp@{Worker.cpp}}
+\doxysubsubsection{\texorpdfstring{UNDERWORK}{UNDERWORK}}
+{\footnotesize\ttfamily \#define UNDERWORK~3}
+
+Segnala status di underwork, in questo stato un worker può essere target di work stealing, viene fatto ciò per evitare che il worker tocchi lo stato di IDLE che cerchiamo di evitare a tutti i costi per sfruttare al massimo il sistema 
+
+\doxysubsection{Function Documentation}
+\Hypertarget{Worker_8cpp_ad87949db8a71759dead75c2bf90261a8}\label{Worker_8cpp_ad87949db8a71759dead75c2bf90261a8} 
+\index{Worker.cpp@{Worker.cpp}!declareStatus@{declareStatus}}
+\index{declareStatus@{declareStatus}!Worker.cpp@{Worker.cpp}}
+\doxysubsubsection{\texorpdfstring{declareStatus()}{declareStatus()}}
+{\footnotesize\ttfamily void declare\+Status (\begin{DoxyParamCaption}\item[{int \texorpdfstring{$\ast$}{*}}]{buffer\+\_\+size,  }\item[{int}]{status }\end{DoxyParamCaption})}
+
+\Hypertarget{Worker_8cpp_a67832aed811528fe18bd6735765c511d}\label{Worker_8cpp_a67832aed811528fe18bd6735765c511d} 
+\index{Worker.cpp@{Worker.cpp}!local\_reduction@{local\_reduction}}
+\index{local\_reduction@{local\_reduction}!Worker.cpp@{Worker.cpp}}
+\doxysubsubsection{\texorpdfstring{local\_reduction()}{local\_reduction()}}
+{\footnotesize\ttfamily int local\+\_\+reduction (\begin{DoxyParamCaption}\item[{vector$<$ int $>$ \texorpdfstring{$\ast$}{*}}]{buffer,  }\item[{float}]{start\+\_\+average,  }\item[{int}]{start\+\_\+treshold }\end{DoxyParamCaption})}
+
+
+
+Funzione di riduzione locale per il worker. 
+
+Questa funzione determina il comportamento dei worker, all\textquotesingle{}interno viene eseguito il main loop della riduzione e vengono lanciati i thread che regolano la comunicazione dei worker con il matchmaker e lo scambio della metrica
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & Buffer di contenimento per il valore finale \\
+\hline
+{\em start\+\_\+average} & Valore iniziale distribuito a tutti i core \\
+\hline
+{\em start\+\_\+treshold} & Valore di threshold iniziale \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+int Valore finale computato 
+\end{DoxyReturn}
+\Hypertarget{Worker_8cpp_a3cb9ce84779e973b9002cb91dd4e2b87}\label{Worker_8cpp_a3cb9ce84779e973b9002cb91dd4e2b87} 
+\index{Worker.cpp@{Worker.cpp}!probabilityIncreaseVectorSize@{probabilityIncreaseVectorSize}}
+\index{probabilityIncreaseVectorSize@{probabilityIncreaseVectorSize}!Worker.cpp@{Worker.cpp}}
+\doxysubsubsection{\texorpdfstring{probabilityIncreaseVectorSize()}{probabilityIncreaseVectorSize()}}
+{\footnotesize\ttfamily void probability\+Increase\+Vector\+Size (\begin{DoxyParamCaption}\item[{vector$<$ int $>$ \texorpdfstring{$\ast$}{*}}]{buffer,  }\item[{int}]{generated\+Number }\end{DoxyParamCaption})}
+
+
+
+Aggiunge elementi al vettore. 
+
+Funzione di aggiunta degli elementi al vettore della riduzione, se negativo verrano eliminati degli elementi
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & Vettore di riduzione \\
+\hline
+{\em generated\+Number} & Numero di elementi da aggiungere \\
+\hline
+\end{DoxyParams}
+\Hypertarget{Worker_8cpp_a1b7f20238d16d4a3d14e288869264891}\label{Worker_8cpp_a1b7f20238d16d4a3d14e288869264891} 
+\index{Worker.cpp@{Worker.cpp}!recieveMessageFromMatchmaker@{recieveMessageFromMatchmaker}}
+\index{recieveMessageFromMatchmaker@{recieveMessageFromMatchmaker}!Worker.cpp@{Worker.cpp}}
+\doxysubsubsection{\texorpdfstring{recieveMessageFromMatchmaker()}{recieveMessageFromMatchmaker()}}
+{\footnotesize\ttfamily void recieve\+Message\+From\+Matchmaker (\begin{DoxyParamCaption}\item[{float \texorpdfstring{$\ast$}{*}}]{local\+\_\+average,  }\item[{int \texorpdfstring{$\ast$}{*}}]{threshold }\end{DoxyParamCaption})}
+
+\Hypertarget{Worker_8cpp_a2e762d937d466a0581096313ff725f8f}\label{Worker_8cpp_a2e762d937d466a0581096313ff725f8f} 
+\index{Worker.cpp@{Worker.cpp}!sendStatusFunction@{sendStatusFunction}}
+\index{sendStatusFunction@{sendStatusFunction}!Worker.cpp@{Worker.cpp}}
+\doxysubsubsection{\texorpdfstring{sendStatusFunction()}{sendStatusFunction()}}
+{\footnotesize\ttfamily void send\+Status\+Function (\begin{DoxyParamCaption}\item[{vector$<$ int $>$ \texorpdfstring{$\ast$}{*}}]{buffer,  }\item[{float \texorpdfstring{$\ast$}{*}}]{local\+\_\+average,  }\item[{int \texorpdfstring{$\ast$}{*}}]{threshold }\end{DoxyParamCaption})}
+
+
+
+Funzione che regola la comunicazione Worker -\/\texorpdfstring{$>$}{>} Matchmaker. 
+
+Questa funzione lanciata da un thread all\textquotesingle{}interno del mainloop del worker serve a notificare il matchmaker dei cambi di stato di un worker e inviare valori sulla metrica locale del worker
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & Vettore contenete i valori da ridurre, usiamo la funzione size per indicare il numero di elementi rimanenti \\
+\hline
+{\em local\+\_\+average} & Media locale da comunicare al matchmaker \\
+\hline
+{\em threshold} & Threshold usato per indicare lo stato al matchmaker \\
+\hline
+\end{DoxyParams}

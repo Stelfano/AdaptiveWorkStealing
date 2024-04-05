@@ -1,3 +1,11 @@
+/**
+ * @file MatchmakerClass.hpp
+ * @author Stefano Romeo
+ * @brief Matchmaker base model to create further specialization and to communicate messages inside the tree
+ * @version 0.1
+ * @date 2024-04-05
+ */
+
 #include "utils.hpp"
 #include "mpi.h"
 #include "Node.hpp"
@@ -19,17 +27,26 @@ class Matchmaker : public Node{
 
     protected:
 
-    int childNumber;
-    int *childRanks;
-    int *tagArray;
-    int *valueArray;
-    int lastVictimRank;
-    int lastTargetRank;
-    int offset;
-    float lowerAverage;
-    int lowerThreshold;
-    int *childFlag;
+    int childNumber;            ///<Number of childs of a matchmaker
+    int *childRanks;            ///<Ranks of childs
+    int *tagArray;              ///<Current status of childs
+    int *valueArray;            ///<Current particle number of childs
+    int lastVictimRank;         ///<Last victim rank
+    int lastTargetRank;         ///<Last target rank
+    int offset;                 ///<Offset of rank for child
+    float lowerAverage;         ///<Average of lower nodes
+    int lowerThreshold;         ///<Threshold of lower nodes
 
+
+        /**
+         * @brief Recieves a messagge from a child in a blocking function
+         * 
+         * Recieves a message from a child using an MPI blocking function, this sets recvFlag with two parameters:
+         *  - Total particles : The first element of the vector contains the current number of particles in possession of a node
+         *  - Status : Declaration of status of child node
+         * @param recvFlag Contains the 2 items sent back by the child node as an update
+         * @return Status indicating UPDATE tag and rank of sender
+         */
         MPI_Status waitControlMessages(int *recvFlag){
             MPI_Status stat;
 
@@ -37,6 +54,12 @@ class Matchmaker : public Node{
             return stat;
         }
 
+        /**
+         * @brief Find available victim for work stealing
+         * 
+         * @param victim 
+         * @return rank of victim node found, -1 if no node available is found 
+         */
         int findPossibleVictim(int victim){
             
             for(int i = 0;i < childNumber; i++){
@@ -47,6 +70,12 @@ class Matchmaker : public Node{
             return -1;
         }
 
+        /**
+         * @brief Find available target for work stealing
+         * 
+         * @param target 
+         * @return Rank of target node found, -1 if no node available is found
+         */
         int findPossibleTarget(int target){
             for(int i = 0;i < childNumber; i++){
                 if(tagArray[i] == IDLE && i != target)
@@ -61,6 +90,14 @@ class Matchmaker : public Node{
             return -1;
         }
 
+        /**
+         * @brief Check number of still elaborating ranks
+         * 
+         *To prevent deadlock inside main function loop messages are recieved only if active processes are still elaborating
+         *data under a matchmaker inside computational tree, node in LOCKED status are considered still elaborating
+         *
+         * @return int 
+         */
         int checkActiveProcesses(){
             int counter = 0;
             for(int i = 0;i<childNumber;i++){
@@ -72,6 +109,12 @@ class Matchmaker : public Node{
             return counter;
         }
 
+        /**
+         * @brief Checks whether a node is in LOCKED status
+         * 
+         * @return true if any child node is in LOCKED status
+         * @return false all nodes are unlocked
+         */
         bool anyNodeIsLocked(){
             for(int i=0;i<childNumber;i++){
                 if(tagArray[i] == LOCKED){
@@ -82,6 +125,12 @@ class Matchmaker : public Node{
             return false;
         }
 
+        /**
+         * @brief Updates current average
+         * 
+         *Updates average of particles in lower nodes, if average reaches zero value 1 is communicated instead to prevent
+         *early termination 0 is communicated only when upper level matchmakers communicate 0 value average
+         */
         virtual void updateAverage(){
             float localSum = 0;
             int activeNodes = 0;
@@ -99,16 +148,31 @@ class Matchmaker : public Node{
             totalParticles = localSum;
         }
 
+        /**
+         * @brief Helper function to modify tagArray and valueArray
+         * 
+         * @param source Source rank of child sender
+         * @param localFlag Set of values containing new status and new particle numbers
+         */
         void updateValues(int source, int *localFlag){
             tagArray[source - offset] = localFlag[1];
             valueArray[source - offset] = localFlag[0];
         }
 
+        /**
+         * @brief Notifies new average value to a rank
+         * 
+         * @param reciever Rank of reciever
+         */
         void notifyAverage(int reciever){
             
             MPI_Send(&(this->lowerAverage), 1, MPI_FLOAT, reciever, AVERAGE, MPI_COMM_WORLD);
         }
 
+        /**
+         * @brief Notifies threshold to all child ranks
+         * 
+         */
         void notifyThreshold(){
 
             for(int i = 0;i<childNumber;i++){
@@ -116,6 +180,12 @@ class Matchmaker : public Node{
             }
         }
 
+        /**
+         * @brief Check if double stealing event has append and increases threshold
+         * 
+         * @param currentVictimRank Victim of current stealing event
+         * @param currentTargetRank Target of current stealing event
+         */
         void checkForDoubleSteal(int currentVictimRank, int currentTargetRank){
             if((currentVictimRank == lastVictimRank && currentTargetRank == lastTargetRank) || (currentVictimRank == lastTargetRank && currentTargetRank == lastVictimRank)){
                 lowerThreshold *= 2;
@@ -126,6 +196,13 @@ class Matchmaker : public Node{
             lastTargetRank = currentTargetRank;
         }
 
+        /**
+         * @brief Calculates stealing quantity for stealing event
+         * 
+         * @param targetIndex Index of target inside value array
+         * @param victimIndex Index of victim inside value array
+         * @return Number of items to steal
+         */
         int setStealingQuantity(int targetIndex, int victimIndex){
 
             int targetDistance = abs(lowerAverage - valueArray[targetIndex]);
@@ -134,6 +211,10 @@ class Matchmaker : public Node{
             return ((targetDistance + victimDistance)/2);
         }
 
+        /**
+         * @brief Writes to standard output current values of child ranks and their current status
+         * 
+         */
         void printMetrics(){
             cout << "MATCHMAKER " << nodeRank << " DECLARES METRICS " << endl << "\t THRESHOLD : " << lowerThreshold << endl << "\t AVERAGE : " << lowerAverage << endl << "\tTOTAL PARTICLES : " << totalParticles << endl;
             cout << "\t VALUES : " << endl;
@@ -144,6 +225,14 @@ class Matchmaker : public Node{
             cout << endl;
         }
 
+        /**
+         * @brief Deletes data from child nodes
+         *
+         * This function begins a multiple stealing event, when this has ended and data is gathered data is sent upwards, after all lower ranks are declared UNLOCKED
+         * matchmaker is also declared UNLOCKED and more work stealing can happen
+         * 
+         * @param stealingQuantity Quantity of particles to be stolen
+         */
         virtual void deleteDataFromNode(int stealingQuantity){
             cout << "DELETING : " << stealingQuantity << " FROM NODE : " << nodeRank << endl; 
             int actualSteal = gatherData(stealingQuantity);
@@ -155,6 +244,12 @@ class Matchmaker : public Node{
             declareStatus(UNLOCKED);
         }
 
+        /**
+         * @brief Injects data in child nodes
+         * 
+         * Data is sent to a matchmaker and distributed across all child nodes, after child nodes are all declared as UNLOCKED matchmaker aslo declares UNLOCKED status
+         * @param stealingQuantity Quantity of particles to be injected
+         */
         virtual void injectDataInNode(int stealingQuantity){
             cout << "INJECTING : " << stealingQuantity << " IN NODE : " << nodeRank << endl;
             distributeData(stealingQuantity);
@@ -165,6 +260,14 @@ class Matchmaker : public Node{
         }
 
 
+        /**
+         * @brief Distributes data among child nodes
+         *
+         * Data is distributed to child nodes, child nodes are then locked after injecting the data, the distribution of data is uniform in the case
+         * of distribution so that every child recieves the same amount of particles
+         * 
+         * @param stealingQuantity Quantity of data to be distributed
+         */
         virtual void distributeData(int stealingQuantity){
             int *stealingArray = calculateStealing(stealingQuantity, true);
             int arrayOffset = 0;
@@ -185,6 +288,13 @@ class Matchmaker : public Node{
             delete[] stealingArray;
         }
         
+        /**
+         * @brief Calculate particle distribution among nodes in a multiple stealing event
+         * 
+         * @param stealingQuantity Quantity of data to be delocated
+         * @param evenDistribute True if distribution is uniform (Only when injecting data)
+         * @return Array of ints containing number of particles to inject or steal for every core 
+         */
         int *calculateStealing(int stealingQuantity, bool evenDistribute = false){
             float *percentages = new float[childNumber];
             int *stealingValues = new int[childNumber];
@@ -211,6 +321,15 @@ class Matchmaker : public Node{
             return stealingValues;
         }
 
+        /**
+         * @brief Gathers data from lower nodes
+         *
+         * Gathers data from child ranks, before gathering lockes the nodes so that no other stealing event can happen
+         * then puts stolen data in buffer and signals all clear to upper rank
+         * 
+         * @param stealingQuantity Quantity to be stolen
+         * @return Total number of particles stolen from childs
+         */
         virtual int gatherData(int stealingQuantity){
             int *stealingArray = calculateStealing(stealingQuantity);
             int *tempArray = new int[MAX_STEAL];
@@ -240,7 +359,16 @@ class Matchmaker : public Node{
             return completeSteal;
         }
 
-        //Stealing tra matchmaker
+        /**
+         * @brief Steals data from a node
+         * 
+         * If victim node is a matchmaker data is gathered from all underlying nodes and sent upwards, this function
+         * deals with stealing data from a single source and depositing them inside the input buffer to be sent
+         *
+         * @param stealingQuantity Quantity of data to be stolen
+         * @param victimRank Rank of victim node
+         * @return Quantity of data effectivly stolen
+         */
         virtual int stealFromVictim(int *stealingQuantity, int victimRank){
             int actualSteal = 0;
 
@@ -259,6 +387,14 @@ class Matchmaker : public Node{
             return actualSteal;
         }
 
+        /**
+         * @brief Sends stolen data to a single target
+         * 
+         * After stealing data is sent to a single source, target is locked before the procedure
+         *
+         * @param stealingQuantity Quantity of data to send
+         * @param targetRank Rank of target
+         */
         virtual void sendToTarget(int *stealingQuantity, int targetRank){
             if(*stealingQuantity == 0){
                 cout << "WILL NOT SEND DATA TO TARGET" << endl;
@@ -274,18 +410,38 @@ class Matchmaker : public Node{
             MPI_Send(stealingQuantity, 1, MPI_INT, targetRank, TARGET, MPI_COMM_WORLD);
         }
 
+        /**
+         * @brief Checks termination flag
+         * 
+         * @return 1 if done flag is true
+         */
         virtual int checkTermination(){
             return done;
         }
 
+        /**
+         * @brief Activates status thread
+         * 
+         * @return Status thread object
+         */
         virtual thread activateStatusThread(){
             return thread(&Node::sendStatusFunction, this);
         }
 
+
+        /**
+         * @brief Activates reciever thread
+         * 
+         * @return Reciever thread object
+         */
         virtual thread activateRecieverThread(){
             return thread(&Node::recieveMessageFromMatchmaker, this);
         }
 
+        /**
+         * @brief Begins ending procedure, in a normal matchmaker this is just a simple alert
+         * 
+         */
         virtual void endingProcedure(){
             cout << "RANK : " << nodeRank << " HAS ENDED COMPUTATION... " << endl;
         }
@@ -293,6 +449,14 @@ class Matchmaker : public Node{
 
     public:
 
+        /**
+         * @brief Begins matchmaker main loop
+         *
+         * Begins matchmaker main loop, this recieves messages and sets values until termination is reached
+         * When termination is reached alla lower nodes are alerted and computation is terminated
+         * 
+         * @param globalResult Result of reduction
+         */
         void matchmakerMainLoop(int * globalResult){
 
             int *localFlag = new int[2];		//Conterrà il valore della media locale del singolo nodo
@@ -458,6 +622,28 @@ class Matchmaker : public Node{
             cout << "RANK : " << nodeRank << " ENDED MAIN LOOP" << endl;
         }
 
+        /**
+         * @brief Construct a new Matchmaker object
+         * The constructor intializes the following variables:
+         *  - Child number -> Passed as parameter
+         *  - Child ranks -> Passed as parameter
+         *  - Tag array -> is instatiated as a new int of child number dimension and all values are set to stable
+         *  - Value array -> is instatiated as a new int of child number dimension and all values are set to total particles / child number
+         *  - lastVictimRank -> set as -1
+         *  - lastTargetRank -> set as -1
+         *  - offset -> set as first child rank
+         *  - lowerAverage -> set as total particles / child number
+         *  - lowerThreshold -> set as a percentage of lower average (25% for the time being)
+         * 
+         * @param parentRank Rank of parent node
+         * @param chunkSize Size of chunk
+         * @param recvBuffer Initial reciever buffer
+         * @param totalParticles Total particles of node
+         * @param localAverage Local average of node
+         * @param localThreshold Local threshold of node
+         * @param childNumber Number of childs
+         * @param childRanks Array containing child ranks
+         */
         Matchmaker(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int localThreshold,
                    int childNumber, int *childRanks) : Node(parentRank, chunkSize, recvBuffer, totalParticles,
                    localAverage, localThreshold) {
@@ -477,10 +663,15 @@ class Matchmaker : public Node{
                    offset = childRanks[0];
                    lowerAverage = totalParticles/childNumber;
                    lowerThreshold = (lowerAverage * 25)/100;
-                   childFlag = new int[childNumber];
-                   memset(childFlag, 0, sizeof(childFlag));
         }
 
+        /**
+         * @brief Destroy the Matchmaker object
+         * The following objects are deleted here : 
+         *  - childRanks
+         *  - tagArray
+         *  - valueArray 
+         */
         virtual ~Matchmaker(){
             delete []childRanks;
             delete []tagArray;

@@ -1,0 +1,176 @@
+\doxysection{/home/stefano/\+Uni/\+Tirocinio/\+Adaptive\+Work\+Stealing/source/\+Matchmaker.hpp File Reference}
+\hypertarget{Matchmaker_8hpp}{}\label{Matchmaker_8hpp}\index{/home/stefano/Uni/Tirocinio/AdaptiveWorkStealing/source/Matchmaker.hpp@{/home/stefano/Uni/Tirocinio/AdaptiveWorkStealing/source/Matchmaker.hpp}}
+{\ttfamily \#include "{}mpi.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{Matchmaker_8hpp_a4a87dec580572701efbc15ef14fdc9f4}{matchmaker\+Main\+Loop}} (int num\+\_\+proc, int \texorpdfstring{$\ast$}{*}global\+\_\+result, int chunk\+\_\+size)
+\begin{DoxyCompactList}\small\item\em Rappresenta il ciclo di operazione principale del Matchmaker. \end{DoxyCompactList}\item 
+MPI\+\_\+\+Status \mbox{\hyperlink{Matchmaker_8hpp_ad42d947f6b6016c4726530807ccb674e}{wait\+Control\+Messages}} (int \texorpdfstring{$\ast$}{*}recv\+\_\+flag)
+\begin{DoxyCompactList}\small\item\em Attende la ricezione di un messaggio di controllo da uno dei nodi. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{Matchmaker_8hpp_a1e4f54ecabf221c5f60ff26c52e7d2d5}{check\+Termination}} (int \texorpdfstring{$\ast$}{*}tag\+Array, int num\+\_\+proc)
+\begin{DoxyCompactList}\small\item\em Controlla la terminazione dei processi. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{Matchmaker_8hpp_ac3b37f33b0db975cd4061e9e67ab3284}{find\+Possible\+Target}} (int \texorpdfstring{$\ast$}{*}tag\+Array, int num\+\_\+proc, int victim)
+\begin{DoxyCompactList}\small\item\em Trova una possibile vittima per il work stealing. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{Matchmaker_8hpp_a407b54881a888ef92f77e446619ced88}{find\+Possible\+Reciever}} (int \texorpdfstring{$\ast$}{*}tag\+Array, int num\+\_\+proc, int target)
+\begin{DoxyCompactList}\small\item\em Trova una possibile ricevente per il work stealing. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{Matchmaker_8hpp_a82c40b619e6213184cd688cfce052492}{update\+Metrics}} (float \texorpdfstring{$\ast$}{*}local\+\_\+average, int num\+\_\+proc, int \texorpdfstring{$\ast$}{*}value\+Array)
+\begin{DoxyCompactList}\small\item\em Aggiorna la media locale del matchmaker per il workstealing. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{Matchmaker_8hpp_a3ec5ed6a911cf0e692d5ec07b0718ab9}{notify\+Metrics}} (float \texorpdfstring{$\ast$}{*}local\+\_\+average, int reciever, int \texorpdfstring{$\ast$}{*}threshold)
+\item 
+void \mbox{\hyperlink{Matchmaker_8hpp_abec5c77f729f5e7e233163df4cd6c370}{check\+For\+Double\+Steal}} (int \texorpdfstring{$\ast$}{*}treshold, int \texorpdfstring{$\ast$}{*}last\+\_\+victim, int \texorpdfstring{$\ast$}{*}last\+\_\+target, int current\+\_\+victim, int current\+\_\+target)
+\begin{DoxyCompactList}\small\item\em Controlla se ci sono stati eventi di double stealing e aggiorna il threshold di conseguenza. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{Matchmaker_8hpp_abec5c77f729f5e7e233163df4cd6c370}\label{Matchmaker_8hpp_abec5c77f729f5e7e233163df4cd6c370} 
+\index{Matchmaker.hpp@{Matchmaker.hpp}!checkForDoubleSteal@{checkForDoubleSteal}}
+\index{checkForDoubleSteal@{checkForDoubleSteal}!Matchmaker.hpp@{Matchmaker.hpp}}
+\doxysubsubsection{\texorpdfstring{checkForDoubleSteal()}{checkForDoubleSteal()}}
+{\footnotesize\ttfamily void check\+For\+Double\+Steal (\begin{DoxyParamCaption}\item[{int \texorpdfstring{$\ast$}{*}}]{threshold,  }\item[{int \texorpdfstring{$\ast$}{*}}]{last\+\_\+victim,  }\item[{int \texorpdfstring{$\ast$}{*}}]{last\+\_\+target,  }\item[{int}]{current\+\_\+victim,  }\item[{int}]{current\+\_\+target }\end{DoxyParamCaption})}
+
+
+
+Controlla se ci sono stati eventi di double stealing e aggiorna il threshold di conseguenza. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em threshold} & Il valore attuale di threshold \\
+\hline
+{\em last\+\_\+victim} & Ultima vittima di workstealing \\
+\hline
+{\em last\+\_\+target} & Ultimo target di workstealing \\
+\hline
+{\em current\+\_\+victim} & Vittima dello scambio attuale \\
+\hline
+{\em current\+\_\+target} & Target dello scambio attuale \\
+\hline
+\end{DoxyParams}
+\Hypertarget{Matchmaker_8hpp_a1e4f54ecabf221c5f60ff26c52e7d2d5}\label{Matchmaker_8hpp_a1e4f54ecabf221c5f60ff26c52e7d2d5} 
+\index{Matchmaker.hpp@{Matchmaker.hpp}!checkTermination@{checkTermination}}
+\index{checkTermination@{checkTermination}!Matchmaker.hpp@{Matchmaker.hpp}}
+\doxysubsubsection{\texorpdfstring{checkTermination()}{checkTermination()}}
+{\footnotesize\ttfamily int check\+Termination (\begin{DoxyParamCaption}\item[{int \texorpdfstring{$\ast$}{*}}]{tag\+Array,  }\item[{int}]{num\+\_\+proc }\end{DoxyParamCaption})}
+
+
+
+Controlla la terminazione dei processi. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em tag\+Array} & Contiene i tag dei singoli processi, se tutti quanti hanno inviati i dati invia la terminazione \\
+\hline
+{\em num\+\_\+proc} & Numero dei processi attivi \\
+\hline
+\end{DoxyParams}
+\Hypertarget{Matchmaker_8hpp_a407b54881a888ef92f77e446619ced88}\label{Matchmaker_8hpp_a407b54881a888ef92f77e446619ced88} 
+\index{Matchmaker.hpp@{Matchmaker.hpp}!findPossibleReciever@{findPossibleReciever}}
+\index{findPossibleReciever@{findPossibleReciever}!Matchmaker.hpp@{Matchmaker.hpp}}
+\doxysubsubsection{\texorpdfstring{findPossibleReciever()}{findPossibleReciever()}}
+{\footnotesize\ttfamily int find\+Possible\+Reciever (\begin{DoxyParamCaption}\item[{int \texorpdfstring{$\ast$}{*}}]{tag\+Array,  }\item[{int}]{num\+\_\+proc,  }\item[{int}]{target }\end{DoxyParamCaption})}
+
+
+
+Trova una possibile ricevente per il work stealing. 
+
+Questa funzione viene invocata non appena un core diventa Overworked, tentando di trovare immediatamente un bersaglio per poter eseguire il work stealing, viene fatta una ricerca lineare all\textquotesingle{}interno del vettore degli stati, può essere sostituito con l\textquotesingle{}utilizzo di una coda di priorità con valori sentinella Viene prima data precedenza ai core IDLE che vengono cercati per prima all\textquotesingle{}interno dell\textquotesingle{}array
+
+
+\begin{DoxyParams}{Parameters}
+{\em tag\+Array} & Contiene il tag dei nodi worker \\
+\hline
+{\em num\+\_\+proc} & Contiene il numero dei processi attivi sotto il matchmaker \\
+\hline
+{\em victim} & Contiene l\textquotesingle{}indice della vittima per evitare che si generino errori \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+int Indice della ricevente di work stealing 
+\end{DoxyReturn}
+\Hypertarget{Matchmaker_8hpp_ac3b37f33b0db975cd4061e9e67ab3284}\label{Matchmaker_8hpp_ac3b37f33b0db975cd4061e9e67ab3284} 
+\index{Matchmaker.hpp@{Matchmaker.hpp}!findPossibleTarget@{findPossibleTarget}}
+\index{findPossibleTarget@{findPossibleTarget}!Matchmaker.hpp@{Matchmaker.hpp}}
+\doxysubsubsection{\texorpdfstring{findPossibleTarget()}{findPossibleTarget()}}
+{\footnotesize\ttfamily int find\+Possible\+Target (\begin{DoxyParamCaption}\item[{int \texorpdfstring{$\ast$}{*}}]{tag\+Array,  }\item[{int}]{num\+\_\+proc,  }\item[{int}]{victim }\end{DoxyParamCaption})}
+
+
+
+Trova una possibile vittima per il work stealing. 
+
+Questa funzione viene invocata non appena un core diventa Underworked, tentando di trovare immediatamente un bersaglio per poter eseguire il work stealing, viene fatta una ricerca lineare all\textquotesingle{}interno del vettore degli stati, può essere sostituito con l\textquotesingle{}utilizzo di una coda di priorità con valori sentinella
+
+
+\begin{DoxyParams}{Parameters}
+{\em tag\+Array} & Contiene il tag dei nodi worker \\
+\hline
+{\em num\+\_\+proc} & Contiene il numero dei processi attivi sotto il matchmaker \\
+\hline
+{\em victim} & Contiene l\textquotesingle{}indice del ricevente per evitare che si generino errori \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+int Indice della vittima di work stealing 
+\end{DoxyReturn}
+\Hypertarget{Matchmaker_8hpp_a4a87dec580572701efbc15ef14fdc9f4}\label{Matchmaker_8hpp_a4a87dec580572701efbc15ef14fdc9f4} 
+\index{Matchmaker.hpp@{Matchmaker.hpp}!matchmakerMainLoop@{matchmakerMainLoop}}
+\index{matchmakerMainLoop@{matchmakerMainLoop}!Matchmaker.hpp@{Matchmaker.hpp}}
+\doxysubsubsection{\texorpdfstring{matchmakerMainLoop()}{matchmakerMainLoop()}}
+{\footnotesize\ttfamily void matchmaker\+Main\+Loop (\begin{DoxyParamCaption}\item[{int}]{num\+\_\+proc,  }\item[{int \texorpdfstring{$\ast$}{*}}]{global\+\_\+result,  }\item[{int}]{chunk\+\_\+size }\end{DoxyParamCaption})}
+
+
+
+Rappresenta il ciclo di operazione principale del Matchmaker. 
+
+Contiene al suo interno le funzioni di creazione del vettore di stato, di comunicazione verso gli altri rank, di modifica delle metriche e di decisione del work stealing, questi elementi sono delegati a funzioni esterne ma sono richiamati qui, si occupa inoltre di decidere quando la computazione dei nodi finisce ed inizia la riduzione
+
+
+\begin{DoxyParams}{Parameters}
+{\em num\+\_\+proc} & Indica il numero di nodi sottostanti nell\textquotesingle{}albero gerarchico della computazione \\
+\hline
+{\em global\+\_\+result} & Puntatore ad un elemento utilizzato nel main, conterrà il risultato finale della computazione \\
+\hline
+{\em chunk\+\_\+size} & Grandezza del vettore inviato ad ogni processo, serve ad inizializzare le metriche del work stealing \\
+\hline
+\end{DoxyParams}
+\Hypertarget{Matchmaker_8hpp_a3ec5ed6a911cf0e692d5ec07b0718ab9}\label{Matchmaker_8hpp_a3ec5ed6a911cf0e692d5ec07b0718ab9} 
+\index{Matchmaker.hpp@{Matchmaker.hpp}!notifyMetrics@{notifyMetrics}}
+\index{notifyMetrics@{notifyMetrics}!Matchmaker.hpp@{Matchmaker.hpp}}
+\doxysubsubsection{\texorpdfstring{notifyMetrics()}{notifyMetrics()}}
+{\footnotesize\ttfamily void notify\+Metrics (\begin{DoxyParamCaption}\item[{float \texorpdfstring{$\ast$}{*}}]{local\+\_\+average,  }\item[{int}]{reciever,  }\item[{int \texorpdfstring{$\ast$}{*}}]{threshold }\end{DoxyParamCaption})}
+
+\Hypertarget{Matchmaker_8hpp_a82c40b619e6213184cd688cfce052492}\label{Matchmaker_8hpp_a82c40b619e6213184cd688cfce052492} 
+\index{Matchmaker.hpp@{Matchmaker.hpp}!updateMetrics@{updateMetrics}}
+\index{updateMetrics@{updateMetrics}!Matchmaker.hpp@{Matchmaker.hpp}}
+\doxysubsubsection{\texorpdfstring{updateMetrics()}{updateMetrics()}}
+{\footnotesize\ttfamily void update\+Metrics (\begin{DoxyParamCaption}\item[{float \texorpdfstring{$\ast$}{*}}]{local\+\_\+average,  }\item[{int}]{num\+\_\+proc,  }\item[{int \texorpdfstring{$\ast$}{*}}]{value\+Array }\end{DoxyParamCaption})}
+
+
+
+Aggiorna la media locale del matchmaker per il workstealing. 
+
+Aggiorna la media locale del matchmaker per tenere conto della situazione globale del sistema, la media reale verrà notificata ai worker ogni volta che questi cambieranno stato (in modo lazy), questo metodo aggiorna e ricalcola solo la media locale
+
+
+\begin{DoxyParams}{Parameters}
+{\em local\+\_\+average} & Contiene il valore attuale di media del matchmaker \\
+\hline
+{\em num\+\_\+proc} & Contiene il numero di processi sttivi sotto il matchmaker \\
+\hline
+{\em value\+Array} & Contiene i valori di media forniti dai worker sottostanti \\
+\hline
+\end{DoxyParams}
+\Hypertarget{Matchmaker_8hpp_ad42d947f6b6016c4726530807ccb674e}\label{Matchmaker_8hpp_ad42d947f6b6016c4726530807ccb674e} 
+\index{Matchmaker.hpp@{Matchmaker.hpp}!waitControlMessages@{waitControlMessages}}
+\index{waitControlMessages@{waitControlMessages}!Matchmaker.hpp@{Matchmaker.hpp}}
+\doxysubsubsection{\texorpdfstring{waitControlMessages()}{waitControlMessages()}}
+{\footnotesize\ttfamily MPI\+\_\+\+Status wait\+Control\+Messages (\begin{DoxyParamCaption}\item[{int \texorpdfstring{$\ast$}{*}}]{recv\+\_\+flag }\end{DoxyParamCaption})}
+
+
+
+Attende la ricezione di un messaggio di controllo da uno dei nodi. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em recv\+\_\+flag} & Contiene il numero di elementi da elaborare per ogni nodo, viene inviato dal worker al matchmaker. \\
+\hline
+\end{DoxyParams}

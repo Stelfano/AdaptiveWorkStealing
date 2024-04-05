@@ -1,0 +1,430 @@
+\doxysection{Matchmaker Class Reference}
+\hypertarget{classMatchmaker}{}\label{classMatchmaker}\index{Matchmaker@{Matchmaker}}
+
+
+{\ttfamily \#include $<$Matchmaker\+Class.\+hpp$>$}
+
+Inheritance diagram for Matchmaker\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classMatchmaker}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classMatchmaker_aa04768d11858ccbdc64f429714cd69e6}{matchmaker\+Main\+Loop}} (int \texorpdfstring{$\ast$}{*}global\+Result)
+\item 
+\mbox{\hyperlink{classMatchmaker_a31e43eacbec0cd8032c04afb26eb5435}{Matchmaker}} (int \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parent\+Rank}}, int \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunk\+Size}}, int \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recv\+Buffer}}, int \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{total\+Particles}}, float \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{local\+Average}}, int \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{local\+Threshold}}, int \mbox{\hyperlink{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}{child\+Number}}, int \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f}{child\+Ranks}})
+\item 
+virtual \mbox{\hyperlink{classMatchmaker_a037ac2765012704d3860f4d2f7e32c92}{\texorpdfstring{$\sim$}{\string~}\+Matchmaker}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \mbox{\hyperlink{classNode}{Node}}}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classNode_a48511c73b8d4174af4405f14fc7bb37a}{send\+Status\+Function}} ()
+\begin{DoxyCompactList}\small\item\em Update function for a node, this function is assigned to a thread to be able to update status when necessary. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classNode_a452fc104fe4726da9630696fe769832f}{recieve\+Message\+From\+Matchmaker}} ()
+\begin{DoxyCompactList}\small\item\em Reciever function to obtain metric updates on average, threshold and recieve work stealing related messages. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classNode_a1dd944b4340f50721541e1e720f586cd}{Node}} (int \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parent\+Rank}}, int \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunk\+Size}}, int \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recv\+Buffer}}, int \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{total\+Particles}}, float \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{local\+Average}}, int \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{local\+Threshold}})
+\begin{DoxyCompactList}\small\item\em Construct a new \doxylink{classNode}{Node} object. \end{DoxyCompactList}\item 
+virtual \mbox{\hyperlink{classNode_af5e3fa79300bf5f3f2f3ecae6e795a94}{\texorpdfstring{$\sim$}{\string~}\+Node}} ()
+\begin{DoxyCompactList}\small\item\em Destroy the \doxylink{classNode}{Node} object. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+MPI\+\_\+\+Status \mbox{\hyperlink{classMatchmaker_af9914b1ee5e39e4be03a87da3365f30c}{wait\+Control\+Messages}} (int \texorpdfstring{$\ast$}{*}recv\+Flag)
+\item 
+int \mbox{\hyperlink{classMatchmaker_a130a7d388e90a1e4e36fbf4cfd26ee85}{find\+Possible\+Victim}} (int victim)
+\item 
+int \mbox{\hyperlink{classMatchmaker_af37f3f7a4631daca80ba7fb7bf561923}{find\+Possible\+Target}} (int target)
+\item 
+int \mbox{\hyperlink{classMatchmaker_a31c01388721ceff6876d0a74e5490f88}{check\+Active\+Processes}} ()
+\item 
+bool \mbox{\hyperlink{classMatchmaker_a2cb68818288876d55caf0a9dd2a4b27c}{any\+Node\+Is\+Locked}} ()
+\item 
+virtual void \mbox{\hyperlink{classMatchmaker_a0dc41961c3fc9aaaaa7cdc6a7b56c1fe}{update\+Average}} ()
+\item 
+void \mbox{\hyperlink{classMatchmaker_a82f68f895ddefa72cc5a7a292bf1b355}{update\+Values}} (int source, int \texorpdfstring{$\ast$}{*}local\+Flag)
+\item 
+void \mbox{\hyperlink{classMatchmaker_a9f7217ec4dac6e5c2418c6f819b42aea}{notify\+Average}} (int reciever)
+\item 
+void \mbox{\hyperlink{classMatchmaker_a0c10deeb6942d0067cb45968695d4b84}{notify\+Threshold}} ()
+\item 
+void \mbox{\hyperlink{classMatchmaker_a92b2ad780c7cff68deba79da414545a5}{check\+For\+Double\+Steal}} (int current\+Victim\+Rank, int current\+Target\+Rank)
+\item 
+int \mbox{\hyperlink{classMatchmaker_ad32cb881a3493ce7a960bfbb0725df76}{set\+Stealing\+Quantity}} (int target\+Index, int victim\+Index)
+\item 
+void \mbox{\hyperlink{classMatchmaker_a691dbf9e4358c767049b3312a83de708}{print\+Metrics}} ()
+\item 
+virtual void \mbox{\hyperlink{classMatchmaker_a1eb5487f91c5a7e74aa4afcadd1b16b8}{delete\+Data\+From\+Node}} (int stealing\+Quantity)
+\begin{DoxyCompactList}\small\item\em Basic template of data deletion for a node. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classMatchmaker_adaab737f7915c125f113459673676d68}{inject\+Data\+In\+Node}} (int stealing\+Quantity)
+\begin{DoxyCompactList}\small\item\em Basic template of data injection for a node. \end{DoxyCompactList}\item 
+virtual void \mbox{\hyperlink{classMatchmaker_a64a4bf9ea9671163e3da509404a2feb8}{distribute\+Data}} (int stealing\+Quantity)
+\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_ada689998b29b04b679d527790b15a5e3}{calculate\+Stealing}} (int stealing\+Quantity, bool even\+Distribute=false)
+\item 
+virtual int \mbox{\hyperlink{classMatchmaker_acc74e44c22ca882d310cb9a527705454}{gather\+Data}} (int stealing\+Quantity)
+\item 
+virtual int \mbox{\hyperlink{classMatchmaker_a36f4239dfe732de00954f07b599b1a1c}{steal\+From\+Victim}} (int \texorpdfstring{$\ast$}{*}stealing\+Quantity, int victim\+Rank)
+\item 
+virtual void \mbox{\hyperlink{classMatchmaker_a23ac0ed2927e896c51d4204a99234d88}{send\+To\+Target}} (int \texorpdfstring{$\ast$}{*}stealing\+Quantity, int target\+Rank)
+\item 
+virtual int \mbox{\hyperlink{classMatchmaker_a6e87c91133a790f192a658d15ccbb39b}{check\+Termination}} ()
+\item 
+virtual thread \mbox{\hyperlink{classMatchmaker_a978de2aa3d7a25e132419885c8674836}{activate\+Status\+Thread}} ()
+\item 
+virtual thread \mbox{\hyperlink{classMatchmaker_a3b6053d81de9fa4b2701d7f19632b878}{activate\+Reciever\+Thread}} ()
+\item 
+virtual void \mbox{\hyperlink{classMatchmaker_a49a3a4566356faf89c68709572864f76}{ending\+Procedure}} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions inherited from \mbox{\hyperlink{classNode}{Node}}}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classNode_a3e8e2835b7f01ba3b44e57b181a175b8}{declare\+Status}} (int \mbox{\hyperlink{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}{status}})
+\begin{DoxyCompactList}\small\item\em Status declaration function, status is updated and then communicated to parent rank in the hierarchy. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}{child\+Number}}
+\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f}{child\+Ranks}}
+\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_a625ea9bbc12d495154525548f04c811b}{tag\+Array}}
+\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_ae698ae3f1e531e1a442b6994815bd9b3}{value\+Array}}
+\item 
+int \mbox{\hyperlink{classMatchmaker_ac3bde3080d6cf11b6f902b209a836462}{last\+Victim\+Rank}}
+\item 
+int \mbox{\hyperlink{classMatchmaker_ad4512bbf669aaac288546043363112d9}{last\+Target\+Rank}}
+\item 
+int \mbox{\hyperlink{classMatchmaker_a3b4fd71a833ff0ddd031ae9101281fb5}{offset}}
+\item 
+float \mbox{\hyperlink{classMatchmaker_a459253acc3e96eee3bdf2146f2bea106}{lower\+Average}}
+\item 
+int \mbox{\hyperlink{classMatchmaker_ad15c9e004d5e0d59ba91b2d2991b0cee}{lower\+Threshold}}
+\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classMatchmaker_a4ba0484c69ccdc3d6b024b11653a8a18}{child\+Flag}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes inherited from \mbox{\hyperlink{classNode}{Node}}}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{classNode_a65784e8a8e4c895cae1c71b6886dee32}{tree\+Width}}
+\begin{DoxyCompactList}\small\item\em Width of the computational tree. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_a17aa93a6a65de6390afdeccf54538e3f}{node\+Rank}}
+\begin{DoxyCompactList}\small\item\em Rank of node. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_af6f5d2b4b37ba297fa6eebc17542dad4}{parent\+Rank}}
+\begin{DoxyCompactList}\small\item\em Rank of parent (if the current node is 0 parent rank is -\/1) \end{DoxyCompactList}\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classNode_a0ec74d1471ab1093e62588cb919bf8ea}{in\+Window\+Buffer}}
+\begin{DoxyCompactList}\small\item\em Pointer to input window buffer. \end{DoxyCompactList}\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classNode_abe556d993e821e964d2158edda89683f}{out\+Window\+Buffer}}
+\begin{DoxyCompactList}\small\item\em Pointer to output window buffer. \end{DoxyCompactList}\item 
+int \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classNode_aec1b644887e939fba2f43ff628ecd7eb}{recv\+Buffer}}
+\begin{DoxyCompactList}\small\item\em Pointer to initial recieve buffer. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_a57eaf1618c1bf6e9efdb1679c7c88f4b}{chunk\+Size}}
+\begin{DoxyCompactList}\small\item\em Number of particle sent in a single chunk. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_addabd01a35fcce9e4ced5fe9b6b6da82}{status}}
+\begin{DoxyCompactList}\small\item\em Status of node. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_a56e05c172ac32c53ce36483cb826fcf8}{total\+Particles}}
+\begin{DoxyCompactList}\small\item\em Total particle present in the node. \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{classNode_a3152534caf4db66c422fccd375473e1e}{local\+Average}}
+\begin{DoxyCompactList}\small\item\em Current average of node. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classNode_a42508a8dadd837a7936ab40b4de38d53}{local\+Threshold}}
+\begin{DoxyCompactList}\small\item\em Current threshold of node. \end{DoxyCompactList}\item 
+MPI\+\_\+\+Win \mbox{\hyperlink{classNode_adb103e96748537b115c18c2a2b27a9d9}{in\+Window}}
+\begin{DoxyCompactList}\small\item\em MPI object to use RDMA for input window buffer. \end{DoxyCompactList}\item 
+MPI\+\_\+\+Win \mbox{\hyperlink{classNode_a187219708add28a69d82fbe647aaf612}{out\+Window}}
+\begin{DoxyCompactList}\small\item\em MPI object to use RDMA for output window buffer. \end{DoxyCompactList}\item 
+atomic$<$ bool $>$ \mbox{\hyperlink{classNode_a95b7033e5e44fd68c8952a10af367d92}{done}}
+\begin{DoxyCompactList}\small\item\em Atomic variable to signal termination. \end{DoxyCompactList}\item 
+bool \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{classNode_ab40c6d0e2e312c9f1b23b6d7878c6fbf}{sent\+Flag}}
+\begin{DoxyCompactList}\small\item\em Use flag to send data upwards, prevents multiple update of the same status. \end{DoxyCompactList}\item 
+shared\+\_\+mutex \mbox{\hyperlink{classNode_a3d817091a1acc63fea4c65352564a73d}{total\+Particle\+Mutex}}
+\begin{DoxyCompactList}\small\item\em Shared mutex to prevent race condition on Total particles and Particle buffer(\+Only in worker) \end{DoxyCompactList}\item 
+shared\+\_\+mutex \mbox{\hyperlink{classNode_afd3788a41ab04ded3a98566ea7f0081f}{sent\+Flag\+Mutex}}
+\begin{DoxyCompactList}\small\item\em Shared mutex to prevent race condition on status update flag array. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{classMatchmaker_a31e43eacbec0cd8032c04afb26eb5435}\label{classMatchmaker_a31e43eacbec0cd8032c04afb26eb5435} 
+\index{Matchmaker@{Matchmaker}!Matchmaker@{Matchmaker}}
+\index{Matchmaker@{Matchmaker}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{Matchmaker()}{Matchmaker()}}
+{\footnotesize\ttfamily Matchmaker\+::\+Matchmaker (\begin{DoxyParamCaption}\item[{int}]{parent\+Rank,  }\item[{int}]{chunk\+Size,  }\item[{int \texorpdfstring{$\ast$}{*}}]{recv\+Buffer,  }\item[{int}]{total\+Particles,  }\item[{float}]{local\+Average,  }\item[{int}]{local\+Threshold,  }\item[{int}]{child\+Number,  }\item[{int \texorpdfstring{$\ast$}{*}}]{child\+Ranks }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\Hypertarget{classMatchmaker_a037ac2765012704d3860f4d2f7e32c92}\label{classMatchmaker_a037ac2765012704d3860f4d2f7e32c92} 
+\index{Matchmaker@{Matchmaker}!````~Matchmaker@{\texorpdfstring{$\sim$}{\string~}Matchmaker}}
+\index{````~Matchmaker@{\texorpdfstring{$\sim$}{\string~}Matchmaker}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{\texorpdfstring{$\sim$}{\string~}Matchmaker()}{\string~Matchmaker()}}
+{\footnotesize\ttfamily virtual Matchmaker\+::\texorpdfstring{$\sim$}{\string~}\+Matchmaker (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [virtual]}}
+
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classMatchmaker_a3b6053d81de9fa4b2701d7f19632b878}\label{classMatchmaker_a3b6053d81de9fa4b2701d7f19632b878} 
+\index{Matchmaker@{Matchmaker}!activateRecieverThread@{activateRecieverThread}}
+\index{activateRecieverThread@{activateRecieverThread}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{activateRecieverThread()}{activateRecieverThread()}}
+{\footnotesize\ttfamily virtual thread Matchmaker\+::activate\+Reciever\+Thread (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+\Hypertarget{classMatchmaker_a978de2aa3d7a25e132419885c8674836}\label{classMatchmaker_a978de2aa3d7a25e132419885c8674836} 
+\index{Matchmaker@{Matchmaker}!activateStatusThread@{activateStatusThread}}
+\index{activateStatusThread@{activateStatusThread}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{activateStatusThread()}{activateStatusThread()}}
+{\footnotesize\ttfamily virtual thread Matchmaker\+::activate\+Status\+Thread (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+\Hypertarget{classMatchmaker_a2cb68818288876d55caf0a9dd2a4b27c}\label{classMatchmaker_a2cb68818288876d55caf0a9dd2a4b27c} 
+\index{Matchmaker@{Matchmaker}!anyNodeIsLocked@{anyNodeIsLocked}}
+\index{anyNodeIsLocked@{anyNodeIsLocked}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{anyNodeIsLocked()}{anyNodeIsLocked()}}
+{\footnotesize\ttfamily bool Matchmaker\+::any\+Node\+Is\+Locked (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_ada689998b29b04b679d527790b15a5e3}\label{classMatchmaker_ada689998b29b04b679d527790b15a5e3} 
+\index{Matchmaker@{Matchmaker}!calculateStealing@{calculateStealing}}
+\index{calculateStealing@{calculateStealing}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{calculateStealing()}{calculateStealing()}}
+{\footnotesize\ttfamily int \texorpdfstring{$\ast$}{*} Matchmaker\+::calculate\+Stealing (\begin{DoxyParamCaption}\item[{int}]{stealing\+Quantity,  }\item[{bool}]{even\+Distribute = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_a31c01388721ceff6876d0a74e5490f88}\label{classMatchmaker_a31c01388721ceff6876d0a74e5490f88} 
+\index{Matchmaker@{Matchmaker}!checkActiveProcesses@{checkActiveProcesses}}
+\index{checkActiveProcesses@{checkActiveProcesses}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{checkActiveProcesses()}{checkActiveProcesses()}}
+{\footnotesize\ttfamily int Matchmaker\+::check\+Active\+Processes (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_a92b2ad780c7cff68deba79da414545a5}\label{classMatchmaker_a92b2ad780c7cff68deba79da414545a5} 
+\index{Matchmaker@{Matchmaker}!checkForDoubleSteal@{checkForDoubleSteal}}
+\index{checkForDoubleSteal@{checkForDoubleSteal}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{checkForDoubleSteal()}{checkForDoubleSteal()}}
+{\footnotesize\ttfamily void Matchmaker\+::check\+For\+Double\+Steal (\begin{DoxyParamCaption}\item[{int}]{current\+Victim\+Rank,  }\item[{int}]{current\+Target\+Rank }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_a6e87c91133a790f192a658d15ccbb39b}\label{classMatchmaker_a6e87c91133a790f192a658d15ccbb39b} 
+\index{Matchmaker@{Matchmaker}!checkTermination@{checkTermination}}
+\index{checkTermination@{checkTermination}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{checkTermination()}{checkTermination()}}
+{\footnotesize\ttfamily virtual int Matchmaker\+::check\+Termination (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{classInitiatorMatchmaker_a92ad3bbdb5f4002e85e130d7a1b06b8a}{Initiator\+Matchmaker}}.
+
+\Hypertarget{classMatchmaker_a1eb5487f91c5a7e74aa4afcadd1b16b8}\label{classMatchmaker_a1eb5487f91c5a7e74aa4afcadd1b16b8} 
+\index{Matchmaker@{Matchmaker}!deleteDataFromNode@{deleteDataFromNode}}
+\index{deleteDataFromNode@{deleteDataFromNode}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{deleteDataFromNode()}{deleteDataFromNode()}}
+{\footnotesize\ttfamily virtual void Matchmaker\+::delete\+Data\+From\+Node (\begin{DoxyParamCaption}\item[{int}]{stealing\+Quantity }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Basic template of data deletion for a node. 
+
+Particles are deleted from a node, this function is overloaded in specialization classes, at the end of the operation status is then declared with a special tag (UNLOCKED) to indicate to parent rank that the node is ready to perform work stealing
+
+
+\begin{DoxyParams}{Parameters}
+{\em stealing\+Quantity} & Quantity of injected particles in node \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classNode_a7b77321aa26c41900b8d8056114461bf}{Node}}.
+
+\Hypertarget{classMatchmaker_a64a4bf9ea9671163e3da509404a2feb8}\label{classMatchmaker_a64a4bf9ea9671163e3da509404a2feb8} 
+\index{Matchmaker@{Matchmaker}!distributeData@{distributeData}}
+\index{distributeData@{distributeData}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{distributeData()}{distributeData()}}
+{\footnotesize\ttfamily virtual void Matchmaker\+::distribute\+Data (\begin{DoxyParamCaption}\item[{int}]{stealing\+Quantity }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+\Hypertarget{classMatchmaker_a49a3a4566356faf89c68709572864f76}\label{classMatchmaker_a49a3a4566356faf89c68709572864f76} 
+\index{Matchmaker@{Matchmaker}!endingProcedure@{endingProcedure}}
+\index{endingProcedure@{endingProcedure}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{endingProcedure()}{endingProcedure()}}
+{\footnotesize\ttfamily virtual void Matchmaker\+::ending\+Procedure (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{classInitiatorMatchmaker_a5d8416b0e048da2f11d20532550aaae4}{Initiator\+Matchmaker}}.
+
+\Hypertarget{classMatchmaker_af37f3f7a4631daca80ba7fb7bf561923}\label{classMatchmaker_af37f3f7a4631daca80ba7fb7bf561923} 
+\index{Matchmaker@{Matchmaker}!findPossibleTarget@{findPossibleTarget}}
+\index{findPossibleTarget@{findPossibleTarget}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{findPossibleTarget()}{findPossibleTarget()}}
+{\footnotesize\ttfamily int Matchmaker\+::find\+Possible\+Target (\begin{DoxyParamCaption}\item[{int}]{target }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_a130a7d388e90a1e4e36fbf4cfd26ee85}\label{classMatchmaker_a130a7d388e90a1e4e36fbf4cfd26ee85} 
+\index{Matchmaker@{Matchmaker}!findPossibleVictim@{findPossibleVictim}}
+\index{findPossibleVictim@{findPossibleVictim}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{findPossibleVictim()}{findPossibleVictim()}}
+{\footnotesize\ttfamily int Matchmaker\+::find\+Possible\+Victim (\begin{DoxyParamCaption}\item[{int}]{victim }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_acc74e44c22ca882d310cb9a527705454}\label{classMatchmaker_acc74e44c22ca882d310cb9a527705454} 
+\index{Matchmaker@{Matchmaker}!gatherData@{gatherData}}
+\index{gatherData@{gatherData}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{gatherData()}{gatherData()}}
+{\footnotesize\ttfamily virtual int Matchmaker\+::gather\+Data (\begin{DoxyParamCaption}\item[{int}]{stealing\+Quantity }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{classTerminalMatchmaker_acd9680c941ef393d41d4fc31a8a24d6e}{Terminal\+Matchmaker}}.
+
+\Hypertarget{classMatchmaker_adaab737f7915c125f113459673676d68}\label{classMatchmaker_adaab737f7915c125f113459673676d68} 
+\index{Matchmaker@{Matchmaker}!injectDataInNode@{injectDataInNode}}
+\index{injectDataInNode@{injectDataInNode}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{injectDataInNode()}{injectDataInNode()}}
+{\footnotesize\ttfamily virtual void Matchmaker\+::inject\+Data\+In\+Node (\begin{DoxyParamCaption}\item[{int}]{stealing\+Quantity }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Basic template of data injection for a node. 
+
+Particles are injected in a node, this function is overloaded in specialization classes, at the end of the operation status is then declared with a special tag (UNLOCKED) to indicate to parent rank that the node is ready to perform work stealing
+
+
+\begin{DoxyParams}{Parameters}
+{\em stealing\+Quantity} & Quantity of injected particles in node \\
+\hline
+\end{DoxyParams}
+
+
+Reimplemented from \mbox{\hyperlink{classNode_a98d4466b06851d7779677eeb6c7ec9dd}{Node}}.
+
+\Hypertarget{classMatchmaker_aa04768d11858ccbdc64f429714cd69e6}\label{classMatchmaker_aa04768d11858ccbdc64f429714cd69e6} 
+\index{Matchmaker@{Matchmaker}!matchmakerMainLoop@{matchmakerMainLoop}}
+\index{matchmakerMainLoop@{matchmakerMainLoop}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{matchmakerMainLoop()}{matchmakerMainLoop()}}
+{\footnotesize\ttfamily void Matchmaker\+::matchmaker\+Main\+Loop (\begin{DoxyParamCaption}\item[{int \texorpdfstring{$\ast$}{*}}]{global\+Result }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\Hypertarget{classMatchmaker_a9f7217ec4dac6e5c2418c6f819b42aea}\label{classMatchmaker_a9f7217ec4dac6e5c2418c6f819b42aea} 
+\index{Matchmaker@{Matchmaker}!notifyAverage@{notifyAverage}}
+\index{notifyAverage@{notifyAverage}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{notifyAverage()}{notifyAverage()}}
+{\footnotesize\ttfamily void Matchmaker\+::notify\+Average (\begin{DoxyParamCaption}\item[{int}]{reciever }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_a0c10deeb6942d0067cb45968695d4b84}\label{classMatchmaker_a0c10deeb6942d0067cb45968695d4b84} 
+\index{Matchmaker@{Matchmaker}!notifyThreshold@{notifyThreshold}}
+\index{notifyThreshold@{notifyThreshold}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{notifyThreshold()}{notifyThreshold()}}
+{\footnotesize\ttfamily void Matchmaker\+::notify\+Threshold (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_a691dbf9e4358c767049b3312a83de708}\label{classMatchmaker_a691dbf9e4358c767049b3312a83de708} 
+\index{Matchmaker@{Matchmaker}!printMetrics@{printMetrics}}
+\index{printMetrics@{printMetrics}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{printMetrics()}{printMetrics()}}
+{\footnotesize\ttfamily void Matchmaker\+::print\+Metrics (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_a23ac0ed2927e896c51d4204a99234d88}\label{classMatchmaker_a23ac0ed2927e896c51d4204a99234d88} 
+\index{Matchmaker@{Matchmaker}!sendToTarget@{sendToTarget}}
+\index{sendToTarget@{sendToTarget}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{sendToTarget()}{sendToTarget()}}
+{\footnotesize\ttfamily virtual void Matchmaker\+::send\+To\+Target (\begin{DoxyParamCaption}\item[{int \texorpdfstring{$\ast$}{*}}]{stealing\+Quantity,  }\item[{int}]{target\+Rank }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{classTerminalMatchmaker_abaff71032c01aebfcf61cb60c8ec9daa}{Terminal\+Matchmaker}}.
+
+\Hypertarget{classMatchmaker_ad32cb881a3493ce7a960bfbb0725df76}\label{classMatchmaker_ad32cb881a3493ce7a960bfbb0725df76} 
+\index{Matchmaker@{Matchmaker}!setStealingQuantity@{setStealingQuantity}}
+\index{setStealingQuantity@{setStealingQuantity}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{setStealingQuantity()}{setStealingQuantity()}}
+{\footnotesize\ttfamily int Matchmaker\+::set\+Stealing\+Quantity (\begin{DoxyParamCaption}\item[{int}]{target\+Index,  }\item[{int}]{victim\+Index }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_a36f4239dfe732de00954f07b599b1a1c}\label{classMatchmaker_a36f4239dfe732de00954f07b599b1a1c} 
+\index{Matchmaker@{Matchmaker}!stealFromVictim@{stealFromVictim}}
+\index{stealFromVictim@{stealFromVictim}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{stealFromVictim()}{stealFromVictim()}}
+{\footnotesize\ttfamily virtual int Matchmaker\+::steal\+From\+Victim (\begin{DoxyParamCaption}\item[{int \texorpdfstring{$\ast$}{*}}]{stealing\+Quantity,  }\item[{int}]{victim\+Rank }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{classTerminalMatchmaker_a8180b70825454ccef7a5cfa132f07f7f}{Terminal\+Matchmaker}}.
+
+\Hypertarget{classMatchmaker_a0dc41961c3fc9aaaaa7cdc6a7b56c1fe}\label{classMatchmaker_a0dc41961c3fc9aaaaa7cdc6a7b56c1fe} 
+\index{Matchmaker@{Matchmaker}!updateAverage@{updateAverage}}
+\index{updateAverage@{updateAverage}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{updateAverage()}{updateAverage()}}
+{\footnotesize\ttfamily virtual void Matchmaker\+::update\+Average (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Reimplemented in \mbox{\hyperlink{classInitiatorMatchmaker_a16124dbbf6cc343ab0310dba118b1277}{Initiator\+Matchmaker}}.
+
+\Hypertarget{classMatchmaker_a82f68f895ddefa72cc5a7a292bf1b355}\label{classMatchmaker_a82f68f895ddefa72cc5a7a292bf1b355} 
+\index{Matchmaker@{Matchmaker}!updateValues@{updateValues}}
+\index{updateValues@{updateValues}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{updateValues()}{updateValues()}}
+{\footnotesize\ttfamily void Matchmaker\+::update\+Values (\begin{DoxyParamCaption}\item[{int}]{source,  }\item[{int \texorpdfstring{$\ast$}{*}}]{local\+Flag }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_af9914b1ee5e39e4be03a87da3365f30c}\label{classMatchmaker_af9914b1ee5e39e4be03a87da3365f30c} 
+\index{Matchmaker@{Matchmaker}!waitControlMessages@{waitControlMessages}}
+\index{waitControlMessages@{waitControlMessages}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{waitControlMessages()}{waitControlMessages()}}
+{\footnotesize\ttfamily MPI\+\_\+\+Status Matchmaker\+::wait\+Control\+Messages (\begin{DoxyParamCaption}\item[{int \texorpdfstring{$\ast$}{*}}]{recv\+Flag }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [protected]}}
+
+
+
+\doxysubsection{Member Data Documentation}
+\Hypertarget{classMatchmaker_a4ba0484c69ccdc3d6b024b11653a8a18}\label{classMatchmaker_a4ba0484c69ccdc3d6b024b11653a8a18} 
+\index{Matchmaker@{Matchmaker}!childFlag@{childFlag}}
+\index{childFlag@{childFlag}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{childFlag}{childFlag}}
+{\footnotesize\ttfamily int\texorpdfstring{$\ast$}{*} Matchmaker\+::child\+Flag\hspace{0.3cm}{\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde}\label{classMatchmaker_ac04df1c7928487fb03549a95ea5fbdde} 
+\index{Matchmaker@{Matchmaker}!childNumber@{childNumber}}
+\index{childNumber@{childNumber}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{childNumber}{childNumber}}
+{\footnotesize\ttfamily int Matchmaker\+::child\+Number\hspace{0.3cm}{\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f}\label{classMatchmaker_a2d07a7c412fb92f23f2b0f69efbb286f} 
+\index{Matchmaker@{Matchmaker}!childRanks@{childRanks}}
+\index{childRanks@{childRanks}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{childRanks}{childRanks}}
+{\footnotesize\ttfamily int\texorpdfstring{$\ast$}{*} Matchmaker\+::child\+Ranks\hspace{0.3cm}{\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_ad4512bbf669aaac288546043363112d9}\label{classMatchmaker_ad4512bbf669aaac288546043363112d9} 
+\index{Matchmaker@{Matchmaker}!lastTargetRank@{lastTargetRank}}
+\index{lastTargetRank@{lastTargetRank}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{lastTargetRank}{lastTargetRank}}
+{\footnotesize\ttfamily int Matchmaker\+::last\+Target\+Rank\hspace{0.3cm}{\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_ac3bde3080d6cf11b6f902b209a836462}\label{classMatchmaker_ac3bde3080d6cf11b6f902b209a836462} 
+\index{Matchmaker@{Matchmaker}!lastVictimRank@{lastVictimRank}}
+\index{lastVictimRank@{lastVictimRank}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{lastVictimRank}{lastVictimRank}}
+{\footnotesize\ttfamily int Matchmaker\+::last\+Victim\+Rank\hspace{0.3cm}{\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_a459253acc3e96eee3bdf2146f2bea106}\label{classMatchmaker_a459253acc3e96eee3bdf2146f2bea106} 
+\index{Matchmaker@{Matchmaker}!lowerAverage@{lowerAverage}}
+\index{lowerAverage@{lowerAverage}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{lowerAverage}{lowerAverage}}
+{\footnotesize\ttfamily float Matchmaker\+::lower\+Average\hspace{0.3cm}{\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_ad15c9e004d5e0d59ba91b2d2991b0cee}\label{classMatchmaker_ad15c9e004d5e0d59ba91b2d2991b0cee} 
+\index{Matchmaker@{Matchmaker}!lowerThreshold@{lowerThreshold}}
+\index{lowerThreshold@{lowerThreshold}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{lowerThreshold}{lowerThreshold}}
+{\footnotesize\ttfamily int Matchmaker\+::lower\+Threshold\hspace{0.3cm}{\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_a3b4fd71a833ff0ddd031ae9101281fb5}\label{classMatchmaker_a3b4fd71a833ff0ddd031ae9101281fb5} 
+\index{Matchmaker@{Matchmaker}!offset@{offset}}
+\index{offset@{offset}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{offset}{offset}}
+{\footnotesize\ttfamily int Matchmaker\+::offset\hspace{0.3cm}{\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_a625ea9bbc12d495154525548f04c811b}\label{classMatchmaker_a625ea9bbc12d495154525548f04c811b} 
+\index{Matchmaker@{Matchmaker}!tagArray@{tagArray}}
+\index{tagArray@{tagArray}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{tagArray}{tagArray}}
+{\footnotesize\ttfamily int\texorpdfstring{$\ast$}{*} Matchmaker\+::tag\+Array\hspace{0.3cm}{\ttfamily [protected]}}
+
+\Hypertarget{classMatchmaker_ae698ae3f1e531e1a442b6994815bd9b3}\label{classMatchmaker_ae698ae3f1e531e1a442b6994815bd9b3} 
+\index{Matchmaker@{Matchmaker}!valueArray@{valueArray}}
+\index{valueArray@{valueArray}!Matchmaker@{Matchmaker}}
+\doxysubsubsection{\texorpdfstring{valueArray}{valueArray}}
+{\footnotesize\ttfamily int\texorpdfstring{$\ast$}{*} Matchmaker\+::value\+Array\hspace{0.3cm}{\ttfamily [protected]}}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{MatchmakerClass_8hpp}{Matchmaker\+Class.\+hpp}}\end{DoxyCompactItemize}

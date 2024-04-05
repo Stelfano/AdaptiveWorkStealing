@@ -1,0 +1,178 @@
+\doxysection{Matchmaker.\+cpp}
+\hypertarget{Matchmaker_8cpp_source}{}\label{Matchmaker_8cpp_source}\index{/home/stefano/Uni/Tirocinio/AdaptiveWorkStealing/source/Matchmaker.cpp@{/home/stefano/Uni/Tirocinio/AdaptiveWorkStealing/source/Matchmaker.cpp}}
+\mbox{\hyperlink{Matchmaker_8cpp}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00001}00001\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{Matchmaker_8hpp}{Matchmaker.hpp}}"{}}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00002}00002\ \textcolor{preprocessor}{\#include\ "{}mpi.h"{}}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00003}00003\ \textcolor{preprocessor}{\#include\ <iostream>}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00004}00004\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00005}\mbox{\hyperlink{Matchmaker_8cpp_a6cf4f84ce1249c9fa265b0d6d697faaa}{00005}}\ \textcolor{preprocessor}{\#define\ OVERWORK\ 1}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00006}\mbox{\hyperlink{Matchmaker_8cpp_aa8290939dc02192ebf7028e5b45b0ff9}{00006}}\ \textcolor{preprocessor}{\#define\ STABLE\ 2}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00007}\mbox{\hyperlink{Matchmaker_8cpp_abafd49e7c13337429d6d835b3e8ce080}{00007}}\ \textcolor{preprocessor}{\#define\ UNDERWORK\ 3}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00008}\mbox{\hyperlink{Matchmaker_8cpp_a9c21a7caee326d7803b94ae1952b27ca}{00008}}\ \textcolor{preprocessor}{\#define\ IDLE\ 4}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00009}\mbox{\hyperlink{Matchmaker_8cpp_aad9ae913bdfab20dd94ad04ee2d5b045}{00009}}\ \textcolor{preprocessor}{\#define\ DATA\ 5}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00010}\mbox{\hyperlink{Matchmaker_8cpp_a454ec9af8a278a80850ef1d5b575b081}{00010}}\ \textcolor{preprocessor}{\#define\ METRICS\ 6}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00012}00012\ \textcolor{keyword}{using\ namespace\ }std;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00025}\mbox{\hyperlink{Matchmaker_8cpp_a4a87dec580572701efbc15ef14fdc9f4}{00025}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{Matchmaker_8cpp_a4a87dec580572701efbc15ef14fdc9f4}{matchmakerMainLoop}}(\textcolor{keywordtype}{int}\ num\_proc,\ \textcolor{keywordtype}{int}\ *\ global\_result,\ \textcolor{keywordtype}{int}\ chunk\_size)\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00027}00027\ \ \ \ \ \textcolor{keywordtype}{int}\ tagArray[num\_proc-\/1];\ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00028}00028\ \ \ \ \ \textcolor{keywordtype}{int}\ *valueArray\ =\ \textcolor{keyword}{new}\ \textcolor{keywordtype}{int}[num\_proc-\/1];\ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00029}00029\ \ \ \ \ \textcolor{keywordtype}{int}\ local\_flag\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00030}00030\ \ \ \ \ \textcolor{keywordtype}{int}\ terminated\_processes\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00031}00031\ \ \ \ \ \textcolor{keywordtype}{int}\ threshold\ =\ 10;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00032}00032\ \ \ \ \ \textcolor{keywordtype}{float}\ local\_average\ =\ chunk\_size;\ \ \ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00033}00033\ \ \ \ \ MPI\_Status\ stat;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00036}00036\ \ \ \ \ \textcolor{keywordtype}{int}\ last\_victim\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00037}00037\ \ \ \ \ \textcolor{keywordtype}{int}\ last\_target\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00038}00038\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00039}00039\ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 0;i<num\_proc-\/1;i++)\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00040}00040\ \ \ \ \ \ \ \ \ tagArray[i]\ =\ \mbox{\hyperlink{Matchmaker_8cpp_aa8290939dc02192ebf7028e5b45b0ff9}{STABLE}};}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00041}00041\ \ \ \ \ \ \ \ \ valueArray[i]\ =\ chunk\_size;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00042}00042\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00043}00043\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00044}00044\ \ \ \ \ \textcolor{keywordflow}{while}(\textcolor{keyword}{true})\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00045}00045\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(terminated\_processes\ ==\ num\_proc-\/1)}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00046}00046\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00047}00047\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00048}00048\ \ \ \ \ \ \ \ \ stat\ =\ \mbox{\hyperlink{Matchmaker_8cpp_ad42d947f6b6016c4726530807ccb674e}{waitControlMessages}}(\&local\_flag);\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00049}00049\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(stat.MPI\_TAG\ ==\ \mbox{\hyperlink{Matchmaker_8cpp_a6cf4f84ce1249c9fa265b0d6d697faaa}{OVERWORK}})\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00050}00050\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}CORE\ :\ "{}}\ <<\ stat.MPI\_SOURCE\ <<\ \textcolor{stringliteral}{"{}\ IS\ OVERWORKED"{}}\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00051}00051\ \ \ \ \ \ \ \ \ \ \ \ \ tagArray[stat.MPI\_SOURCE-\/1]\ =\ stat.MPI\_TAG;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00052}00052\ \ \ \ \ \ \ \ \ \ \ \ \ valueArray[stat.MPI\_SOURCE-\/1]\ =\ local\_flag;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00053}00053\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Matchmaker_8cpp_a82c40b619e6213184cd688cfce052492}{updateMetrics}}(\&local\_average,\ num\_proc,\ valueArray);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00054}00054\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Matchmaker_8cpp_a3ec5ed6a911cf0e692d5ec07b0718ab9}{notifyMetrics}}(\&local\_average,\ stat.MPI\_SOURCE,\ \&threshold);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00055}00055\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ reciever\ =\ \mbox{\hyperlink{Matchmaker_8cpp_a407b54881a888ef92f77e446619ced88}{findPossibleReciever}}(tagArray,\ num\_proc-\/1,\ stat.MPI\_SOURCE-\/1);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00056}00056\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00057}00057\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(reciever\ !=\ -\/1)}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00058}00058\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Matchmaker_8cpp_af421d4525a3030f3a8b5e0291b861102}{checkForDoubleSteal}}(\&threshold,\ \&last\_victim,\ \&last\_target,\ stat.MPI\_SOURCE,\ reciever);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00059}00059\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00060}00060\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}CORE\ :\ "{}}\ <<\ stat.MPI\_SOURCE\ <<\ \textcolor{stringliteral}{"{}\ SHOULD\ LET\ ITS\ DATA\ BE\ STOLEN\ FROM\ :\ "{}}\ <<\ reciever\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00061}00061\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00062}00062\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00063}00063\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(stat.MPI\_TAG\ ==\ \mbox{\hyperlink{Matchmaker_8cpp_aa8290939dc02192ebf7028e5b45b0ff9}{STABLE}})\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00064}00064\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}CORE\ :\ "{}}\ <<\ stat.MPI\_SOURCE\ <<\ \textcolor{stringliteral}{"{}\ IS\ STABLE"{}}\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00065}00065\ \ \ \ \ \ \ \ \ \ \ \ \ tagArray[stat.MPI\_SOURCE-\/1]\ =\ stat.MPI\_TAG;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00066}00066\ \ \ \ \ \ \ \ \ \ \ \ \ valueArray[stat.MPI\_SOURCE-\/1]\ =\ local\_flag;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00067}00067\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Matchmaker_8cpp_a82c40b619e6213184cd688cfce052492}{updateMetrics}}(\&local\_average,\ num\_proc,\ valueArray);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00068}00068\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Matchmaker_8cpp_a3ec5ed6a911cf0e692d5ec07b0718ab9}{notifyMetrics}}(\&local\_average,\ stat.MPI\_SOURCE,\ \&threshold);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00069}00069\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00070}00070\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00071}00071\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(stat.MPI\_TAG\ ==\ \mbox{\hyperlink{Matchmaker_8cpp_abafd49e7c13337429d6d835b3e8ce080}{UNDERWORK}})\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00072}00072\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}CORE\ :\ "{}}\ <<\ stat.MPI\_SOURCE\ <<\ \textcolor{stringliteral}{"{}\ IS\ UNDERWORKED"{}}\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00073}00073\ \ \ \ \ \ \ \ \ \ \ \ \ tagArray[stat.MPI\_SOURCE-\/1]\ =\ stat.MPI\_TAG;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00074}00074\ \ \ \ \ \ \ \ \ \ \ \ \ valueArray[stat.MPI\_SOURCE-\/1]\ =\ local\_flag;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00075}00075\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Matchmaker_8cpp_a82c40b619e6213184cd688cfce052492}{updateMetrics}}(\&local\_average,\ num\_proc,\ valueArray);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00076}00076\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Matchmaker_8cpp_a3ec5ed6a911cf0e692d5ec07b0718ab9}{notifyMetrics}}(\&local\_average,\ stat.MPI\_SOURCE,\ \&threshold);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00077}00077\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ target\ =\ \mbox{\hyperlink{Matchmaker_8cpp_ac3b37f33b0db975cd4061e9e67ab3284}{findPossibleTarget}}(tagArray,\ num\_proc-\/1,\ stat.MPI\_SOURCE-\/1);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00078}00078\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00079}00079\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(target\ !=\ -\/1)}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00080}00080\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Matchmaker_8cpp_af421d4525a3030f3a8b5e0291b861102}{checkForDoubleSteal}}(\&threshold,\ \&last\_victim,\ \&last\_target,\ target,\ stat.MPI\_SOURCE);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00081}00081\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00082}00082\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}CORE\ :\ "{}}\ <<\ stat.MPI\_SOURCE\ <<\ \textcolor{stringliteral}{"{}\ SHOULD\ STEAL\ FROM\ "{}}\ <<\ target\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00083}00083\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00084}00084\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00085}00085\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(stat.MPI\_TAG\ ==\ \mbox{\hyperlink{Matchmaker_8cpp_a9c21a7caee326d7803b94ae1952b27ca}{IDLE}})\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00086}00086\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}CORE\ :\ "{}}\ <<\ stat.MPI\_SOURCE\ <<\ \textcolor{stringliteral}{"{}\ IS\ IDLE!"{}}\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00087}00087\ \ \ \ \ \ \ \ \ \ \ \ \ tagArray[stat.MPI\_SOURCE-\/1]\ =\ stat.MPI\_TAG;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00088}00088\ \ \ \ \ \ \ \ \ \ \ \ \ valueArray[stat.MPI\_SOURCE-\/1]\ =\ local\_flag;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00089}00089\ \ \ \ \ \ \ \ \ \ \ \ \ threshold\ -\/=\ 5;\ \ \ \ \ \ \ \ \ \textcolor{comment}{//valore\ a\ caso}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00090}00090\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}TRESHOLD\ DECREASES\ TO\ :\ "{}}\ <<\ threshold\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00091}00091\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Matchmaker_8cpp_a82c40b619e6213184cd688cfce052492}{updateMetrics}}(\&local\_average,\ num\_proc-\/1,\ valueArray);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Matchmaker_8cpp_a3ec5ed6a911cf0e692d5ec07b0718ab9}{notifyMetrics}}(\&local\_average,\ stat.MPI\_SOURCE,\ \&threshold);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ target\ =\ \mbox{\hyperlink{Matchmaker_8cpp_ac3b37f33b0db975cd4061e9e67ab3284}{findPossibleTarget}}(tagArray,\ num\_proc-\/1,\ stat.MPI\_SOURCE-\/1);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00094}00094\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00095}00095\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(target\ !=\ -\/1)}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00096}00096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{Matchmaker_8cpp_af421d4525a3030f3a8b5e0291b861102}{checkForDoubleSteal}}(\&threshold,\ \&last\_victim,\ \&last\_target,\ target,\ stat.MPI\_SOURCE);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00097}00097\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00098}00098\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}CORE\ :\ "{}}\ <<\ stat.MPI\_SOURCE\ <<\ \textcolor{stringliteral}{"{}\ SHOULD\ IMMEDIATLY\ STEAL\ FROM\ "{}}\ <<\ target\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00099}00099\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00100}00100\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00101}00101\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(stat.MPI\_TAG\ ==\ \mbox{\hyperlink{Matchmaker_8cpp_aad9ae913bdfab20dd94ad04ee2d5b045}{DATA}})\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}FINAL\ DATA\ RECIEVED\ FROM\ A\ PROCESS"{}}\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00103}00103\ \ \ \ \ \ \ \ \ \ \ \ \ *global\_result\ +=\ local\_flag;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00104}00104\ \ \ \ \ \ \ \ \ \ \ \ \ terminated\_processes++;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00105}00105\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00106}00106\ \ \ \ \ \}\ \ \ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00107}00107\ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00108}00108\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00109}\mbox{\hyperlink{Matchmaker_8cpp_ad42d947f6b6016c4726530807ccb674e}{00109}}\ MPI\_Status\ \mbox{\hyperlink{Matchmaker_8cpp_ad42d947f6b6016c4726530807ccb674e}{waitControlMessages}}(\textcolor{keywordtype}{int}\ *recv\_flag)\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00110}00110\ \ \ \ \ MPI\_Status\ stat;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00111}00111\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00112}00112\ \ \ \ \ MPI\_Recv(recv\_flag,\ 1,\ MPI\_INT,\ MPI\_ANY\_SOURCE,\ MPI\_ANY\_TAG,\ MPI\_COMM\_WORLD,\ \&stat);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00113}00113\ \ \ \ \ \textcolor{keywordflow}{return}\ stat;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00114}00114\ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00115}00115\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00116}00116\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00117}\mbox{\hyperlink{Matchmaker_8cpp_a1e4f54ecabf221c5f60ff26c52e7d2d5}{00117}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{Matchmaker_8cpp_a1e4f54ecabf221c5f60ff26c52e7d2d5}{checkTermination}}(\textcolor{keywordtype}{int}*\ tagArray,\ \textcolor{keywordtype}{int}\ num\_proc)\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00118}00118\ \ \ \ \ \textcolor{keywordtype}{int}\ flag\ =\ 1;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00119}00119\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00120}00120\ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 0;i<num\_proc;i++)\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00121}00121\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(tagArray[i]\ !=\ \mbox{\hyperlink{Matchmaker_8cpp_aad9ae913bdfab20dd94ad04ee2d5b045}{DATA}})\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00122}00122\ \ \ \ \ \ \ \ \ \ \ \ \ flag\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00123}00123\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00124}00124\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00125}00125\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00126}00126\ \ \ \ \ \textcolor{keywordflow}{return}\ flag;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00127}00127\ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00128}00128\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00129}\mbox{\hyperlink{Matchmaker_8cpp_ac3b37f33b0db975cd4061e9e67ab3284}{00129}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{Matchmaker_8cpp_ac3b37f33b0db975cd4061e9e67ab3284}{findPossibleTarget}}(\textcolor{keywordtype}{int}\ *tagArray,\ \textcolor{keywordtype}{int}\ num\_proc,\ \textcolor{keywordtype}{int}\ victim)\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00130}00130\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00131}00131\ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}TAG\ ARRAY\ :\ "{}};}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00132}00132\ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 0;i\ <\ num\_proc;\ i++)\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00133}00133\ \ \ \ \ \ \ \ \ cout\ <<\ tagArray[i]\ <<\ \textcolor{stringliteral}{"{}\ "{}};}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00134}00134\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(tagArray[i]\ ==\ \mbox{\hyperlink{Matchmaker_8cpp_a6cf4f84ce1249c9fa265b0d6d697faaa}{OVERWORK}}\ \&\&\ i\ !=\ victim)}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00135}00135\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ i+1;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00136}00136\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00137}00137\ \ \ \ \ cout\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00138}00138\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00139}00139\ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00140}00140\ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00141}00141\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00142}\mbox{\hyperlink{Matchmaker_8cpp_a407b54881a888ef92f77e446619ced88}{00142}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{Matchmaker_8cpp_a407b54881a888ef92f77e446619ced88}{findPossibleReciever}}(\textcolor{keywordtype}{int}*\ tagArray,\ \textcolor{keywordtype}{int}\ num\_proc,\ \textcolor{keywordtype}{int}\ target)\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00143}00143\ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}TAG\ ARRAY\ :\ "{}};}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00144}00144\ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 0;i\ <\ num\_proc;\ i++)\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00145}00145\ \ \ \ \ \ \ \ \ cout\ <<\ tagArray[i]\ <<\ \textcolor{stringliteral}{"{}\ "{}};}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00146}00146\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(tagArray[i]\ ==\ \mbox{\hyperlink{Matchmaker_8cpp_a9c21a7caee326d7803b94ae1952b27ca}{IDLE}}\ \&\&\ i\ !=\ target)}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00147}00147\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ i+1;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00148}00148\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00149}00149\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00150}00150\ \ \ \ \ cout\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00151}00151\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00152}00152\ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 0;i\ <\ num\_proc;\ i++)\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00153}00153\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(tagArray[i]\ ==\ \mbox{\hyperlink{Matchmaker_8cpp_a6cf4f84ce1249c9fa265b0d6d697faaa}{OVERWORK}}\ \&\&\ i\ !=\ target)}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00154}00154\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ i+1;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00155}00155\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00156}00156\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00157}00157\ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00158}00158\ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00159}00159\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00160}\mbox{\hyperlink{Matchmaker_8cpp_a82c40b619e6213184cd688cfce052492}{00160}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{Matchmaker_8cpp_a82c40b619e6213184cd688cfce052492}{updateMetrics}}(\textcolor{keywordtype}{float}\ *\ local\_average,\ \textcolor{keywordtype}{int}\ num\_proc,\ \textcolor{keywordtype}{int}\ *\ valueArray)\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00161}00161\ \ \ \ \ \textcolor{keywordtype}{int}\ local\_sum\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00162}00162\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00163}00163\ \ \ \ \ \textcolor{keywordflow}{for}(\textcolor{keywordtype}{int}\ i\ =\ 0;i<num\_proc;i++)\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00164}00164\ \ \ \ \ \ \ \ \ local\_sum\ +=\ valueArray[i];}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00165}00165\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00166}00166\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00167}00167\ \ \ \ \ *local\_average\ =\ ((float)local\_sum)/num\_proc;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00168}00168\ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}MATCHMAKER\ DECLARES\ NEW\ AVERAGE\ AT\ :\ "{}}\ <<\ *local\_average\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00169}00169\ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00170}00170\ \textcolor{comment}{//Da\ sistemare,\ la\ notifica\ del\ treshold\ deve\ essere\ globale,\ quella\ della\ media\ deve\ essere\ inviata\ solo\ al\ nodo\ interessato}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00171}\mbox{\hyperlink{Matchmaker_8cpp_a3ec5ed6a911cf0e692d5ec07b0718ab9}{00171}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{Matchmaker_8cpp_a3ec5ed6a911cf0e692d5ec07b0718ab9}{notifyMetrics}}(\textcolor{keywordtype}{float}\ *\ local\_average,\ \textcolor{keywordtype}{int}\ reciever,\ \textcolor{keywordtype}{int}\ *\ threshold)\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00172}00172\ \ \ \ \ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00173}00173\ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}MATCHMAKER\ UPDATING\ METRICS\ TO\ :\ "{}}\ <<\ reciever\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00174}00174\ \ \ \ \ MPI\_Send(local\_average,\ 1,\ MPI\_FLOAT,\ reciever,\ \mbox{\hyperlink{Matchmaker_8cpp_a454ec9af8a278a80850ef1d5b575b081}{METRICS}},\ MPI\_COMM\_WORLD);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00175}00175\ \ \ \ \ MPI\_Send(threshold,\ 1,\ MPI\_INT,\ reciever,\ \mbox{\hyperlink{Matchmaker_8cpp_a454ec9af8a278a80850ef1d5b575b081}{METRICS}},\ MPI\_COMM\_WORLD);}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00176}00176\ \}}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00177}00177\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00178}\mbox{\hyperlink{Matchmaker_8cpp_af421d4525a3030f3a8b5e0291b861102}{00178}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{Matchmaker_8cpp_af421d4525a3030f3a8b5e0291b861102}{checkForDoubleSteal}}(\textcolor{keywordtype}{int}\ *\ threshold,\ \textcolor{keywordtype}{int}\ *\ last\_victim,\ \textcolor{keywordtype}{int}\ *\ last\_target,\ \textcolor{keywordtype}{int}\ current\_victim,\ \textcolor{keywordtype}{int}\ current\_target)\{}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00179}00179\ \ \ \ \ \textcolor{keywordflow}{if}(current\_victim\ ==\ *last\_victim\ \&\&\ current\_target\ ==\ *last\_target)}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00180}00180\ \ \ \ \ \ \ \ \ *threshold\ +=\ 5;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00181}00181\ }
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00182}00182\ \ \ \ \ cout\ <<\ \textcolor{stringliteral}{"{}THRESHOLD\ SET\ TO\ :\ "{}}\ <<\ *threshold\ <<\ endl;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00183}00183\ \ \ \ \ *last\_victim\ =\ current\_victim;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00184}00184\ \ \ \ \ *last\_target\ =\ current\_target;}
+\DoxyCodeLine{\Hypertarget{Matchmaker_8cpp_source_l00185}00185\ \}}
+
+\end{DoxyCode}
