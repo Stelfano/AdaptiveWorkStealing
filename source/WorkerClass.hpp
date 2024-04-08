@@ -184,7 +184,7 @@ class Worker : public Node{
                         MPI_Win_unlock(nodeRank, outWindow);
                     }else{
                         MPI_Win_lock(MPI_LOCK_EXCLUSIVE, nodeRank, 0, outWindow);
-                        copy(buffer->begin(), buffer->end(), outWindowBuffer);
+                        copy(buffer->begin(), buffer->begin() + MAX_STEAL, outWindowBuffer);
                         MPI_Win_unlock(nodeRank, outWindow);
                     }
 

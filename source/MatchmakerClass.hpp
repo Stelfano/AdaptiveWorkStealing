@@ -277,7 +277,7 @@ class Matchmaker : public Node{
                 tagArray[i] = LOCKED;
                 cout << "DISTRIBUTING : " << stealingArray[i] << " PARTICLES TO : " << childRanks[i] << endl;
                 MPI_Win_lock(MPI_LOCK_EXCLUSIVE, childRanks[i], 0, inWindow);
-                MPI_Put(inWindowBuffer+arrayOffset, stealingArray[i], MPI_INT, childRanks[i], sizeof(int), stealingQuantity+i, MPI_INT, inWindow);
+                MPI_Put(inWindowBuffer+arrayOffset, stealingArray[i], MPI_INT, childRanks[i], 0, *(stealingArray+i), MPI_INT, inWindow);
                 MPI_Win_unlock(childRanks[i], inWindow);
 
                 arrayOffset += stealingArray[i];
@@ -372,6 +372,9 @@ class Matchmaker : public Node{
         virtual int stealFromVictim(int *stealingQuantity, int victimRank){
             int actualSteal = 0;
 
+            if(*stealingQuantity > MAX_STEAL)
+                *stealingQuantity = MAX_STEAL;
+
             tagArray[victimRank - offset] = LOCKED;
             cout << "NODE RANK : " << nodeRank << " IS STEALING FROM BRANCH WITH ROOT : " << victimRank << endl;
             MPI_Send(stealingQuantity, 1, MPI_INT, victimRank, VICTIM, MPI_COMM_WORLD);
@@ -379,7 +382,7 @@ class Matchmaker : public Node{
             cout << "NODE RANK : " << nodeRank << " RECIEVED ALL CLEAR TO STEAL : " << actualSteal << " PARTICLES" << endl;
 
             MPI_Win_lock(MPI_LOCK_EXCLUSIVE, victimRank, 0, outWindow);
-            MPI_Get(outWindowBuffer, actualSteal, MPI_INT, victimRank, sizeof(int), actualSteal, MPI_INT, outWindow);
+            MPI_Get(outWindowBuffer, actualSteal, MPI_INT, victimRank, 0, actualSteal, MPI_INT, outWindow);
             MPI_Win_unlock(victimRank, outWindow);
 
             cout << "ROOT OF STEALING HAS STOLEN : " << actualSteal << " PARTICLES" << endl;
@@ -404,7 +407,7 @@ class Matchmaker : public Node{
             tagArray[targetRank - offset] = LOCKED;
 
             MPI_Win_lock(MPI_LOCK_EXCLUSIVE, targetRank, 0, inWindow);
-            MPI_Put(inWindowBuffer, *stealingQuantity, MPI_INT, targetRank, sizeof(int), *stealingQuantity, MPI_INT, inWindow);
+            MPI_Put(inWindowBuffer, *stealingQuantity, MPI_INT, targetRank, 0, *stealingQuantity, MPI_INT, inWindow);
             MPI_Win_unlock(targetRank, inWindow);
 
             MPI_Send(stealingQuantity, 1, MPI_INT, targetRank, TARGET, MPI_COMM_WORLD);
@@ -676,6 +679,5 @@ class Matchmaker : public Node{
             delete []childRanks;
             delete []tagArray;
             delete []valueArray;
-            delete []childFlag;
         }
 };

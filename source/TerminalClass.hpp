@@ -86,7 +86,7 @@ class TerminalMatchmaker : public Matchmaker{
                 arrayOffset += actualSteal;
             }
 
-            memcpy(outWindowBuffer+arrayOffset, tempArray, actualSteal);
+            //memcpy(outWindowBuffer, tempArray, arrayOffset);
             cout << "I HAVE STOLEN : " << arrayOffset << " PARTICLES " << endl;
 
             delete[] tempArray;
