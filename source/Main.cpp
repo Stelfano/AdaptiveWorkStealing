@@ -77,6 +77,7 @@ MPI_Comm_group(MPI_COMM_WORLD, &groupWorld);
 MPI_Group_incl(groupWorld, processNumber - initialLeafRank + 1, leafProcesses, &dataGroup);
 MPI_Comm_create(MPI_COMM_WORLD, dataGroup, &dataComm);
 
+
 if(taskId == 0){
 
 	for(int i = 0;i < problemDimension;i++)

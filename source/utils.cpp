@@ -54,16 +54,16 @@ int setPositionInTree(int nodeRank, int totalRanks, int treeWidth, int* childs){
  *
  * @param nodeRank Rank of current node
  * @param treeWidth With of the n-th tree
+ * @param lastRank Rank of last node
  * @return Level of the node inside the tree 
  */
-int findLevelInTree(int nodeRank, int treeWidth){
+int findLevelInTree(int nodeRank, int treeWidth, int lastRank){
     int currentNode = nodeRank;
     int level = 0;
 
-    if(nodeRank == 0) return 0;
-    while(ceil((float)nodeRank/treeWidth - 1) != 0){level++;}
+    while((currentNode = ceil((float)currentNode*treeWidth + 1)) <= lastRank){level++;}
 
-    return level;
+    return ++level;
 }
 
 /**
