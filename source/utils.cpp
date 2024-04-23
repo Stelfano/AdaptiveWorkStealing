@@ -72,7 +72,7 @@ int findLevelInTree(int nodeRank, int treeWidth, int lastRank){
  * @param nodeRank Rank of node
  * @return Level of node inside computational tree 
  */
-int findLevelInBinaryTree(int nodeRank){
+int findLevelInBinaryTree(int nodeRank, int lastRank){
     if(nodeRank == 0) return 3;
     if(nodeRank <= 2 && nodeRank != 0) return 2;
     return 1;

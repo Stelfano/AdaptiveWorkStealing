@@ -64,7 +64,7 @@ int sendArray[processNumber - initialLeafRank + 1];
 int dispArray[processNumber - initialLeafRank + 1];
 
 parentRank = setPositionInTree(taskId, processNumber-1, treeWidth, childs);
-int nodeLevel = findLevelInBinaryTree(taskId);
+int nodeLevel = findLevelInTree(taskId, treeWidth, processNumber-1);
 float localAverage = chunkSize*pow(treeWidth, nodeLevel-1);
 int threshold = (localAverage*10)/100;
 
