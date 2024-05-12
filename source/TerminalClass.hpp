@@ -82,11 +82,11 @@ class TerminalMatchmaker : public Matchmaker{
                 cout << "STEALING FROM WORKER : " << childRanks[i] << " " << stealingArray[i] << " PARTICLES" << endl;
                 actualSteal = stealFromVictim(stealingArray+i, childRanks[i]);
                 cout << "STOLEN : " << actualSteal << " FROM WORKER : " << (i+offset) << endl;
-                //memcpy(tempArray+arrayOffset, outWindowBuffer, actualSteal);
+                memcpy(tempArray+arrayOffset, outWindowBuffer, actualSteal);
                 arrayOffset += actualSteal;
             }
 
-            //memcpy(outWindowBuffer, tempArray, arrayOffset);
+            memcpy(outWindowBuffer, tempArray, arrayOffset);
             cout << "I HAVE STOLEN : " << arrayOffset << " PARTICLES " << endl;
 
             delete[] tempArray;

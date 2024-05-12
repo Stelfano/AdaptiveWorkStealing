@@ -92,6 +92,11 @@ class Worker : public Node{
             else
                 actualSteal = totalParticles;
 
+            MPI_Win_lock(MPI_LOCK_EXCLUSIVE, nodeRank, 0, outWindow);
+            memset(outWindowBuffer, 0, MAX_STEAL);
+            copy(buffer->begin(), buffer->begin()+actualSteal, outWindowBuffer);
+            MPI_Win_unlock(nodeRank, outWindow);
+
             MPI_Send(&actualSteal, 1, MPI_INT, parentRank, COMM, MPI_COMM_WORLD);
             cout << "TOTAL PARTICLES AT DELETION TIME : " << buffer->size() << " IN NODE : " << nodeRank << endl;
             buffer->erase(buffer->begin(), buffer->begin() + actualSteal);
@@ -188,8 +193,7 @@ class Worker : public Node{
                         MPI_Win_unlock(nodeRank, outWindow);
                     }
 
-                    if(nodeRank == 5 || nodeRank == 6)
-                        probabilityIncreaseVectorSize(val);
+                    probabilityIncreaseVectorSize(val);
 
                     totalParticlesLock.unlock();
                 }else{

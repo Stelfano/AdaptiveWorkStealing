@@ -31,7 +31,7 @@ int provided;
 
 MPI_Init_thread(&argc, &args, MPI_THREAD_MULTIPLE, &provided);
 
-int problemDimension = 1000000;
+int problemDimension = 400000;
 int processNumber;
 int taskId;
 
