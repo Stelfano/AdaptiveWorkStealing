@@ -19,6 +19,7 @@
 #include <mutex>
 #include <syncstream>
 #include <unistd.h>
+#include <time.h>
 
 using namespace std;
 
@@ -151,7 +152,8 @@ class Worker : public Node{
             thread statusThread;
             thread recieverThread;
             default_random_engine randomEng(randomDev());
-            uniform_int_distribution<int> uniform_dist(0, 1);
+            randomEng.seed(42);
+            uniform_int_distribution<int> uniform_dist(0, 2);
             bool idleFlag = false;
 
             cout << "INITIAL SAMPLE --> " << recvBuffer[0] << endl;
@@ -169,6 +171,7 @@ class Worker : public Node{
 
             int accumulatedResult = 0;
             int totalGenerated = 0;
+            int null;
             
             unique_lock<shared_mutex> totalParticlesLock(totalParticleMutex, defer_lock);
 
@@ -182,15 +185,8 @@ class Worker : public Node{
                     buffer->pop_back();
                     totalParticles--;
 
-                    if(buffer->size() < MAX_STEAL){
-                        MPI_Win_lock(MPI_LOCK_EXCLUSIVE, nodeRank, 0, outWindow);
-                        memset(outWindowBuffer, 0, MAX_STEAL);
-                        copy(buffer->begin(),  buffer->end(), outWindowBuffer);	
-                        MPI_Win_unlock(nodeRank, outWindow);
-                    }else{
-                        MPI_Win_lock(MPI_LOCK_EXCLUSIVE, nodeRank, 0, outWindow);
-                        copy(buffer->begin(), buffer->begin() + MAX_STEAL, outWindowBuffer);
-                        MPI_Win_unlock(nodeRank, outWindow);
+                    for(int i = 0;i<10000;i++){
+                        null++;
                     }
 
                     probabilityIncreaseVectorSize(val);
