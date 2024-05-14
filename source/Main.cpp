@@ -27,6 +27,7 @@ std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_c
 int main(int argc, char *args[]){
 
 int provided;
+double start, end;
 //freopen("log.txt", "w", stdout);
 
 MPI_Init_thread(&argc, &args, MPI_THREAD_MULTIPLE, &provided);
@@ -38,6 +39,8 @@ int taskId;
 MPI_Comm_size(MPI_COMM_WORLD, &processNumber);
 MPI_Comm_rank(MPI_COMM_WORLD, &taskId);
 
+if(taskId == 0)
+	start = MPI_Wtime();
 
 MPI_Group groupWorld;
 MPI_Group dataGroup;
@@ -147,6 +150,10 @@ if(taskId == 0){
 
 	delete[] array;
 	calculate_time();
+	if(taskId == 0){
+		end = MPI_Wtime();
+		cout << "---PROCESS HAS ENDED IN " << end - start << " SECONDS---" << endl;
+	}
 	cout << "PROCESSOR : " << taskId << " CLOSING..." << endl;
 	MPI_Finalize();
 	return 0;

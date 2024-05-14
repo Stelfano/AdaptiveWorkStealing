@@ -6,7 +6,9 @@
 using namespace std;
 
 int main(int argc, char *argv[]){
+    double start, end;
     MPI_Init(&argc, &argv);
+    start = MPI_Wtime();
     int taskId = 0;
     int taskNumber;
     int localResult;
@@ -35,7 +37,7 @@ int main(int argc, char *argv[]){
     random_device randomDev;
     default_random_engine randomEng(randomDev());
     randomEng.seed(42);
-    uniform_int_distribution<int> uniform_dist(0, 2);
+    uniform_int_distribution<int> uniform_dist(0, 1);
 
     for(int i=0;i<chunkSize;i++){
         buffer.push_back(recvBuffer[i]);
@@ -59,5 +61,8 @@ int main(int argc, char *argv[]){
     if(taskId == 0)
         cout << "FINAL RESULT : " << globalResult << endl;
 
+    end = MPI_Wtime();
+    if(taskId == 0)
+        cout << "TIME ELAPSED : " << end - start << endl;
     MPI_Finalize();
 }

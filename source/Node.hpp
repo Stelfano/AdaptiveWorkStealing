@@ -88,7 +88,6 @@ class Node{
             while(!done){	
 
                 if(status != LOCKED){
-                    totalParticlesLock.lock();
                     if(totalParticles > (localAverage + localThreshold) && sentFlag[3] == false && totalParticles != 0){
                         declareStatus(OVERWORK);
                         sentFlagLock.lock();
@@ -136,8 +135,6 @@ class Node{
                         sentFlag[1] = false;
                         sentFlagLock.unlock();
                     }
-
-                    totalParticlesLock.unlock();
                 }
             }
 

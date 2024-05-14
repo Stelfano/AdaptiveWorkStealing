@@ -153,7 +153,7 @@ class Worker : public Node{
             thread recieverThread;
             default_random_engine randomEng(randomDev());
             randomEng.seed(42);
-            uniform_int_distribution<int> uniform_dist(0, 2);
+            uniform_int_distribution<int> uniform_dist(0, 1);
             bool idleFlag = false;
 
             cout << "INITIAL SAMPLE --> " << recvBuffer[0] << endl;
