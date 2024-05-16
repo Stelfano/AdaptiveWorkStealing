@@ -57,6 +57,14 @@ class Worker : public Node{
             }
         }
 
+        void moveParticle(int workLoad) volatile {
+            volatile int val = 0;
+
+            for(int i = 0;i<workLoad;i++){
+                val++;
+            }
+        }
+
         /**
          * @brief Function that injects data in a worker node 
          * Injected particles from a matchmaker into a worker are integrated in the vector buffer here, UNLOCKED status is then sent upwards to signal termination
@@ -185,12 +193,9 @@ class Worker : public Node{
                     buffer->pop_back();
                     totalParticles--;
 
-                    for(int i = 0;i<10000;i++){
-                        null++;
-                    }
+                    moveParticle(10000);
 
                     probabilityIncreaseVectorSize(val);
-
                     totalParticlesLock.unlock();
                 }else{
                     totalParticles = 0;
