@@ -4,7 +4,7 @@
  * @brief Worker node definition 
  * @version 0.1
  * @date 2024-04-03
- * 
+ *
  */
 
 #include "Node.hpp"
@@ -179,7 +179,6 @@ class Worker : public Node{
 
             int accumulatedResult = 0;
             int totalGenerated = 0;
-            int null;
             
             unique_lock<shared_mutex> totalParticlesLock(totalParticleMutex, defer_lock);
 
@@ -195,7 +194,9 @@ class Worker : public Node{
 
                     moveParticle(10000);
 
-                    probabilityIncreaseVectorSize(val);
+                    if(nodeRank == 6){
+                        probabilityIncreaseVectorSize(val);
+                    }
                     totalParticlesLock.unlock();
                 }else{
                     totalParticles = 0;
