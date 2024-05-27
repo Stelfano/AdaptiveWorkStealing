@@ -35,7 +35,7 @@ class TerminalMatchmaker : public Matchmaker{
             MPI_Recv(&actualSteal, 1, MPI_INT, victimRank, COMM, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             MPI_Win_lock(MPI_LOCK_EXCLUSIVE, victimRank, 0, outWindow);
-            MPI_Get(outWindowBuffer, actualSteal, MPI_INT, victimRank, sizeof(int), *stealingQuantity, MPI_INT, outWindow);
+            MPI_Get(outWindowBuffer, actualSteal, MPI_INT, victimRank, 0, *stealingQuantity, MPI_INT, outWindow);
             MPI_Win_unlock(victimRank, outWindow);
 
             return actualSteal;
@@ -55,7 +55,7 @@ class TerminalMatchmaker : public Matchmaker{
             }
 
             MPI_Win_lock(MPI_LOCK_EXCLUSIVE, targetRank, 0, inWindow);
-            MPI_Put(inWindowBuffer, *stealingQuantity, MPI_INT, targetRank, sizeof(int), *stealingQuantity, MPI_INT, inWindow);
+            MPI_Put(inWindowBuffer, *stealingQuantity, MPI_INT, targetRank, 0, *stealingQuantity, MPI_INT, inWindow);
 
             MPI_Send(stealingQuantity, 1, MPI_INT, targetRank, TARGET, MPI_COMM_WORLD);
             memset(inWindowBuffer, 0, MAX_STEAL * sizeof(int));
@@ -95,7 +95,7 @@ class TerminalMatchmaker : public Matchmaker{
         }
 
     public:
-        TerminalMatchmaker(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int localThreshold,
-                   int childNumber, int *childRanks) : Matchmaker(parentRank, chunkSize, recvBuffer, totalParticles, localAverage, localThreshold,
+        TerminalMatchmaker(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int localThreshold, int thresholdValue,
+                   int childNumber, int *childRanks) : Matchmaker(parentRank, chunkSize, recvBuffer, totalParticles, localAverage, localThreshold, thresholdValue,
                    childNumber, childRanks){};
 };

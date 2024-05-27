@@ -5,6 +5,19 @@
 
 using namespace std;
 
+
+class particle{
+    public:
+        void moveParticle(int workload) volatile{
+            volatile int val = 0;
+
+            for(int i = 0;i<workload;i++){
+                    val++;
+                }
+        }
+};
+
+
 int main(int argc, char *argv[]){
     double start, end;
     MPI_Init(&argc, &argv);
@@ -14,6 +27,7 @@ int main(int argc, char *argv[]){
     int localResult;
     int globalResult;
     vector<int> buffer;
+    particle *p = new particle;
 
     MPI_Comm_rank(MPI_COMM_WORLD, &taskId);
     MPI_Comm_size(MPI_COMM_WORLD, &taskNumber);
@@ -49,6 +63,8 @@ int main(int argc, char *argv[]){
         buffer.pop_back();
         totalParticles--;
 
+        p->moveParticle(10000);
+
         for(int i = 0;i<val;i++){
             buffer.push_back(1);
             totalParticles++;
@@ -65,4 +81,6 @@ int main(int argc, char *argv[]){
     if(taskId == 0)
         cout << "TIME ELAPSED : " << end - start << endl;
     MPI_Finalize();
+
+    delete p;
 }

@@ -125,7 +125,6 @@ class Node{
 
 
                     if(totalParticles == 0 && sentFlag[0] == false){
-                        totalParticles = 0;
                         declareStatus(IDLE);
                         sentFlagLock.lock();
                         sentFlag[0] = true;

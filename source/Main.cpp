@@ -69,7 +69,8 @@ int dispArray[processNumber - initialLeafRank + 1];
 parentRank = setPositionInTree(taskId, processNumber-1, treeWidth, childs);
 int nodeLevel = findLevelInTree(taskId, treeWidth, processNumber-1);
 float localAverage = chunkSize*pow(treeWidth, nodeLevel-1);
-int threshold = (localAverage*10)/100;
+int thresholdValue = 10;
+int threshold = (localAverage*thresholdValue)/100;
 
 leafProcesses[0] = 0;
 
@@ -110,12 +111,12 @@ if(taskId == 0){
 		//Si assume per il momento un albero perfettamente bilanciato
 		cout << "I AM A MATCHMAKER" << endl << endl;
 		if(taskId == 0)
-			Match = new InitiatorMatchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, treeWidth, childs, dataComm);
+			Match = new InitiatorMatchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, thresholdValue, treeWidth, childs, dataComm);
 		else{
 			if(nodeLevel-2 == 0)
-				Match = new TerminalMatchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, treeWidth, childs);
+				Match = new TerminalMatchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, thresholdValue, treeWidth, childs);
 			else
-				Match = new Matchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, treeWidth, childs);
+				Match = new Matchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, thresholdValue, treeWidth, childs);
 		}
 
 		if(taskId == 0){

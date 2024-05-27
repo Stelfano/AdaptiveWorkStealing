@@ -153,6 +153,10 @@ class Matchmaker : public Node{
          * 
          * @param source Source rank of child sender
          * @param localFlag Set of values containing new status and new particle numbers
+         *
+         * This function can be fixed by making so that the worker node does not send status updates
+         * the status of a node can be therefore be determined by the matchmaker so to make the system
+         * more stable and simplify communications by sending only one value
          */
         void updateValues(int source, int *localFlag){
             tagArray[source - offset] = localFlag[1];
@@ -647,7 +651,7 @@ class Matchmaker : public Node{
          * @param childNumber Number of childs
          * @param childRanks Array containing child ranks
          */
-        Matchmaker(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int localThreshold,
+        Matchmaker(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int localThreshold, int thresholdValue,
                    int childNumber, int *childRanks) : Node(parentRank, chunkSize, recvBuffer, totalParticles,
                    localAverage, localThreshold) {
 
@@ -665,7 +669,7 @@ class Matchmaker : public Node{
                    lastTargetRank = -1;
                    offset = childRanks[0];
                    lowerAverage = totalParticles/childNumber;
-                   lowerThreshold = (lowerAverage * 25)/100;
+                   lowerThreshold = (lowerAverage * thresholdValue)/100;
         }
 
         /**
