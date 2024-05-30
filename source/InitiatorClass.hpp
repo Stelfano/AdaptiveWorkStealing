@@ -66,6 +66,7 @@ class InitiatorMatchmaker : public Matchmaker{
 
             //Attenzione potrebbe verificarsi una race condition
             lowerAverage = localSum/childNumber;
+            lowerThreshold = (lowerAverage*thresholdValue)/100;
 
             totalParticles = localSum;
         }
@@ -88,9 +89,9 @@ class InitiatorMatchmaker : public Matchmaker{
      * @param childRanks Ranks of childs
      * @param dataComm Communicator containing all workers and root rank
      */
-    InitiatorMatchmaker(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int localThreshold,
+    InitiatorMatchmaker(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int thresholdValue,
                    int childNumber, int *childRanks, MPI_Comm dataComm) : Matchmaker(parentRank, chunkSize, recvBuffer, totalParticles, localAverage, 
-                   localThreshold, childNumber, childRanks){
+                   thresholdValue, childNumber, childRanks){
                     this->dataComm = dataComm;
                     globalResult = 0;
                    }

@@ -43,6 +43,7 @@ class Node{
         int totalParticles;                                 ///<Total particle present in the node
         float localAverage;                                 ///<Current average of node
         int localThreshold;                                 ///<Current threshold of node
+        int thresholdValue;                                 ///<Value of threshold
         MPI_Win inWindow;                                   ///<MPI object to use RDMA for input window buffer
         MPI_Win outWindow;                                  ///<MPI object to use RDMA for output window buffer
         atomic<bool> done;                                  ///<Atomic variable to signal termination
@@ -125,7 +126,6 @@ class Node{
 
 
                     if(totalParticles == 0 && sentFlag[0] == false){
-                        totalParticles = 0;
                         declareStatus(IDLE);
                         sentFlagLock.lock();
                         sentFlag[0] = true;
@@ -154,14 +154,12 @@ class Node{
          * 
          */
         void recieveMessageFromMatchmaker(){
-            MPI_Status stat1, stat2, stat3, stat4;
-            MPI_Request req1, req2, req3, req4;
+            MPI_Status stat1, stat3, stat4;
+            MPI_Request req1, req3, req4;
             int flag1 = false;
-            int flag2 = false;
             int flag3 = false;
             int flag4 = false;
             float bufferAvg = this->localAverage;
-            int bufferThreshold = this->localThreshold;
             int stealingBuffer = 0;
 
             unique_lock<shared_mutex> totalParticlesLock(totalParticleMutex, defer_lock);
@@ -169,13 +167,11 @@ class Node{
             calculate_time();
 
             MPI_Irecv(&bufferAvg, 1, MPI_FLOAT, parentRank, AVERAGE, MPI_COMM_WORLD, &req1);
-            MPI_Irecv(&bufferThreshold, 1, MPI_INT, parentRank, THRESHOLD, MPI_COMM_WORLD, &req2);
             MPI_Irecv(&stealingBuffer, 1, MPI_INT, parentRank, VICTIM, MPI_COMM_WORLD, &req3);
             MPI_Irecv(&stealingBuffer, 1, MPI_INT, parentRank, TARGET, MPI_COMM_WORLD, &req4);
 
             while(bufferAvg > 0){
                 MPI_Test(&req1, &flag1, &stat1);
-                MPI_Test(&req2, &flag2, &stat2);
                 MPI_Test(&req3, &flag3, &stat3);
                 MPI_Test(&req4, &flag4, &stat4);
 
@@ -183,16 +179,11 @@ class Node{
                     MPI_Irecv(&bufferAvg, 1, MPI_FLOAT, parentRank, AVERAGE, MPI_COMM_WORLD, &req1);
                     cout << "RANK : " << nodeRank << " RECIEVED AVG OF : " << bufferAvg << endl;
                     localAverage = bufferAvg;
+                    localThreshold = (localAverage * thresholdValue)/100;
                     if(bufferAvg == 0){
                         cout << "------RECIEVED TERMINATION IN RANK : " << nodeRank << endl;
                     }
                     flag1 = false;
-                }
-
-                if(flag2 == true){
-                    MPI_Irecv(&bufferThreshold, 1, MPI_INT, parentRank, THRESHOLD, MPI_COMM_WORLD, &req2);
-                    localThreshold = bufferThreshold;
-                    flag2 = false;
                 }
 
                 if(flag3 == true){
@@ -230,7 +221,6 @@ class Node{
 
             done = true;
             MPI_Cancel(&req1);
-            MPI_Cancel(&req2);
             MPI_Cancel(&req3);
             MPI_Cancel(&req4);
             calculate_time();
@@ -293,7 +283,7 @@ class Node{
          * @param localThreshold initial threshold is set as a percentage of local average (10% - 30% of initial average)
          */
 
-        Node(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int localThreshold){
+        Node(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int thresholdValue){
             MPI_Comm_rank(MPI_COMM_WORLD, &(this->nodeRank));
             this->parentRank = parentRank;
             this->chunkSize = chunkSize;
@@ -303,7 +293,8 @@ class Node{
             status = STABLE;
             this->totalParticles = totalParticles;
             this->localAverage = localAverage;
-            this->localThreshold = localThreshold;
+            this->thresholdValue = thresholdValue;
+            this->localThreshold = (localAverage*thresholdValue)/100;
             sentFlag = new bool[4];
             sentFlag[0] = 0;
             sentFlag[1] = 0;

@@ -127,8 +127,8 @@ class Worker : public Node{
          * @param localAverage 
          * @param threshold 
          */
-        Worker(int parentRank, int *recvBuffer, int chunkSize, float localAverage, int threshold) : 
-        Node(parentRank, chunkSize, recvBuffer, chunkSize, localAverage, threshold) {
+        Worker(int parentRank, int *recvBuffer, int chunkSize, float localAverage, int thresholdValue) : 
+        Node(parentRank, chunkSize, recvBuffer, chunkSize, localAverage, thresholdValue) {
                this->buffer = new vector<int>();
 
                totalParticles = chunkSize;
@@ -161,7 +161,7 @@ class Worker : public Node{
             thread recieverThread;
             default_random_engine randomEng(randomDev());
             randomEng.seed(42);
-            uniform_int_distribution<int> uniform_dist(0, 1);
+            uniform_int_distribution<int> uniform_dist(0, 0);
             bool idleFlag = false;
 
             cout << "INITIAL SAMPLE --> " << recvBuffer[0] << endl;
@@ -179,6 +179,7 @@ class Worker : public Node{
 
             int accumulatedResult = 0;
             int totalGenerated = 0;
+            bool tempFlag = true;
             
             unique_lock<shared_mutex> totalParticlesLock(totalParticleMutex, defer_lock);
 
@@ -191,21 +192,28 @@ class Worker : public Node{
                     totalGenerated+=val;
                     buffer->pop_back();
                     totalParticles--;
+                    tempFlag = true;
 
-                    moveParticle(10000);
+                    moveParticle(50000);
 
-                    if(nodeRank == 6){
-                        probabilityIncreaseVectorSize(val);
-                    }
+                    if(nodeRank == 6 && totalGenerated < 60000){
+                            totalParticles++;
+                            buffer->push_back(1);
+                            totalGenerated++;
+                        }
                     totalParticlesLock.unlock();
                 }else{
-                    totalParticles = 0;
+                    if(tempFlag == true){
+                        calculate_time();
+                        cout << "RANK : " << nodeRank << " HAS GONE IDLE WITH : " << accumulatedResult  << endl;
+                        tempFlag = false;
+                    }
                 }
             }
 
             calculate_time();
             cout << "LOCAL REDUCTION HAS ENDED IN RANK : " << nodeRank << endl;
-            cout << "GENERATED PARTICLES : " << totalGenerated << endl;
+            cout << "GENERATED PARTICLES : " << totalGenerated << " IN RANK : " << nodeRank << endl;
             statusThread.join();
             recieverThread.join();
                 

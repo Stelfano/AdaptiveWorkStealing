@@ -95,7 +95,7 @@ class TerminalMatchmaker : public Matchmaker{
         }
 
     public:
-        TerminalMatchmaker(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int localThreshold,
-                   int childNumber, int *childRanks) : Matchmaker(parentRank, chunkSize, recvBuffer, totalParticles, localAverage, localThreshold,
+        TerminalMatchmaker(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int thresholdValue,
+                   int childNumber, int *childRanks) : Matchmaker(parentRank, chunkSize, recvBuffer, totalParticles, localAverage, thresholdValue,
                    childNumber, childRanks){};
 };

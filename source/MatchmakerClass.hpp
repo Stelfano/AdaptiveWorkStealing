@@ -145,6 +145,7 @@ class Matchmaker : public Node{
             else
                lowerAverage = 1;
 
+            lowerThreshold = (lowerAverage*thresholdValue)/100;
             totalParticles = localSum;
         }
 
@@ -551,12 +552,6 @@ class Matchmaker : public Node{
                         updateValues(stat.MPI_SOURCE, localFlag);
                         calculate_time();
 
-                        if(lowerThreshold/2 > MIN_THRESHOLD){
-                            lowerThreshold = lowerThreshold/2;
-                            notifyThreshold();
-                        }
-
-                        calculate_time();
                         cout << "TRESHOLD DECREASES TO : " << lowerThreshold << endl;
                         updateAverage();
                         calculate_time();
@@ -647,9 +642,9 @@ class Matchmaker : public Node{
          * @param childNumber Number of childs
          * @param childRanks Array containing child ranks
          */
-        Matchmaker(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int localThreshold,
+        Matchmaker(int parentRank, int chunkSize, int *recvBuffer, int totalParticles, float localAverage, int thresholdValue,
                    int childNumber, int *childRanks) : Node(parentRank, chunkSize, recvBuffer, totalParticles,
-                   localAverage, localThreshold) {
+                   localAverage, thresholdValue) {
 
                    this->childNumber = childNumber;
                    this->childRanks = childRanks;
@@ -665,7 +660,7 @@ class Matchmaker : public Node{
                    lastTargetRank = -1;
                    offset = childRanks[0];
                    lowerAverage = totalParticles/childNumber;
-                   lowerThreshold = (lowerAverage * 25)/100;
+                   lowerThreshold = (lowerAverage * thresholdValue)/100;
         }
 
         /**
