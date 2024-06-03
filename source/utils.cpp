@@ -30,21 +30,58 @@ void calculate_time(){
  * @param totalRanks Total number of node in computational tree
  * @param treeWidth Width of the n-th tree
  * @param childs Child vector (uninizialized before entering the function)
- * @return first child rank to be used as an offset to send messages
+ * @return parent rank
  */
-int setPositionInTree(int nodeRank, int totalRanks, int treeWidth, int* childs){
+int setPositionInTree(int nodeRank, int totalRanks, int* treeWidth, int* childs,int levels){
 
-    if(nodeRank * treeWidth + 1 <= totalRanks){
-        for(int i = 0; i < treeWidth && nodeRank * treeWidth + 1 + i <= totalRanks;i++){
-            childs[i] = nodeRank * treeWidth + 1 + i;     
+    
+    //Setting child and parent for rank 0
+    if(nodeRank == 0){
+        for(int i = 0;i<treeWidth[0];i++){
+            childs[i] = i+1;
+        }
+
+        return -1;
+    }
+
+    int x[levels-1];  //Initial rank of every level
+    int z[levels-1];
+
+    //Base case
+    x[0] = 0;
+    x[1] = 1 * treeWidth[0];
+
+    z[0] = 0;
+    z[1] = treeWidth[0];
+
+    //Calculating succession
+    for(int i = 2;i<levels;i++){
+        x[i] = x[i-1] * treeWidth[i-1];
+        z[i] = x[i-1] + x[i];
+    }
+
+    int nodeLevel = findLevelInTree(nodeRank, treeWidth, totalRanks, levels);
+
+    //Calcolo dei figli 
+    if(nodeLevel != levels - 1){
+        int w = x[nodeLevel+1] / x[nodeLevel];
+
+        int relRank = nodeRank - (z[nodeLevel-1]+1);
+        for(int i = 0;i<w;i++){
+            childs[i] = relRank * w + i + (z[nodeLevel]+1);
         }
     }    
 
-    if(nodeRank == 0){
-        return -1;
-    }else{
-        return ceil((float)nodeRank/treeWidth - 1);
+    if(nodeLevel == 1){
+        return 0;
     }
+
+    //calcolo del parent
+    int rev_w = x[nodeLevel] / x[nodeLevel-1];
+
+    int relRank = nodeRank - (z[nodeLevel-1]+1);
+
+    return (relRank/rev_w) + (z[nodeLevel-2]+1);
 }
 
 /**
@@ -56,7 +93,7 @@ int setPositionInTree(int nodeRank, int totalRanks, int treeWidth, int* childs){
  * @param treeWidth With of the n-th tree
  * @param lastRank Rank of last node
  * @return Level of the node inside the tree 
- */
+ /*
 int findLevelInTree(int nodeRank, int treeWidth, int lastRank){
     int currentNode = nodeRank;
     int level = 0;
@@ -64,6 +101,38 @@ int findLevelInTree(int nodeRank, int treeWidth, int lastRank){
     while((currentNode = ceil((float)currentNode*treeWidth + 1)) <= lastRank){level++;}
 
     return ++level;
+}
+*/
+
+int findLevelInTree(int nodeRank, int *treeWidth, int lastRank, int levels){
+
+    int x[levels-1];  //Initial rank of every level
+    int z[levels-1];
+
+    if(nodeRank == 0){return 0;}
+
+    //Base case
+    x[0] = 0;
+    x[1] = 1 * treeWidth[0];
+
+    z[0] = 0;
+    z[1] = treeWidth[0];
+
+    //Calculating succession of nodes
+    for(int i = 2;i<levels;i++){
+        x[i] = x[i-1] * treeWidth[i-1];
+        z[i] = x[i-1] + x[i];
+    }
+
+    for(int i = 1;i<levels;i++){
+        if((float)nodeRank / z[i] <=1){
+            return i;
+        }
+    }
+
+
+
+    return 0;
 }
 
 /**
@@ -78,12 +147,14 @@ int findLevelInBinaryTree(int nodeRank, int lastRank){
     return 1;
 }
 
-int findInitialLeaf(int totalRanks, int treeWidth){
+int findInitialLeaf(int* treeWidth, int levels){
+    int xn = 1 * treeWidth[0];
+    int x_n1 = xn;
 
-    if(treeWidth != 2)
-        return (totalRanks/(treeWidth - 1)) + 1;
-    else
-        return 3;
-        //Attenzione, questa cosa è fatta solo per i test ci sono infinite motivazione per cui questo sia errato
-        //I test sono fatti con un albero binario e i nodi worker sono sempre gli stessi, realmente non si userà mai un'albero binario
+    for(int i = 1;i<levels-2;i++){
+        x_n1 = xn + xn * treeWidth[i];
+        xn = x_n1;
+    }
+
+    return xn+1;
 }

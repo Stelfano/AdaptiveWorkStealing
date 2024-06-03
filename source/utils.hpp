@@ -120,9 +120,9 @@ extern std::chrono::time_point<std::chrono::system_clock> start;
 
 
 void calculate_time();
-int setPositionInTree(int nodeRank, int totalRanks, int treeWidth, int *childs);
-int findInitialLeaf(int totalRanks, int treeWidth);
-int findLevelInTree(int nodeRank, int treeWidth, int lastRank);
+int setPositionInTree(int nodeRank, int totalRanks, int* treeWidth, int *childs, int levels);
+int findInitialLeaf(int *treeWidth, int levels);
+int findLevelInTree(int nodeRank, int *treeWidth, int lastRank, int levels);
 int findLevelInBinaryTree(int nodeRank);
 
 #endif

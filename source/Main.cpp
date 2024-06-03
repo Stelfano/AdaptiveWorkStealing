@@ -32,7 +32,7 @@ double start, end;
 
 MPI_Init_thread(&argc, &args, MPI_THREAD_MULTIPLE, &provided);
 
-int problemDimension = 400000;
+int problemDimension = 600000;
 int processNumber;
 int taskId;
 
@@ -51,24 +51,34 @@ int globalResult = 0;
 bool sentFlag = false;
 Matchmaker *Match;
 Worker *Work;
-int treeWidth = 2;
-int *childs = new int[treeWidth];
+int *childs = new int[5];
 
-for(int i = 0;i<treeWidth;i++){
+for(int i = 0;i<5;i++){
 	childs[i] = -1;
 }
 
+int levels = 3;
+int *treeWidth = new int[3];
+treeWidth[0] = 2;
+treeWidth[1] = 3;
+treeWidth[2] = 0;
+
 int parentRank = 0;
-int initialLeafRank = findInitialLeaf(processNumber-1, treeWidth);
-int chunkSize = problemDimension/(processNumber - initialLeafRank);
+int initialLeafRank = findInitialLeaf(treeWidth, levels);
+int chunkSize = problemDimension/(processNumber - initialLeafRank + 1);
 int *recvBuffer = new int[chunkSize];
 int leafProcesses[processNumber - initialLeafRank + 1];
 int sendArray[processNumber - initialLeafRank + 1];
 int dispArray[processNumber - initialLeafRank + 1];
 
-parentRank = setPositionInTree(taskId, processNumber-1, treeWidth, childs);
-int nodeLevel = findLevelInTree(taskId, treeWidth, processNumber-1);
-float localAverage = chunkSize*pow(treeWidth, nodeLevel-1);
+int levelNode = findLevelInTree(taskId, treeWidth, 8, 3);
+
+int tw = 1;
+for(int i = levelNode;i<levels-1;i++){
+	tw *= treeWidth[i]; 
+}
+
+float localAverage = chunkSize*tw;
 int thresholdValue = 10;
 int threshold = (localAverage*thresholdValue)/100;
 
@@ -81,6 +91,23 @@ MPI_Comm_group(MPI_COMM_WORLD, &groupWorld);
 MPI_Group_incl(groupWorld, processNumber - initialLeafRank + 1, leafProcesses, &dataGroup);
 MPI_Comm_create(MPI_COMM_WORLD, dataGroup, &dataComm);
 
+
+if(taskId == 0){
+	cout << "RANK : " << taskId << " DECLARES INTIAL LEAF AS : " << initialLeafRank << endl;
+	cout << "CHUNK SIZE : " << chunkSize << endl;
+}
+
+cout << "RANK : " << taskId << " " << findLevelInTree(taskId, treeWidth, 8, 3) << endl;
+parentRank = setPositionInTree(taskId, processNumber, treeWidth, childs, levels);
+cout << "RANK : " << taskId << " WITH PARENT : " << parentRank << endl;
+
+cout << "RANK : " << taskId << " DECLARES : " << localAverage << " STARTING AVERAGE" << endl;
+cout << "RANK : " << taskId << " DECLARES : " << threshold << " STARTING THRESHOLD" << endl;
+
+cout << "RANK : " << taskId << " HAS CHILDS : " << endl;
+for(int i = 0;i<5;i++){
+	cout << taskId << " : " << childs[i] << endl;
+}
 
 if(taskId == 0){
 
@@ -98,6 +125,7 @@ if(taskId == 0){
 	cout << "I RANK DA : " << initialLeafRank << " A : " << processNumber - 1 << " SONO WORKERS" << endl;
 	}
 
+
 	if(childs[0] == -1){
 		Work = new Worker(parentRank, recvBuffer, chunkSize, localAverage, threshold);
 		
@@ -111,12 +139,12 @@ if(taskId == 0){
 		//Si assume per il momento un albero perfettamente bilanciato
 		cout << "I AM A MATCHMAKER" << endl << endl;
 		if(taskId == 0)
-			Match = new InitiatorMatchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, thresholdValue, treeWidth, childs, dataComm);
+			Match = new InitiatorMatchmaker(parentRank, chunkSize, recvBuffer, problemDimension, localAverage, threshold, thresholdValue, treeWidth[levelNode], childs, dataComm);
 		else{
-			if(nodeLevel-2 == 0)
-				Match = new TerminalMatchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, thresholdValue, treeWidth, childs);
+			if(levelNode == levels - 1)
+				Match = new TerminalMatchmaker(parentRank, chunkSize, recvBuffer, localAverage, localAverage, threshold, thresholdValue, treeWidth[levelNode], childs);
 			else
-				Match = new Matchmaker(parentRank, chunkSize*pow(treeWidth, nodeLevel-2), recvBuffer, chunkSize*pow(treeWidth, nodeLevel-1), localAverage, threshold, thresholdValue, treeWidth, childs);
+				Match = new Matchmaker(parentRank, chunkSize, recvBuffer, localAverage, localAverage, threshold, thresholdValue, treeWidth[levelNode], childs);
 		}
 
 		if(taskId == 0){
@@ -127,6 +155,7 @@ if(taskId == 0){
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	
+/*
 	if(childs[0] != -1){
         cout << "RANK : " << taskId << " INITIATING MAIN LOOP" << endl;
 		Match->matchmakerMainLoop(&globalResult);
@@ -155,6 +184,7 @@ if(taskId == 0){
 		end = MPI_Wtime();
 		cout << "---PROCESS HAS ENDED IN " << end - start << " SECONDS---" << endl;
 	}
+	*/
 	cout << "PROCESSOR : " << taskId << " CLOSING..." << endl;
 	MPI_Finalize();
 	return 0;
