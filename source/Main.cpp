@@ -19,6 +19,7 @@
 #include <syncstream>
 #include <cstring>
 #include <unistd.h>
+#include <string>
 
 using namespace std;
 
@@ -30,9 +31,19 @@ int provided;
 double start, end;
 //freopen("log.txt", "w", stdout);
 
+if(argc < 2){
+	cout << "ERROR, NO PROBLEM DIMENSION GIVEN" << endl;
+	exit(1);
+}
+
+if(argc < 3){
+	cout << "ERROR, NO THRESHOLD INITIAL VALUE GIVEN" << endl;
+	exit(2)
+}
+
 MPI_Init_thread(&argc, &args, MPI_THREAD_MULTIPLE, &provided);
 
-int problemDimension = 400000;
+int problemDimension = stoi(args[1]);
 int processNumber;
 int taskId;
 
@@ -69,7 +80,7 @@ int dispArray[processNumber - initialLeafRank + 1];
 parentRank = setPositionInTree(taskId, processNumber-1, treeWidth, childs);
 int nodeLevel = findLevelInTree(taskId, treeWidth, processNumber-1);
 float localAverage = chunkSize*pow(treeWidth, nodeLevel-1);
-int thresholdValue = 10;
+int thresholdValue = stoi(args[2]);
 int threshold = (localAverage*thresholdValue)/100;
 
 leafProcesses[0] = 0;
