@@ -155,7 +155,6 @@ if(taskId == 0){
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	
-/*
 	if(childs[0] != -1){
         cout << "RANK : " << taskId << " INITIATING MAIN LOOP" << endl;
 		Match->matchmakerMainLoop(&globalResult);
@@ -184,7 +183,7 @@ if(taskId == 0){
 		end = MPI_Wtime();
 		cout << "---PROCESS HAS ENDED IN " << end - start << " SECONDS---" << endl;
 	}
-	*/
+
 	cout << "PROCESSOR : " << taskId << " CLOSING..." << endl;
 	MPI_Finalize();
 	return 0;
