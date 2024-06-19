@@ -38,11 +38,17 @@ if(argc < 2){
 
 if(argc < 3){
 	cout << "ERROR, NO THRESHOLD INITIAL VALUE GIVEN" << endl;
-	exit(2)
+	exit(2);
+}
+
+if(argc > 3){
+	cout << "ERROR, TOO MANY ARGUMENTS" << endl;
+	exit(3);
 }
 
 MPI_Init_thread(&argc, &args, MPI_THREAD_MULTIPLE, &provided);
 
+cout << "DIMENSION : " << args[1] << endl;
 int problemDimension = stoi(args[1]);
 int processNumber;
 int taskId;
