@@ -195,12 +195,13 @@ class Worker : public Node{
                     tempFlag = true;
 
                     moveParticle(10000);
-
+                    /*
                     if(nodeRank == 6 && totalGenerated < 60000){
                         buffer->push_back(1);
                         totalParticles++;
                         totalGenerated++;
                     }
+                    */
 
                     //probabilityIncreaseVectorSize(val);
                     totalParticlesLock.unlock();

@@ -460,13 +460,23 @@ class Matchmaker : public Node{
             cout << "RANK : " << nodeRank << " HAS ENDED COMPUTATION... " << endl;
         }
 
+        void moveParticle(int workLoad) volatile {
+            volatile int val = 0;
+
+            for(int i = 0;i<workLoad;i++){
+                val++;
+            }
+        }
+
         void unravelPriorityparticle(){
             bool lockedFlag = false;
 
             while(remainingPriorityParticles > 0){
+                int particlesLeft = remainingPriorityParticles;
                 generatorMutex.lock();
-                while(generatedPriorityParticles < MAX_STEAL && generatedPriorityParticles < remainingPriorityParticles){
+                while(generatedPriorityParticles < MAX_STEAL && generatedPriorityParticles < particlesLeft){
                     generatedPriorityParticles++;
+                    moveParticle(5000); 
                     remainingPriorityParticles--;
                 }
 
@@ -569,8 +579,8 @@ class Matchmaker : public Node{
                         notifyAverage(stat.MPI_SOURCE);
 
                         if(generatedPriorityParticles > 0){
-                            cout << "SENDING MUON DATA" << endl;
                             int priorityUnraveld = preparePriorityParticles();
+                            cout << "SENDING MUON DATA AMOUNTING TO : " << priorityUnraveld << " PARTICLES" << endl;
 
                             sendToTarget(&priorityUnraveld, stat.MPI_SOURCE);
                             generatedPriorityParticles = 0;
