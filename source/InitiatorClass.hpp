@@ -27,7 +27,7 @@ class InitiatorMatchmaker : public Matchmaker{
      * @return 1 if lower average is 0
      */
         virtual int checkTermination(){
-            if(lowerAverage == 0)
+            if(lowerAverage == 0 && remainingPriorityParticles == 0)
                 return 1;
 
             return 0;

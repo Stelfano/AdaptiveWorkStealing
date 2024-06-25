@@ -36,6 +36,9 @@ class Matchmaker : public Node{
     int offset;                 ///<Offset of rank for child
     float lowerAverage;         ///<Average of lower nodes
     int lowerThreshold;         ///<Threshold of lower nodes
+    int generatedPriorityParticles;
+    int remainingPriorityParticles;
+    mutable shared_mutex generatorMutex;
 
 
         /**
@@ -445,12 +448,40 @@ class Matchmaker : public Node{
             return thread(&Node::recieveMessageFromMatchmaker, this);
         }
 
+        virtual thread activatePriorityParticleThread(){
+            return thread(&Matchmaker::unravelPriorityparticle, this);
+        }
+
         /**
          * @brief Begins ending procedure, in a normal matchmaker this is just a simple alert
          * 
          */
         virtual void endingProcedure(){
             cout << "RANK : " << nodeRank << " HAS ENDED COMPUTATION... " << endl;
+        }
+
+        void unravelPriorityparticle(){
+            bool lockedFlag = false;
+
+            while(remainingPriorityParticles > 0){
+                generatorMutex.lock();
+                while(generatedPriorityParticles < MAX_STEAL && generatedPriorityParticles < remainingPriorityParticles){
+                    generatedPriorityParticles++;
+                    remainingPriorityParticles--;
+                }
+
+                generatorMutex.unlock();
+            }
+        }
+
+        int preparePriorityParticles(){
+            memset(inWindowBuffer, MAX_STEAL, 0);
+
+            for(int i = 0;i<generatedPriorityParticles;i++){
+                inWindowBuffer[i] = 1;
+            }
+
+            return generatedPriorityParticles;
         }
 
 
@@ -474,10 +505,13 @@ class Matchmaker : public Node{
 
             thread statusThread;
             thread recieverThread;
+            thread priorityParticleThread;
 
             if(nodeRank != 0){
                 statusThread = activateStatusThread();
                 recieverThread = activateRecieverThread();
+            }else{
+                priorityParticleThread = activatePriorityParticleThread();
             }
 
             while(true){
@@ -533,19 +567,28 @@ class Matchmaker : public Node{
                         updateValues(stat.MPI_SOURCE, localFlag);
                         updateAverage();
                         notifyAverage(stat.MPI_SOURCE);
-                        int victim = findPossibleVictim(stat.MPI_SOURCE - offset);
 
-                        if(victim != -1){
-                            stealingCounter++;
-                            int quantity = setStealingQuantity(stat.MPI_SOURCE-offset, victim-offset);
-                            calculate_time();
-                            cout << "CORE : " << stat.MPI_SOURCE << " SHOULD STEAL FROM " << victim << " " << quantity << " OBJECTS" << endl;
-                            int actualStolen = stealFromVictim(&quantity, victim);
-                            calculate_time();
-                            cout << "ACTUAL STOLEN : " << actualStolen << " FROM RANK : " << victim << endl;
-                            sendToTarget(&actualStolen, stat.MPI_SOURCE);
-                            //checkForDoubleSteal(victim, stat.MPI_SOURCE);
-                            calculate_time();
+                        if(generatedPriorityParticles > 0){
+                            cout << "SENDING MUON DATA" << endl;
+                            int priorityUnraveld = preparePriorityParticles();
+
+                            sendToTarget(&priorityUnraveld, stat.MPI_SOURCE);
+                            generatedPriorityParticles = 0;
+                        }else{
+                            int victim = findPossibleVictim(stat.MPI_SOURCE - offset);
+
+                            if(victim != -1){
+                                stealingCounter++;
+                                int quantity = setStealingQuantity(stat.MPI_SOURCE-offset, victim-offset);
+                                calculate_time();
+                                cout << "CORE : " << stat.MPI_SOURCE << " SHOULD STEAL FROM " << victim << " " << quantity << " OBJECTS" << endl;
+                                int actualStolen = stealFromVictim(&quantity, victim);
+                                calculate_time();
+                                cout << "ACTUAL STOLEN : " << actualStolen << " FROM RANK : " << victim << endl;
+                                sendToTarget(&actualStolen, stat.MPI_SOURCE);
+                                //checkForDoubleSteal(victim, stat.MPI_SOURCE);
+                                calculate_time();
+                            }
                         }
                     }
 
@@ -598,6 +641,22 @@ class Matchmaker : public Node{
                             }
                         }
                     }
+                }else{
+                    while(remainingPriorityParticles > 0){
+                        generatorMutex.lock();
+                        cout << "LOCKED" << endl;
+
+                        cout << generatedPriorityParticles << endl;
+                        if(generatedPriorityParticles > 0){
+                            cout << "SENDING MUON DATA" << endl;
+                            int priorityUnraveld = preparePriorityParticles();
+
+                            sendToTarget(&priorityUnraveld, stat.MPI_SOURCE);
+                            generatedPriorityParticles = 0;
+                        }
+
+                        generatorMutex.unlock();
+                    }
                 }
             }		
 
@@ -622,10 +681,15 @@ class Matchmaker : public Node{
             if(nodeRank != 0){
                 statusThread.join();
                 recieverThread.join();
+            }else{
+                priorityParticleThread.join();
             }
 
             delete[] localFlag;
 
+            if(nodeRank == 0){
+                cout << "REMAINING MUON PARTICLES : " << remainingPriorityParticles << endl;
+            }
             cout << "RANK : " << nodeRank << " ENDED MAIN LOOP" << endl;
         }
 
@@ -663,6 +727,13 @@ class Matchmaker : public Node{
                    for(int i = 0;i< childNumber;i++){
                         tagArray[i] = STABLE;
                         valueArray[i] = totalParticles/childNumber;
+                   }
+
+                   generatedPriorityParticles = 0;
+                   if(nodeRank == 0){
+                    remainingPriorityParticles = 100000;
+                   }else{
+                    remainingPriorityParticles = 0;
                    }
 
                    lastVictimRank = -1;
