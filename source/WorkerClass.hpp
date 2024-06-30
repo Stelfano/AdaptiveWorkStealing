@@ -108,6 +108,7 @@ class Worker : public Node{
 
             MPI_Send(&actualSteal, 1, MPI_INT, parentRank, COMM, MPI_COMM_WORLD);
             cout << "TOTAL PARTICLES AT DELETION TIME : " << totalParticles << " IN NODE : " << nodeRank << endl;
+            if(nodeRank == 6) {cout << "#### RANK 6 : " << buffer->size() << endl;}
             buffer->erase(buffer->begin(), buffer->begin() + actualSteal);
             totalParticles -= actualSteal;
             cout << "DELETED " << actualSteal << " PARTICLES FROM " << nodeRank << endl;
@@ -196,7 +197,7 @@ class Worker : public Node{
 
                     moveParticle(10000);
 
-                    if(nodeRank == 6 && totalGenerated < 60000){
+                    if(nodeRank == 6 && totalGenerated < 160000){
                         buffer->push_back(1);
                         totalParticles++;
                         totalGenerated++;
