@@ -35,7 +35,7 @@ class TerminalMatchmaker : public Matchmaker{
             MPI_Recv(&actualSteal, 1, MPI_INT, victimRank, COMM, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             MPI_Win_lock(MPI_LOCK_EXCLUSIVE, victimRank, 0, outWindow);
-            MPI_Get(outWindowBuffer, actualSteal, MPI_INT, victimRank, 0, *stealingQuantity, MPI_INT, outWindow);
+            //MPI_Get(outWindowBuffer, actualSteal, MPI_INT, victimRank, 0, *stealingQuantity, MPI_INT, outWindow);
             MPI_Win_unlock(victimRank, outWindow);
 
             return actualSteal;
