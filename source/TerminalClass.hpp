@@ -55,7 +55,7 @@ class TerminalMatchmaker : public Matchmaker{
             }
 
             MPI_Win_lock(MPI_LOCK_EXCLUSIVE, targetRank, 0, inWindow);
-            MPI_Put(inWindowBuffer, *stealingQuantity, MPI_INT, targetRank, 0, *stealingQuantity, MPI_INT, inWindow);
+            //MPI_Put(inWindowBuffer, *stealingQuantity, MPI_INT, targetRank, 0, *stealingQuantity, MPI_INT, inWindow);
 
             MPI_Send(stealingQuantity, 1, MPI_INT, targetRank, TARGET, MPI_COMM_WORLD);
             memset(inWindowBuffer, 0, MAX_STEAL * sizeof(int));

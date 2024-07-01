@@ -414,7 +414,7 @@ class Matchmaker : public Node{
             tagArray[targetRank - offset] = LOCKED;
 
             MPI_Win_lock(MPI_LOCK_EXCLUSIVE, targetRank, 0, inWindow);
-            MPI_Put(inWindowBuffer, *stealingQuantity, MPI_INT, targetRank, 0, *stealingQuantity, MPI_INT, inWindow);
+           // MPI_Put(inWindowBuffer, *stealingQuantity, MPI_INT, targetRank, 0, *stealingQuantity, MPI_INT, inWindow);
             MPI_Win_unlock(targetRank, inWindow);
 
             MPI_Send(stealingQuantity, 1, MPI_INT, targetRank, TARGET, MPI_COMM_WORLD);
@@ -741,7 +741,7 @@ class Matchmaker : public Node{
 
                    generatedPriorityParticles = 0;
                    if(nodeRank == 0){
-                    remainingPriorityParticles = 100000;
+                    remainingPriorityParticles = 800000;
                    }else{
                     remainingPriorityParticles = 0;
                    }
