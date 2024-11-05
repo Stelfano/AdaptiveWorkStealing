@@ -32,7 +32,7 @@ int main(int argc, char *argv[]){
     MPI_Comm_rank(MPI_COMM_WORLD, &taskId);
     MPI_Comm_size(MPI_COMM_WORLD, &taskNumber);
 
-    int problemDimension = 400000;
+    int problemDimension = 2000000;
     int chunkSize = problemDimension/taskNumber;
 
     int *array = new int[chunkSize];
